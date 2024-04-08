@@ -1,0 +1,95 @@
+{
+	"key.categories.builders_inventory": "Builder's Inventory",
+	
+	"key.builders_inventory.hotbar_swapper.hotbar_scroll": "Full Row Hotbar Scroll",
+	"key.builders_inventory.hotbar_swapper.column_scroll": "Column Hotbar Scroll",
+	
+	"key.builders_inventory.extended_inventory.open": "Open Extended Inventory",
+	
+	
+	"container.builders_inventory.extended_inventory": "Extended Inventory",
+	"container.builders_inventory.extended_inventory.page": "Extended Inventory (Page %s)",
+	"container.builders_inventory.extended_inventory.page.custom": "%s (Page %s)",
+	"container.builders_inventory.extended_inventory.invalid": "Extended Inventory (Invalid Page)",
+	"container.builders_inventory.extended_inventory.invalid.page": "Invalid Page %s (Can Repair)",
+	"container.builders_inventory.extended_inventory.tooltip.failed_load.title": "Failed to Load Inventory",
+	"container.builders_inventory.extended_inventory.tooltip.failed_load.desc.1": "The extended inventory was unable to load!",
+	"container.builders_inventory.extended_inventory.tooltip.failed_load.desc.2": "Report this to the mod developer!",
+	"container.builders_inventory.extended_inventory.tooltip.invalid_page.title": "Failed to Load Page",
+	"container.builders_inventory.extended_inventory.tooltip.invalid_page.desc.1": "This page failed to load!",
+	"container.builders_inventory.extended_inventory.tooltip.invalid_page.desc.2": "Make sure the file exists in config/builders_inventory/inventory-#-page.nbt",
+	"container.builders_inventory.extended_inventory.tooltip.invalid_page.desc.3": "If the file exists, report this to the mod developer!",
+	"container.builders_inventory.extended_inventory.tooltip.invalid_page.desc.4": "If not, click the repair button in the top right!",
+	"container.builders_inventory.extended_inventory.tooltip.button.rename": "Rename Page",
+	"container.builders_inventory.extended_inventory.tooltip.button.repair": "Repair Page",
+	"container.builders_inventory.extended_inventory.tooltip.button.repair.warn": "This will CLEAR the page!",
+	"container.builders_inventory.extended_inventory.tooltip.button.organize": "Organize Pages",
+	"container.builders_inventory.extended_inventory.tooltip.button.delete": "Delete Page",
+	"container.builders_inventory.extended_inventory.tooltip.button.delete.desc": "You'll get a chance to confirm your choice",
+	"container.builders_inventory.extended_inventory.tooltip.button.lock": "Lock Page",
+	"container.builders_inventory.extended_inventory.tooltip.button.lock.desc.1": "This will lock all items in place",
+	"container.builders_inventory.extended_inventory.tooltip.button.lock.desc.2": "While locked, the page will function like a creative item tab",
+	"container.builders_inventory.extended_inventory.tooltip.button.unlock": "Unlock Page",
+	"container.builders_inventory.extended_inventory.tooltip.button.unlock.desc": "This will return the page to normal",
+	"container.builders_inventory.extended_inventory.tooltip.button.left": "Previous Page",
+	"container.builders_inventory.extended_inventory.tooltip.button.right": "Next Page",
+	"container.builders_inventory.extended_inventory.tooltip.button.right_new": "Will create a new page",
+	
+	"container.builders_inventory.extended_inventory.rename": "Rename Page %s",
+	"container.builders_inventory.extended_inventory.rename.tooltip.button.confirm": "Rename Page",
+	"container.builders_inventory.extended_inventory.rename.tooltip.button.cancel": "Cancel Rename",
+	"container.builders_inventory.extended_inventory.rename.tooltip.button.clear": "Clear Page Name",
+	
+	"container.builders_inventory.extended_inventory.organize": "Organize Pages",
+	"container.builders_inventory.extended_inventory.organize.tooltip.button.back": "Return to last page",
+	
+	"container.builders_inventory.extended_inventory.delete": "Delete Page %s",
+	"container.builders_inventory.extended_inventory.delete.tooltip.button.delete": "Delete Page",
+	"container.builders_inventory.extended_inventory.delete.tooltip.button.delete.desc": "Warning: This cannot be undone!",
+	"container.builders_inventory.extended_inventory.delete.tooltip.button.delete.desc.disabled": "Can use in %s",
+	"container.builders_inventory.extended_inventory.delete.tooltip.button.cancel": "Cancel Delete",
+	"container.builders_inventory.extended_inventory.delete.tooltip.button.cancel.desc": "Return to page",
+	
+	
+	"error.builders_inventory.extended_inventory.load_failed": "Failed to load extended inventory! Report this issue to the builder's inventory developer!",
+	"error.builders_inventory.extended_inventory.save_failed": "Failed to save extended inventory! Report this issue to the builder's inventory developer!",
+	"error.builders_inventory.extended_inventory.save_failed.page": "Failed to save extended inventory page %s! Report this issue to the builder's inventory developer!",
+	"error.builders_inventory.extended_inventory.delete_failed": "Failed to delete extended inventory file %s! Report this issue to the builder's inventory developer!",
+	
+	
+	"enum.builders_inventory.hotbar_swapper.behavior.prefer_full": "Prefer Full Hotbar Scroll",
+	"enum.builders_inventory.hotbar_swapper.behavior.prefer_column": "Prefer Single Column Scroll",
+	"enum.builders_inventory.hotbar_swapper.behavior.separate": "Keys Function Seperately",
+	
+	"enum.builders_inventory.extended_inventory.clear_behavior.none": "None",
+	"enum.builders_inventory.extended_inventory.clear_behavior.clear_player": "Clear Player",
+	"enum.builders_inventory.extended_inventory.clear_behavior.clear_extended": "Clear Extended",
+	"enum.builders_inventory.extended_inventory.clear_behavior.clear_all": "Clear All",
+	
+	"yacl3.config.builders_inventory:config.category.hotbar_swapper": "Hotbar Swapper",
+	"yacl3.config.builders_inventory:config.hotbar_swapper_behavior": "Keybind Behavior",
+	"yacl3.config.builders_inventory:config.hotbar_swapper_behavior.desc": "Whether the hotbar swapper should only accept one button or both\nValues:\n- PREFER_FULL - Requires full key to swap at all, column is modifier\n- PREFER_COLUMN - Requires column key to swap at all, full is modifier\n- SEPERATE - Full and column keys function independently",
+	"yacl3.config.builders_inventory:config.hotbar_swapper_useHotbarHotkeys": "Use Hotbar Hotkeys",
+	"yacl3.config.builders_inventory:config.hotbar_swapper_useHotbarHotkeys.desc": "Whether to allow pressing hotbar slot keys to quickly pick a hotbar row",
+	"yacl3.config.builders_inventory:config.hotbar_swapper_hotkeyDelay": "Hotkey Delay",
+	"yacl3.config.builders_inventory:config.hotbar_swapper_hotkeyDelay.desc": "Delay (in client ticks) between pressing a number key and swapping that row\nProvides visual feedback for hitting the hotkeys",
+	"yacl3.config.builders_inventory:config.hotbar_swapper_stickyModifiers": "Sticky Modifiers",
+	"yacl3.config.builders_inventory:config.hotbar_swapper_stickyModifiers.desc": "Whether the modifiers for Prefer Full or Column will stick\n- Off/False - Default behavior, modifiers constantly update\n- On/True - Modifiers are only determined when the main key is pressed",
+	"yacl3.config.builders_inventory:config.hotbar_swapper_includeExtendedInventory": "Include Extended Inventory",
+	"yacl3.config.builders_inventory:config.hotbar_swapper_includeExtendedInventory.desc": "Whether the hotbar swapper should allow swapping with the extended inventory (if enabled)",
+	"yacl3.config.builders_inventory:config.hotbar_swapper_extendedInventoryOffset": "Extended Inventory Offset",
+	"yacl3.config.builders_inventory:config.hotbar_swapper_extendedInventoryOffset.desc": "How much to shift up hotbar rows belonging to the extended inventory",
+	
+	"yacl3.config.builders_inventory:config.category.extended_inventory": "Extended Inventory",
+	"yacl3.config.builders_inventory:config.extended_inventory_enabled": "Enabled",
+	"yacl3.config.builders_inventory:config.extended_inventory_enabled.desc": "Whether to enable the extended inventory menu at all",
+	"yacl3.config.builders_inventory:config.extended_inventory_clear_behavior": "Clear Behavior",
+	"yacl3.config.builders_inventory:config.extended_inventory_clear_behavior.desc": "How the clear items button should behave in the extended inventory when shift clicked.\n(Note: Only applies to clear button in extended inventory, creative inventory is unchanged)Values:\n- NONE - Does absolutely nothing\n- CLEAR_PLAYER - Clears just the player inventory, like vanilla minecraft (DEFAULT)\n- CLEAR_EXTENDED - Clears just the current extended inventory tab\n- CLEAR_ALL - Clears both the player inventory and current extended inventory tab",
+	
+	"yacl3.config.builders_inventory:config.category.operator_items": "Operator Items",
+	"yacl3.config.builders_inventory:config.operator_items_force": "Force Operator Items",
+	"yacl3.config.builders_inventory:config.operator_items_force.desc": "Force the creative mode operator items tab to appear, even if you don't have OP\n(Useful for most players on diamondfire who lack operator permissions)",
+	
+	"_builders_inventory.comment.endkey": "End key to avoid having to scroll to add commas all the time"
+	
+}

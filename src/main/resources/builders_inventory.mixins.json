@@ -1,0 +1,21 @@
+{
+	"required": true,
+	"package": "_3650.builders_inventory.mixin",
+	"compatibilityLevel": "JAVA_17",
+	"mixins": [],
+	"client": [
+		"feature.extended_inventory.ClientTooltipComponentMixin",
+		"feature.extended_inventory.CreativeModeInventoryScreenMixin",
+		"feature.extended_inventory.LocalPlayerMixin",
+		"feature.hotbar_swapper.GuiGraphicsAccessor",
+		"feature.hotbar_swapper.GuiInvoker",
+		"feature.hotbar_swapper.GuiMixin",
+		"feature.hotbar_swapper.GuiMixin$GuiMixinLow",
+		"feature.hotbar_swapper.MouseHandlerMixin",
+		"feature.hotbar_swapper.MinecraftMixin",
+		"feature.operator_items.CreativeModeInventoryScreenMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

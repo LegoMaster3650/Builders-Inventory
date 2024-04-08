@@ -1,0 +1,39 @@
+{
+	"schemaVersion": 1,
+	"id": "builders_inventory",
+	"version": "${version}",
+	"name": "Builder's Inventory",
+	"description": "Inventory utilities for creative mode",
+	"authors": [
+		"LegoMaster3650"
+	],
+	"contact": {
+		"homepage": "https://modrinth.com/mod/builders-inventory",
+		"issues": "https://github.com/LegoMaster3650/Builders-Inventory/issues",
+		"sources": "https://github.com/LegoMaster3650/Builders-Inventory"
+	},
+	"license": "MIT",
+	"icon": "assets/builders_inventory/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"main": [
+			"_3650.builders_inventory.BuildersInventory"
+		],
+		"client": [
+			"_3650.builders_inventory.BuildersInventory"
+		],
+		"modmenu": [
+			"_3650.builders_inventory.modmenu.BuildersInventoryModMenu"
+		]
+	},
+	"mixins": [
+		"builders_inventory.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.15.7",
+		"minecraft": "~1.20.4",
+		"java": ">=17",
+		"fabric-api": "*",
+		"yet_another_config_lib_v3": "*"
+	}
+}
