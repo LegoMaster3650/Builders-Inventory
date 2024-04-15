@@ -128,6 +128,14 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 		}
 	}
 	
+	@Override
+	public void removed() {
+		super.removed();
+		if (this.minecraft.player != null && this.minecraft.player.getInventory() != null) {
+			this.minecraft.player.inventoryMenu.removeSlotListener(this.listener);
+		}
+	}
+	
 	private void createAllButtons() {
 		// Top Buttons
 		this.buttonRename = new ExtendedImageButton(this.leftPos + 8, this.topPos + 4, 12, 12, SPRITES_BUTTON_RENAME,

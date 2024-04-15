@@ -14,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 
@@ -212,16 +213,17 @@ public class ExtendedInventory {
 	public static void swap(Minecraft mc, int slot, int hotbar) {
 		if (slot < 36) mc.gameMode.handleInventoryMouseClick(mc.player.inventoryMenu.containerId, slot, hotbar, ClickType.SWAP, mc.player);
 		else {
-			mc.player.getInventory().setItem(
-					hotbar,
-					PAGE_CONTAINER.swapItem(
-							slot - 36,
-							mc.player.getInventory().removeItemNoUpdate(hotbar)));
-			mc.player.inventoryMenu.broadcastChanges();
+			// bad code do not use it (depends on creative inventory listener and technically less efficient)
+//			mc.player.getInventory().setItem(
+//					hotbar,
+//					PAGE_CONTAINER.swapItem(
+//							slot - 36,
+//							mc.player.getInventory().removeItemNoUpdate(hotbar)));
+//			mc.player.inventoryMenu.broadcastChanges();
 			
-//			mc.gameMode.handleCreativeModeItemAdd(
-//					PAGE_CONTAINER.swapItem(slot - 36, mc.player.getInventory().items.get(hotbar)),
-//					hotbar == 45 ? 45 : hotbar + InventoryMenu.USE_ROW_SLOT_START);
+			mc.gameMode.handleCreativeModeItemAdd(
+					PAGE_CONTAINER.swapItem(slot - 36, mc.player.getInventory().items.get(hotbar)),
+					hotbar == 45 ? 45 : hotbar + InventoryMenu.USE_ROW_SLOT_START);
 		}
 	}
 	
