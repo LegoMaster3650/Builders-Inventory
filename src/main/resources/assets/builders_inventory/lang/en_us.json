@@ -85,6 +85,8 @@
 	"yacl3.config.builders_inventory:config.extended_inventory_enabled.desc": "Whether to enable the extended inventory menu at all",
 	"yacl3.config.builders_inventory:config.extended_inventory_clear_behavior": "Clear Behavior",
 	"yacl3.config.builders_inventory:config.extended_inventory_clear_behavior.desc": "How the clear items button should behave in the extended inventory when shift clicked.\n(Note: Only applies to clear button in extended inventory, creative inventory is unchanged)Values:\n- NONE - Does absolutely nothing\n- CLEAR_PLAYER - Clears just the player inventory, like vanilla minecraft (DEFAULT)\n- CLEAR_EXTENDED - Clears just the current extended inventory tab\n- CLEAR_ALL - Clears both the player inventory and current extended inventory tab",
+	"yacl3.config.builders_inventory:config.extended_inventory_save_delay": "Save Delay",
+	"yacl3.config.builders_inventory:config.extended_inventory_save_delay.desc": "Delay in seconds between modifying extended inventory and saving\nLower delays are safer against crashes but write files more often",
 	
 	"yacl3.config.builders_inventory:config.category.operator_items": "Operator Items",
 	"yacl3.config.builders_inventory:config.operator_items_force": "Force Operator Items",

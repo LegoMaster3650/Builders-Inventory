@@ -108,6 +108,13 @@ public class Config {
 	@AutoGen(category = "extended_inventory")
 	@EnumCycler
 	public ExtendedInventoryClearBehavior extended_inventory_clear_behavior = ExtendedInventoryClearBehavior.CLEAR_PLAYER;
+	@SerialEntry(
+			value = "extended_inventory.save_delay",
+			comment = "Delay in seconds between modifying extended inventory and saving\n"
+					+ "Lower delays are safer against crashes but write files more often")
+	@AutoGen(category = "extended_inventory")
+	@IntSlider(min = 0, max = 120, step = 10)
+	public int extended_inventory_save_delay = 80;
 	
 	/*
 	 * Force Operator Items

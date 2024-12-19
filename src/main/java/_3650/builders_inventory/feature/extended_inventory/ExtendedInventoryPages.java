@@ -10,6 +10,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import org.apache.commons.lang3.tuple.Pair;
 
 import _3650.builders_inventory.BuildersInventory;
+import _3650.builders_inventory.config.Config;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
@@ -50,14 +51,28 @@ public class ExtendedInventoryPages {
 		if (!valid) return;
 		
 		hasChanged = true;
-		timeToSave = 1600; // 80 seconds
+		timeToSave = Config.instance().extended_inventory_save_delay * 20;
 	}
 	
 	public static void load() {
 		BuildersInventory.LOGGER.info("Loading Extended Inventory...");
 		BuildersInventory.LOGGER.info("Hey Log Readers: LOGS ARE ZERO-INDEXED");
+		
+		if (loaded && valid && hasChanged) {
+			BuildersInventory.LOGGER.info("Must save extended inventory first!");
+			if (save()) {
+//				BuildersInventory.LOGGER.info("Saved");
+			} else {
+				BuildersInventory.LOGGER.error("Error loading extended inventory saved data: Could not save first!");
+				var mc = Minecraft.getInstance();
+				mc.player.sendSystemMessage(Component.translatable("error.builders_inventory.extended_inventory.load_failed"));
+				return;
+			}
+		}
+		
 		loaded = true;
 		valid = false;
+		
 		PAGES.clear();
 		ExtendedInventory.PAGE_CONTAINER.reset();
 		
@@ -169,17 +184,17 @@ public class ExtendedInventoryPages {
 		return Optional.of(ExtendedInventoryPage.of(items, locked, name));
 	}
 	
-	public static void save() {
+	public static boolean save() {
 		BuildersInventory.LOGGER.info("Saving Extended Inventory...");
 		BuildersInventory.LOGGER.info("Hey Log Readers: LOGS ARE ZERO-INDEXED");
 		
 		timeToSave = 0;
 		hasChanged = false;
 		
-		if (!loaded) load();
+		if (!loaded) return false;
 		if (!valid) {
 			BuildersInventory.LOGGER.error("Refusing to save pages; pages failed to load!");
-			return;
+			return false;
 		}
 		
 		Path root = FabricLoader.getInstance().getConfigDir().resolve(BuildersInventory.MOD_ID);
@@ -259,7 +274,9 @@ public class ExtendedInventoryPages {
 			BuildersInventory.LOGGER.error("Error saving extended inventory pages!", e);
 			var mc = Minecraft.getInstance();
 			mc.player.sendSystemMessage(Component.translatable("error.builders_inventory.extended_inventory.save_failed").withStyle(ChatFormatting.RED));
+			return false;
 		}
+		return true;
 	}
 	
 	public static void savePage(ExtendedInventoryPage page, Path path) throws Exception {
