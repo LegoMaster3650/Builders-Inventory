@@ -19,7 +19,7 @@ import net.minecraft.resources.ResourceLocation;
 public class Config {
 	
 	public static final ConfigClassHandler<Config> HANDLER = ConfigClassHandler.createBuilder(Config.class)
-			.id(new ResourceLocation(BuildersInventory.MOD_ID, "config"))
+			.id(ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "config"))
 			.serializer(config -> GsonConfigSerializerBuilder.create(config)
 					.setPath(FabricLoader.getInstance().getConfigDir().resolve(BuildersInventory.MOD_ID + ".json5"))
 					.appendGsonBuilder(GsonBuilder::setPrettyPrinting)

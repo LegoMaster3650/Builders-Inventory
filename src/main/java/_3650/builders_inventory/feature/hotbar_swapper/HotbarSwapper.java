@@ -6,6 +6,7 @@ import _3650.builders_inventory.config.Config;
 import _3650.builders_inventory.feature.extended_inventory.ExtendedInventory;
 import _3650.builders_inventory.mixin.feature.hotbar_swapper.GuiGraphicsAccessor;
 import _3650.builders_inventory.mixin.feature.hotbar_swapper.GuiInvoker;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
@@ -15,8 +16,8 @@ import net.minecraft.world.item.ItemStack;
 
 public class HotbarSwapper {
 	
-	private static final ResourceLocation SPRITE_HOTBAR = new ResourceLocation("hud/hotbar");
-	private static final ResourceLocation SPRITE_HOTBAR_SELECTION_WIDE = new ResourceLocation(BuildersInventory.MOD_ID, "hud/hotbar_selection_wide");
+	private static final ResourceLocation SPRITE_HOTBAR = ResourceLocation.withDefaultNamespace("hud/hotbar");
+	private static final ResourceLocation SPRITE_HOTBAR_SELECTION_WIDE = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "hud/hotbar_selection_wide");
 	
 	public static boolean selecting = false;
 	public static boolean singleColumn = false;
@@ -97,7 +98,7 @@ public class HotbarSwapper {
 		return false;
 	}
 	
-	public static void renderItems(GuiGraphics gui, float partialTick, Minecraft mc, GuiInvoker hud) {
+	public static void renderItems(GuiGraphics gui, DeltaTracker deltaTick, Minecraft mc, GuiInvoker hud) {
 		if (selecting) {
 			int width =  gui.guiWidth() / 2;
 			LocalPlayer player = mc.player;
@@ -107,7 +108,7 @@ public class HotbarSwapper {
 				for (int i = 1; i < max; i++) {
 					int y = gui.guiHeight() - 22 + 3 - (i * 22);
 					if (i > 3) y -= extendedOffset;
-					hud.callRenderSlot(gui, x, y, partialTick, player, ExtendedInventory.getItem(mc, getSlot(i, player.getInventory().selected)), x + (y * 22));
+					hud.callRenderSlot(gui, x, y, deltaTick, player, ExtendedInventory.getItem(mc, getSlot(i, player.getInventory().selected)), x + (y * 22));
 				}
 			} else {
 				for (int i = 1; i < max; i++) {
@@ -115,7 +116,7 @@ public class HotbarSwapper {
 					if (i > 3) y -= extendedOffset;
 					for (int j = 0; j < 9; j++) {
 						int x = width - 91 + 3 + (j * 20);
-						hud.callRenderSlot(gui, x, y, partialTick, player, ExtendedInventory.getItem(mc, getSlot(i, j)), x * y);
+						hud.callRenderSlot(gui, x, y, deltaTick, player, ExtendedInventory.getItem(mc, getSlot(i, j)), x * y);
 					}
 				}
 			}

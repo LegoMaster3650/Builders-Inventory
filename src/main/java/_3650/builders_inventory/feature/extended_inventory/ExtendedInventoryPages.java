@@ -11,6 +11,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import _3650.builders_inventory.BuildersInventory;
 import _3650.builders_inventory.config.Config;
+import _3650.builders_inventory.datafixer.ModDataFixer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
@@ -26,7 +27,6 @@ public class ExtendedInventoryPages {
 	
 	private static final String FILE_PREFIX = "inventory-";
 	private static final String FILE_SUFFIX = "-page.nbt";
-	private static final int CURRENT_VERSION = 1;
 	
 	private static final ArrayBlockingQueue<Component> PLAYER_MESSAGE_QUEUE = new ArrayBlockingQueue<>(50);
 	private static final ArrayList<ExtendedInventoryPage> PAGES = new ArrayList<>();
@@ -35,6 +35,7 @@ public class ExtendedInventoryPages {
 	private static boolean valid = false;
 	private static int timeToSave = 0;
 	private static boolean hasChanged = false;
+	private static boolean forceUpdate = false;
 	
 	static void tick(Minecraft mc) {
 		if (hasChanged && --timeToSave <= 0) save();
@@ -54,12 +55,16 @@ public class ExtendedInventoryPages {
 		timeToSave = Config.instance().extended_inventory_save_delay * 20;
 	}
 	
+	static void forceUpdate() {
+		forceUpdate = true;
+	}
+	
 	public static void load() {
 		BuildersInventory.LOGGER.info("Loading Extended Inventory...");
 		BuildersInventory.LOGGER.info("Hey Log Readers: LOGS ARE ZERO-INDEXED");
 		
 		if (loaded && valid && hasChanged) {
-			BuildersInventory.LOGGER.info("Must save extended inventory first!");
+			BuildersInventory.LOGGER.info("Must save extended inventory before reloading");
 			if (save()) {
 //				BuildersInventory.LOGGER.info("Saved");
 			} else {
@@ -145,8 +150,20 @@ public class ExtendedInventoryPages {
 			}
 			
 			// Select page 0 if none selected
-			BuildersInventory.LOGGER.info("No page selected! Selecting first page...");
-			if (ExtendedInventory.getPage() < 0) ExtendedInventory.PAGE_CONTAINER.setPage(0);
+			if (ExtendedInventory.getPage() < 0) {
+				BuildersInventory.LOGGER.info("No page selected! Selecting first page...");
+				ExtendedInventory.PAGE_CONTAINER.setPage(0);
+			}
+			
+			// Save if forced update (currently only if datafixer runs)
+			if (forceUpdate) {
+				BuildersInventory.LOGGER.info("Pages have been migrated from an older version, saving...");
+				if (!save()) {
+					BuildersInventory.LOGGER.error("Could not save migrated pages!");
+				}
+				BuildersInventory.LOGGER.info("Saved migrated data!");
+				forceUpdate = false;
+			}
 			
 		} catch (Exception e) {
 			BuildersInventory.LOGGER.error("Error loading extended inventory pages!", e);
@@ -158,7 +175,8 @@ public class ExtendedInventoryPages {
 	public static Optional<ExtendedInventoryPage> loadPage(Path path, int id) throws Exception {
 		CompoundTag tag = NbtIo.read(path);
 		
-		// Maybe datafixer here if I ever figure out that incredible but poorly documented mess
+		var datafix = ModDataFixer.extendedInventoryPage(tag, 1);
+		if (datafix.isPresent()) tag = datafix.get();
 		
 		if (tag == null || !tag.contains("items", Tag.TAG_LIST)) {
 			BuildersInventory.LOGGER.error("Error loading extended inventory page {} tag {}: Invalid Data!", id, tag);
@@ -181,7 +199,13 @@ public class ExtendedInventoryPages {
 			name = tag.getString("name");
 		}
 		
-		return Optional.of(ExtendedInventoryPage.of(items, locked, name));
+		Minecraft mc = Minecraft.getInstance();
+		var page = ExtendedInventoryPage.of(mc, items, locked, name);
+		if (datafix.isPresent()) {
+			forceUpdate = true;
+			page.discreteChange();
+		}
+		return Optional.of(page);
 	}
 	
 	public static boolean save() {
@@ -264,7 +288,7 @@ public class ExtendedInventoryPages {
 			// While that goes on, save the things
 			if (ExtendedInventory.getPage() >= 0) {
 				CompoundTag tag = new CompoundTag();
-				tag.putInt("version", CURRENT_VERSION);
+				tag.putInt("version", ModDataFixer.VERSION);
 				tag.putInt("page", ExtendedInventory.getPage());
 				NbtIo.write(tag, root.resolve("inventory-data.nbt"));
 				
@@ -288,7 +312,7 @@ public class ExtendedInventoryPages {
 	public static CompoundTag writeTag(ExtendedInventoryPage page) {
 		CompoundTag tag = new CompoundTag();
 		
-		tag.putInt("version", CURRENT_VERSION);
+		tag.putInt("version", ModDataFixer.VERSION);
 		tag.put("items", page.createTag());
 		tag.putBoolean("locked", page.isLocked());
 		if (!page.getName().isBlank()) tag.putString("name", page.getName());

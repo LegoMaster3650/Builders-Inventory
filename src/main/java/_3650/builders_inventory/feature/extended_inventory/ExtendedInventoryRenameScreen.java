@@ -16,17 +16,17 @@ import net.minecraft.resources.ResourceLocation;
 
 public class ExtendedInventoryRenameScreen extends Screen {
 	
-	private static final ResourceLocation BACKGROUND = new ResourceLocation(BuildersInventory.MOD_ID, "textures/gui/container/extended_inventory_rename.png");
+	private static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "textures/gui/container/extended_inventory_rename.png");
 	
 	private static final WidgetSprites SPRITES_BUTTON_CONFIRM = new WidgetSprites(
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/rename/button_confirm"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/rename/button_confirm_highlighted"));
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/rename/button_confirm"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/rename/button_confirm_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_CANCEL = new WidgetSprites(
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/rename/button_cancel"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/rename/button_cancel_highlighted"));
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/rename/button_cancel"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/rename/button_cancel_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_CLEAR = new WidgetSprites(
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/rename/button_clear"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/rename/button_clear_highlighted"));
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/rename/button_clear"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/rename/button_clear_highlighted"));
 	
 	private final ExtendedImageButtonGui exGui = new ExtendedImageButtonGui();
 	private final int imageWidth;

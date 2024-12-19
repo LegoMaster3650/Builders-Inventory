@@ -23,44 +23,44 @@ import net.minecraft.world.item.ItemStack;
 
 public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInventoryMenu> {
 	
-	public static final ResourceLocation BACKGROUND = new ResourceLocation(BuildersInventory.MOD_ID, "textures/gui/container/extended_inventory.png");
-	public static final ResourceLocation BACKGROUND_LOCKED = new ResourceLocation(BuildersInventory.MOD_ID, "textures/gui/container/extended_inventory_locked.png");
-	public static final ResourceLocation BACKGROUND_INVALID = new ResourceLocation(BuildersInventory.MOD_ID, "textures/gui/container/extended_inventory_invalid.png");
+	public static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "textures/gui/container/extended_inventory.png");
+	public static final ResourceLocation BACKGROUND_LOCKED = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "textures/gui/container/extended_inventory_locked.png");
+	public static final ResourceLocation BACKGROUND_INVALID = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "textures/gui/container/extended_inventory_invalid.png");
 	
 	private static final WidgetSprites SPRITES_BUTTON_RENAME = new WidgetSprites(
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_rename"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_rename_disabled"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_rename_highlighted"));
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_rename"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_rename_disabled"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_rename_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_REPAIR = new WidgetSprites(
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_repair"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_repair_highlighted"));
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_repair"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_repair_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_ORGANIZE = new WidgetSprites(
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_organize"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_organize_disabled"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_organize_highlighted"));
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_organize"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_organize_disabled"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_organize_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_DELETE = new WidgetSprites(
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_delete"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_delete_disabled"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_delete_highlighted"));
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_delete"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_delete_disabled"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_delete_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_UNLOCKED = new WidgetSprites(
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_lock_unlocked"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_lock_unlocked_disabled"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_lock_unlocked_highlighted"));
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_lock_unlocked"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_lock_unlocked_disabled"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_lock_unlocked_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_LOCKED = new WidgetSprites(
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_lock_locked"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_lock_locked_disabled"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_lock_locked_highlighted"));
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_lock_locked"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_lock_locked_disabled"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_lock_locked_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_LEFT = new WidgetSprites(
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_switch_left"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_switch_left_disabled"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_switch_left_highlighted"));
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_switch_left"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_switch_left_disabled"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_switch_left_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_RIGHT = new WidgetSprites(
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_switch_right"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_switch_right_disabled"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_switch_right_highlighted"));
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_switch_right"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_switch_right_disabled"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_switch_right_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_RIGHT_NEW = new WidgetSprites(
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_switch_right_new"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_switch_right_new_highlighted"));
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_switch_right_new"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_switch_right_new_highlighted"));
 	
 	private final ExtendedImageButtonGui exGui = new ExtendedImageButtonGui();
 	
@@ -351,7 +351,7 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 				return;
 			}
 			
-			if (!carried.isEmpty() && !stack.isEmpty() && ItemStack.isSameItemSameTags(carried, stack)) {
+			if (!carried.isEmpty() && !stack.isEmpty() && ItemStack.isSameItemSameComponents(carried, stack)) {
 				if (mouseButton == 0) {
 					if (type == ClickType.QUICK_MOVE) {
 						carried.setCount(carried.getMaxStackSize());

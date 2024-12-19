@@ -1,8 +1,11 @@
 package _3650.builders_inventory.feature.extended_inventory;
 
+import _3650.builders_inventory.BuildersInventory;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.item.ItemStack;
 
 public class ExtendedInventoryPage {
@@ -64,17 +67,24 @@ public class ExtendedInventoryPage {
 		var tag = new ListTag();
 		
 		for (var stack : items) {
-			tag.add(stack.save(new CompoundTag()));
+			var result = ItemStack.OPTIONAL_CODEC.encodeStart(NbtOps.INSTANCE, stack).resultOrPartial();
+			if (result.isPresent()) tag.add(result.get());
 		}
 		
 		return tag;
 	}
 
-	public static ExtendedInventoryPage of(ListTag items, boolean locked, String name) {
+	public static ExtendedInventoryPage of(Minecraft mc, ListTag items, boolean locked, String name) {
 		var page = new ExtendedInventoryPage(true);
 		
+		HolderLookup.Provider registryAccess = mc.level.registryAccess();
+		
 		for (int i = 0; i < items.size(); i++) {
-			page.items.set(i, ItemStack.of(items.getCompound(i)));
+			var result = ItemStack.OPTIONAL_CODEC
+					.parse(registryAccess.createSerializationContext(NbtOps.INSTANCE), items.getCompound(i))
+					.resultOrPartial(err -> BuildersInventory.LOGGER.error("Could not parse extended inventory item: '{}'", err))
+					.orElse(ItemStack.EMPTY);
+			page.items.set(i, result);
 		}
 		page.changed = false;
 		page.locked = locked;
@@ -100,6 +110,10 @@ public class ExtendedInventoryPage {
 		boolean val = changed;
 		changed = false;
 		return val;
+	}
+	
+	void discreteChange() {
+		changed = true;
 	}
 	
 }

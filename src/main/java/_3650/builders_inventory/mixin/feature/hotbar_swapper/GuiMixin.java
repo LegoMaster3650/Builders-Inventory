@@ -14,6 +14,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 import _3650.builders_inventory.feature.hotbar_swapper.HotbarSwapper;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
@@ -33,30 +34,30 @@ public abstract class GuiMixin {
 	 */
 	
 	// Hotbars
-	@Inject(method = "renderHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lnet/minecraft/resources/ResourceLocation;IIII)V", ordinal = 0, shift = At.Shift.AFTER))
-	private void builders_inventory_hotbarswapper_renderHotbars(float partialTick, GuiGraphics gui, CallbackInfo ci) {
+	@Inject(method = "renderItemHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lnet/minecraft/resources/ResourceLocation;IIII)V", ordinal = 0, shift = At.Shift.AFTER))
+	private void builders_inventory_hotbarswapper_renderHotbars(GuiGraphics gui, DeltaTracker deltaTick, CallbackInfo ci) {
 		HotbarSwapper.renderHotbars(gui, minecraft);
 	}
 	
 	// Hotbar Selector
-	@Redirect(method = "renderHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lnet/minecraft/resources/ResourceLocation;IIII)V", ordinal = 1))
+	@Redirect(method = "renderItemHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lnet/minecraft/resources/ResourceLocation;IIII)V", ordinal = 1))
 	private void builders_inventory_hotbarswapper_renderHotbarSelector(GuiGraphics gui, ResourceLocation sprite, int x, int y, int width, int height) {
 		if (!HotbarSwapper.renderHotbarSelector(gui, minecraft, sprite)) gui.blitSprite(sprite, x, y, width, height);
 	}
 	
 	// Items
 	@Inject(
-		method = "renderHotbar",
+		method = "renderItemHotbar",
 		at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;isEmpty()Z"),
 		slice = @Slice(from = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V", ordinal = 0))
 	)
-	private void builders_inventory_hotbarswapper_renderItems(float partialTick, GuiGraphics gui, CallbackInfo ci) {
-		HotbarSwapper.renderItems(gui, partialTick, minecraft, (GuiInvoker) this);
+	private void builders_inventory_hotbarswapper_renderItems(GuiGraphics gui, DeltaTracker deltaTick, CallbackInfo ci) {
+		HotbarSwapper.renderItems(gui, deltaTick, minecraft, (GuiInvoker) this);
 	}
 	
 	// Line Labels
-	@Inject(method = "renderHotbar", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;enableBlend()V"))
-	private void builders_inventory_hotbarswapper_renderLabels(float partialTick, GuiGraphics gui, CallbackInfo ci) {
+	@Inject(method = "renderItemHotbar", at = @At(value = "FIELD", target = "Lnet/minecraft/client/gui/Gui;minecraft:Lnet/minecraft/client/Minecraft;", ordinal = 0, shift = At.Shift.BEFORE))
+	private void builders_inventory_hotbarswapper_renderLabels(GuiGraphics gui, DeltaTracker deltaTick, CallbackInfo ci) {
 		HotbarSwapper.renderLabels(gui, minecraft);
 	}
 	
@@ -70,35 +71,35 @@ public abstract class GuiMixin {
 	 * HUD Shifting
 	 */
 	
-	@WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;renderPlayerHealth(Lnet/minecraft/client/gui/GuiGraphics;)V"))
+	@WrapOperation(method = "renderHotbarAndDecorations", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;renderPlayerHealth(Lnet/minecraft/client/gui/GuiGraphics;)V"))
 	private void builders_inventory_hotbarswapper_shiftHealthBars(Gui hud, GuiGraphics gui, Operation<Void> operation) {
 		HotbarSwapper.shiftHud(gui);
 		operation.call(hud, gui);
 		HotbarSwapper.shiftHudReset(gui);
 	}
 	
-	@WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;renderVehicleHealth(Lnet/minecraft/client/gui/GuiGraphics;)V"))
+	@WrapOperation(method = "renderHotbarAndDecorations", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;renderVehicleHealth(Lnet/minecraft/client/gui/GuiGraphics;)V"))
 	private void builders_inventory_hotbarswapper_shiftVehicleHealth(Gui hud, GuiGraphics gui, Operation<Void> operation) {
 		HotbarSwapper.shiftHud(gui);
 		operation.call(hud, gui);
 		HotbarSwapper.shiftHudReset(gui);
 	}
 	
-	@WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;renderJumpMeter(Lnet/minecraft/world/entity/PlayerRideableJumping;Lnet/minecraft/client/gui/GuiGraphics;I)V"))
+	@WrapOperation(method = "renderHotbarAndDecorations", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;renderJumpMeter(Lnet/minecraft/world/entity/PlayerRideableJumping;Lnet/minecraft/client/gui/GuiGraphics;I)V"))
 	private void builders_inventory_hotbarswapper_shiftJumpMeter(Gui hud, PlayerRideableJumping rideable, GuiGraphics gui, int x, Operation<Void> operation) {
 		HotbarSwapper.shiftHud(gui);
 		operation.call(hud, rideable, gui, x);
 		HotbarSwapper.shiftHudReset(gui);
 	}
 	
-	@WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;renderExperienceBar(Lnet/minecraft/client/gui/GuiGraphics;I)V"))
+	@WrapOperation(method = "renderHotbarAndDecorations", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;renderExperienceBar(Lnet/minecraft/client/gui/GuiGraphics;I)V"))
 	private void builders_inventory_hotbarswapper_shiftExperienceBar(Gui hud, GuiGraphics gui, int x, Operation<Void> operation) {
 		HotbarSwapper.shiftHud(gui);
 		operation.call(hud, gui, x);
 		HotbarSwapper.shiftHudReset(gui);
 	}
 	
-	@WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;renderSelectedItemName(Lnet/minecraft/client/gui/GuiGraphics;)V"))
+	@WrapOperation(method = "renderHotbarAndDecorations", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;renderSelectedItemName(Lnet/minecraft/client/gui/GuiGraphics;)V"))
 	private void builders_inventory_hotbarswapper_shiftSelectedItemName(Gui hud, GuiGraphics gui, Operation<Void> operation) {
 		HotbarSwapper.shiftHud(gui);
 		operation.call(hud, gui);
@@ -109,15 +110,15 @@ public abstract class GuiMixin {
 	@Mixin(value = Gui.class, priority = Integer.MIN_VALUE + 2)
 	public static abstract class GuiMixinLow {
 		
-		@Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;pushPose()V", ordinal = 0))
-		private void builders_inventory_hotbarswapper_shiftActionBar(GuiGraphics gui, float partialTick, CallbackInfo ci) {
+		@Inject(method = "renderOverlayMessage", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;pushPose()V", ordinal = 0))
+		private void builders_inventory_hotbarswapper_shiftActionBar(GuiGraphics gui, DeltaTracker deltaTick, CallbackInfo ci) {
 			HotbarSwapper.shiftHud(gui);
 		}
 		
 	}
 	
-	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V", ordinal = 0, shift = At.Shift.AFTER))
-	private void builders_inventory_hotbarswapper_shiftActionBarReset(GuiGraphics gui, float partialTick, CallbackInfo ci) {
+	@Inject(method = "renderOverlayMessage", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V", ordinal = 0, shift = At.Shift.AFTER))
+	private void builders_inventory_hotbarswapper_shiftActionBarReset(GuiGraphics gui, DeltaTracker deltaTick, CallbackInfo ci) {
 		HotbarSwapper.shiftHudReset(gui);
 	}
 	

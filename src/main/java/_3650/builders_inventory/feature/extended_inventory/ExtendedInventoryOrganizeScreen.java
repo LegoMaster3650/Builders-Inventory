@@ -37,38 +37,38 @@ import net.minecraft.world.item.ItemStack;
 
 public class ExtendedInventoryOrganizeScreen extends Screen {
 	
-	private static final ResourceLocation BACKGROUND = new ResourceLocation(BuildersInventory.MOD_ID, "textures/gui/container/extended_inventory_organize.png");
+	private static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "textures/gui/container/extended_inventory_organize.png");
 	
-	private static final ResourceLocation SPRITE_CREATIVE_SCROLLER = new ResourceLocation("container/creative_inventory/scroller");
-	private static final ResourceLocation SPRITE_CREATIVE_SCROLLER_DISABLED = new ResourceLocation("container/creative_inventory/scroller_disabled");
+	private static final ResourceLocation SPRITE_CREATIVE_SCROLLER = ResourceLocation.withDefaultNamespace("container/creative_inventory/scroller");
+	private static final ResourceLocation SPRITE_CREATIVE_SCROLLER_DISABLED = ResourceLocation.withDefaultNamespace("container/creative_inventory/scroller_disabled");
 	
 	private static final WidgetSprites SPRITES_BUTTON_BACK = new WidgetSprites(
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/organize/button_back"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/organize/button_back_highlighted"));
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/button_back"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/button_back_highlighted"));
 	
-	private static final ResourceLocation SPRITE_TILE = new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/organize/tile");
-	private static final ResourceLocation SPRITE_TILE_SELECTED = new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_highlighted");
-	private static final ResourceLocation SPRITE_TILE_SHADOW = new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_shadow");
+	private static final ResourceLocation SPRITE_TILE = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/tile");
+	private static final ResourceLocation SPRITE_TILE_SELECTED = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_highlighted");
+	private static final ResourceLocation SPRITE_TILE_SHADOW = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_shadow");
 	private static final WidgetSprites SPRITES_TILE = new WidgetSprites(
 			SPRITE_TILE,
 			SPRITE_TILE_SELECTED);
-	private static final ResourceLocation SPRITE_TILE_ACTIVE = new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_active");
-	private static final ResourceLocation SPRITE_TILE_ACTIVE_SELECTED = new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_active_highlighted");
+	private static final ResourceLocation SPRITE_TILE_ACTIVE = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_active");
+	private static final ResourceLocation SPRITE_TILE_ACTIVE_SELECTED = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_active_highlighted");
 	private static final WidgetSprites SPRITES_TILE_ACTIVE = new WidgetSprites(
 			SPRITE_TILE_ACTIVE,
 			SPRITE_TILE_ACTIVE_SELECTED);
-	private static final ResourceLocation SPRITE_TILE_CREATE = new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_create");
-	private static final ResourceLocation SPRITE_TILE_CREATE_SELECTED = new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_create_highlighted");
+	private static final ResourceLocation SPRITE_TILE_CREATE = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_create");
+	private static final ResourceLocation SPRITE_TILE_CREATE_SELECTED = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_create_highlighted");
 	@SuppressWarnings("unused")
 	private static final WidgetSprites SPRITES_TILE_CREATE = new WidgetSprites(
 			SPRITE_TILE_CREATE,
 			SPRITE_TILE_CREATE_SELECTED);
 	@SuppressWarnings("unused")
-	private static final ResourceLocation SPRITE_TILE_CREATE_DIM = new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_create_dim");
+	private static final ResourceLocation SPRITE_TILE_CREATE_DIM = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_create_dim");
 	
-	private static final ResourceLocation SPRITE_BACKGROUND = new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/organize/hover_background");
-	private static final ResourceLocation SPRITE_BACKGROUND_LOCKED = new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/organize/hover_background_locked");
-	private static final ResourceLocation SPRITE_BACKGROUND_INVALID = new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/organize/hover_background_invalid");
+	private static final ResourceLocation SPRITE_BACKGROUND = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/hover_background");
+	private static final ResourceLocation SPRITE_BACKGROUND_LOCKED = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/hover_background_locked");
+	private static final ResourceLocation SPRITE_BACKGROUND_INVALID = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/hover_background_invalid");
 	
 	private final ExtendedImageButtonGui exGui = new ExtendedImageButtonGui();
 	private final int imageWidth;

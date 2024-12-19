@@ -69,8 +69,8 @@ public class ExtendedInventory {
 	 */
 	
 	private static final WidgetSprites OPEN_BUTTON_SPRITES = new WidgetSprites(
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_open"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/button_open_highlighted"));
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_open"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_open_highlighted"));
 	
 	/*
 	 * Creative Screen Switch Button

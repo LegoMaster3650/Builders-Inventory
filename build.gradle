@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.5-SNAPSHOT'
+	id 'fabric-loom' version '1.9-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -37,18 +37,18 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings loom.layered {
 		officialMojangMappings()
-		parchment("org.parchmentmc.data:parchment-1.20.3:2023.12.31@zip")
+		parchment("org.parchmentmc.data:parchment-${project.parchment_version}@zip")
 	}
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 	
-	modImplementation 'dev.isxander.yacl:yet-another-config-lib-fabric:3.3.2+1.20.4'
+	modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
 	
-	modApi "com.terraformersmc:modmenu:9.0.0"
+	modApi "com.terraformersmc:modmenu:${project.modmenu_version}"
 	
 	// Testing Mods
-	modLocalRuntime "maven.modrinth:raised:Fabric-1.20.4-3.1.3"
+	modLocalRuntime "maven.modrinth:raised:Fabric-1.21.1-4.0.1"
 }
 
 loom {
@@ -70,7 +70,7 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 17
+	it.options.release = 21
 }
 
 java {
@@ -79,8 +79,8 @@ java {
 	// If you remove this line, sources will not be generated.
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
 }
 
 jar {

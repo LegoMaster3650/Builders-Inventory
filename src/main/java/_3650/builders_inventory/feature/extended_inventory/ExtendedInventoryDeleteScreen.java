@@ -29,15 +29,15 @@ public class ExtendedInventoryDeleteScreen extends Screen {
 		new DecimalFormat("0.0"), decimalFormat -> decimalFormat.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT))
 	);
 	
-	private static final ResourceLocation BACKGROUND = new ResourceLocation(BuildersInventory.MOD_ID, "textures/gui/container/extended_inventory_delete.png");
+	private static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "textures/gui/container/extended_inventory_delete.png");
 	
 	private static final WidgetSprites SPRITES_BUTTON_DELETE = new WidgetSprites(
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/delete/button_delete"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/delete/button_delete_disabled"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/delete/button_delete_highlighted"));
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/delete/button_delete"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/delete/button_delete_disabled"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/delete/button_delete_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_CANCEL = new WidgetSprites(
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/delete/button_cancel"),
-			new ResourceLocation(BuildersInventory.MOD_ID, "extended_inventory/delete/button_cancel_highlighted"));
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/delete/button_cancel"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/delete/button_cancel_highlighted"));
 	
 	private final ExtendedImageButtonGui exGui = new ExtendedImageButtonGui();
 	private final int imageWidth;
