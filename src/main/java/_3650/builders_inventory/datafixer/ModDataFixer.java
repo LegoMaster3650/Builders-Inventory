@@ -23,7 +23,7 @@ public class ModDataFixer {
 		return new Dynamic<>(NbtOps.INSTANCE, tag);
 	}
 	
-	private static int currentVersion() {
+	public static int currentVersion() {
 		return SharedConstants.getCurrentVersion().getDataVersion().getVersion();
 	}
 	

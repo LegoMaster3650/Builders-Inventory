@@ -185,7 +185,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 			var tile = this.tiles.get(i); // index already transformed by scroll
 			int row = newInd / 10;
 			tile.slowMove(this.leftPos + tileX(newInd % 10), this.topPos + tileY(row - this.scrollRow));
-			if (tile.slowMoveZ < 3) tile.slowMoveZ = (row != i / 10) ? 2 : 1; // do not transform row for this operation, it's just checking if the tile row changed
+			if (tile.slowMoveZ < PageTileWidget.TILE_Z_3) tile.slowMoveZ = (row != i / 10) ? PageTileWidget.TILE_Z_2 : PageTileWidget.TILE_Z_1; // do not transform row for this operation, it's just checking if the tile row changed
 		}
 	}
 	
@@ -269,20 +269,24 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 			int row = (this.lastHoveredIndex / 10) - this.scrollRow;
 			gui.blitSprite(SPRITE_TILE_SHADOW, this.leftPos + tileX(col) + 1, this.topPos + tileY(row) + 1, 16, 16);
 //			gui.fill(this.leftPos + tileX(col) + 1, this.topPos + tileY(row) + 1, this.leftPos + tileX(col) + 1 + 16, this.topPos + tileY(row) + 1 + 16, 1, 0xBB77BB77); //DEBUG THING
-			gui.blitSprite(this.dragTileIndex == ExtendedInventory.getPage() ? SPRITE_TILE_ACTIVE_SELECTED : SPRITE_TILE_SELECTED, mouseX - this.dragOffsetX, mouseY - this.dragOffsetY, 4, 16, 16);
-			this.renderTileText(this.dragTileIndex + 1, gui, mouseX - this.dragOffsetX + 8, mouseY - this.dragOffsetY + 4, 4);
-			if (!this.dragPickup) this.renderTileTooltip(this.dragTile, this.dragTileIndex, gui, mouseX, mouseY);
+			gui.blitSprite(this.dragTileIndex == ExtendedInventory.getPage() ? SPRITE_TILE_ACTIVE_SELECTED : SPRITE_TILE_SELECTED, mouseX - this.dragOffsetX, mouseY - this.dragOffsetY, PageTileWidget.TILE_Z_4, 16, 16);
+			if (this.dragTile.page.icon.isEmpty()) {
+				this.renderTileText(this.dragTileIndex + 1, gui, mouseX - this.dragOffsetX + 8, mouseY - this.dragOffsetY + 4, PageTileWidget.TILE_Z_4);
+			} else {
+				this.renderTileIcon(this.dragTile.page.icon, this.dragTile.page.iconScaleDown, gui, mouseX - this.dragOffsetX, mouseY - this.dragOffsetY, PageTileWidget.TILE_Z_4);
+			}
+			if (!this.dragPickup) this.renderTileTooltip(this.dragTile, this.dragTileIndex, gui, mouseX, mouseY, PageTileWidget.TILE_Z_4);
 		} else {
-			this.renderTooltip(gui, mouseX, mouseY);
+			this.renderTooltip(gui, mouseX, mouseY, PageTileWidget.TILE_Z_4);
 		}
 		
 	}
 	
-	protected void renderTooltip(GuiGraphics gui, int mouseX, int mouseY) {
+	protected void renderTooltip(GuiGraphics gui, int mouseX, int mouseY, int z) {
 		for (int i = (this.scrollRow * 10); i < this.tiles.size(); i++) {
 			var tile = this.tiles.get(i);
 			if (tile.isActive() && tile.isHovered()) {
-				renderTileTooltip(tile, i, gui, mouseX, mouseY);
+				renderTileTooltip(tile, i, gui, mouseX, mouseY, z);
 				return;
 			}
 		}
@@ -302,12 +306,29 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 		gui.pose().popPose();
 	}
 	
-	private void renderTileTooltip(PageTileWidget tile, int index, GuiGraphics gui, int mouseX, int mouseY) {
+	void renderTileIcon(ItemStack icon, int iconScaleDown, GuiGraphics gui, int x, int y, int z) {
+		gui.pose().pushPose();
+		gui.pose().translate(x, y, z);
+		if (iconScaleDown > 0) {
+			final int guiScale = (int) (this.minecraft.getWindow().getGuiScale() + 0.5);
+			final float iconScale = iconScaleDown >= guiScale ? (1f / guiScale) : (1f - (iconScaleDown / (float)guiScale));
+			gui.pose().translate((8 * (1f - iconScale)), (8 * (1f - iconScale)), 0);
+			gui.pose().scale(iconScale, iconScale, 1);
+		}
+		gui.renderItem(icon, 0, 0);
+		gui.renderItemDecorations(this.font, icon, 0, 0);
+		gui.pose().popPose();
+	}
+	
+	private void renderTileTooltip(PageTileWidget tile, int index, GuiGraphics gui, int mouseX, int mouseY, int z) {
+		gui.pose().pushPose();
+		gui.pose().translate(0, 0, z);
 		gui.renderTooltip(this.font,
 				List.of(ExtendedInventory.pageTitle(index)),
 				Optional.of(new PageTooltipImage(tile.page)),
 				mouseX,
 				mouseY);
+		gui.pose().popPose();
 	}
 	
 	private boolean isMouseInScrollbar(int mouseX, int mouseY) {
@@ -415,14 +436,14 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 	private void endDrag(int mouseX, int mouseY, int targetX, int targetY) {
 		this.dragTile.visible = true;
 		this.dragTile.slowMoveFrom(mouseX - this.dragOffsetX, mouseY - this.dragOffsetY, targetX, targetY);
-		this.dragTile.slowMoveZ = 3;
+		this.dragTile.slowMoveZ = PageTileWidget.TILE_Z_3;
 		this.dragTile.slowMoveShadow = true;
 		this.dragTile = null;
 	}
 	
 	@Override
 	public void renderBackground(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
-		super.renderBackground(gui, mouseX, mouseY, partialTick);
+		this.renderTransparentBackground(gui);
 		gui.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 		
 		ResourceLocation scrollSprite = this.canScroll() ? SPRITE_CREATIVE_SCROLLER : SPRITE_CREATIVE_SCROLLER_DISABLED;
@@ -460,6 +481,11 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 	}
 	
 	private static class PageTileWidget extends AbstractWidget {
+		
+		public static final int TILE_Z_1 = 200;
+		public static final int TILE_Z_2 = 400;
+		public static final int TILE_Z_3 = 600;
+		public static final int TILE_Z_4 = 800;
 		
 		public final ExtendedInventoryOrganizeScreen screen;
 		public final ExtendedInventoryPage page;
@@ -566,10 +592,18 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 				int my = this.slowMoveStartY + (int)((y - this.slowMoveStartY) * progress);
 				if (this.slowMoveShadow) gui.blitSprite(SPRITE_TILE_SHADOW, x, y, 16, 16);
 				gui.blitSprite(sprite, mx, my, this.slowMoveZ, 16, 16);
-				this.screen.renderTileText(this.index + 1, gui, mx + 8, my + 4, this.slowMoveZ);
+				if (this.page.icon.isEmpty()) {
+					this.screen.renderTileText(this.index + 1, gui, mx + 8, my + 4, this.slowMoveZ);
+				} else {
+					this.screen.renderTileIcon(this.page.icon, this.page.iconScaleDown, gui, mx, my, this.slowMoveZ);
+				}
 			} else {
 				gui.blitSprite(sprite, x, y, 16, 16);
-				this.screen.renderTileText(this.index + 1, gui, x + 8, y + 4, 0);
+				if (this.page.icon.isEmpty()) {
+					this.screen.renderTileText(this.index + 1, gui, x + 8, y + 4, 0);
+				} else {
+					this.screen.renderTileIcon(this.page.icon, this.page.iconScaleDown, gui, x, y, 0);
+				}
 			}
 		}
 		

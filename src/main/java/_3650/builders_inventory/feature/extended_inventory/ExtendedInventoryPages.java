@@ -17,11 +17,15 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 
 public class ExtendedInventoryPages {
 	
@@ -173,6 +177,9 @@ public class ExtendedInventoryPages {
 	}
 	
 	public static Optional<ExtendedInventoryPage> loadPage(Path path, int id) throws Exception {
+		Minecraft mc = Minecraft.getInstance();
+		HolderLookup.Provider registryAccess = mc.level.registryAccess();
+		
 		CompoundTag tag = NbtIo.read(path);
 		
 		var datafix = ModDataFixer.extendedInventoryPage(tag, 1);
@@ -199,8 +206,35 @@ public class ExtendedInventoryPages {
 			name = tag.getString("name");
 		}
 		
-		Minecraft mc = Minecraft.getInstance();
-		var page = ExtendedInventoryPage.of(mc, items, locked, name);
+		ItemStack icon = ItemStack.EMPTY;
+		if (tag.contains("icon", Tag.TAG_COMPOUND)) {
+			CompoundTag iconTag = tag.getCompound("icon");
+			icon = ItemStack.OPTIONAL_CODEC
+					.parse(registryAccess.createSerializationContext(NbtOps.INSTANCE), iconTag)
+					.resultOrPartial(err -> BuildersInventory.LOGGER.error("Could not parse extended inventory icon {}: '{}'", iconTag, err))
+					.orElse(ItemStack.EMPTY);
+		}
+		
+		ItemStack originalIcon = ItemStack.EMPTY;
+		if (tag.contains("original_icon", Tag.TAG_COMPOUND)) {
+			CompoundTag iconTag = tag.getCompound("original_icon");
+			icon = ItemStack.OPTIONAL_CODEC
+					.parse(registryAccess.createSerializationContext(NbtOps.INSTANCE), iconTag)
+					.resultOrPartial(err -> BuildersInventory.LOGGER.error("Could not parse extended inventory original icon {}: '{}'", iconTag, err))
+					.orElse(ItemStack.EMPTY);
+		}
+		
+		boolean iconDataActive = false;
+		if (tag.contains("icon_data", Tag.TAG_BYTE)) {
+			iconDataActive = tag.getBoolean("icon_data");
+		}
+		
+		int iconScaleDown = 0;
+		if (tag.contains("icon_scale_down", Tag.TAG_INT)) {
+			iconScaleDown = tag.getInt("icon_scale_down");
+		}
+		
+		var page = ExtendedInventoryPage.of(registryAccess, items, locked, name, icon, originalIcon, iconDataActive, iconScaleDown);
 		if (datafix.isPresent()) {
 			forceUpdate = true;
 			page.discreteChange();
@@ -312,10 +346,23 @@ public class ExtendedInventoryPages {
 	public static CompoundTag writeTag(ExtendedInventoryPage page) {
 		CompoundTag tag = new CompoundTag();
 		
+		NbtUtils.addCurrentDataVersion(tag);
 		tag.putInt("version", ModDataFixer.VERSION);
 		tag.put("items", page.createTag());
 		tag.putBoolean("locked", page.isLocked());
 		if (!page.getName().isBlank()) tag.putString("name", page.getName());
+		if (!page.icon.isEmpty()) {
+			var result = ItemStack.OPTIONAL_CODEC.encodeStart(NbtOps.INSTANCE, page.icon).resultOrPartial();
+			if (result.isPresent()) {
+				tag.put("icon", result.get());
+				tag.putBoolean("icon_data", page.iconDataActive);
+				tag.putInt("icon_scale_down", page.iconScaleDown);
+			}
+		}
+		if (!page.originalIcon.isEmpty()) {
+			var result = ItemStack.OPTIONAL_CODEC.encodeStart(NbtOps.INSTANCE, page.icon).resultOrPartial();
+			if (result.isPresent()) tag.put("original_icon", result.get());
+		}
 		
 		return tag;
 	}

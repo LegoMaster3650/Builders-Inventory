@@ -27,10 +27,6 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 	public static final ResourceLocation BACKGROUND_LOCKED = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "textures/gui/container/extended_inventory_locked.png");
 	public static final ResourceLocation BACKGROUND_INVALID = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "textures/gui/container/extended_inventory_invalid.png");
 	
-	private static final WidgetSprites SPRITES_BUTTON_RENAME = new WidgetSprites(
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_rename"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_rename_disabled"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_rename_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_REPAIR = new WidgetSprites(
 			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_repair"),
 			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_repair_highlighted"));
@@ -42,6 +38,14 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_delete"),
 			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_delete_disabled"),
 			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_delete_highlighted"));
+	private static final WidgetSprites SPRITES_BUTTON_ICON = new WidgetSprites(
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_icon"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_icon_disabled"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_icon_highlighted"));
+	private static final WidgetSprites SPRITES_BUTTON_RENAME = new WidgetSprites(
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_rename"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_rename_disabled"),
+			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_rename_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_UNLOCKED = new WidgetSprites(
 			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_lock_unlocked"),
 			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_lock_unlocked_disabled"),
@@ -67,11 +71,12 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 	private CreativeInventoryListener listener;
 	
 	// Top Buttons
-	private ExtendedImageButton buttonRename;
 	private ExtendedImageButton buttonRepair;
 	// Toolbar Buttons
 	private ExtendedImageButton buttonOrganize;
 	private ExtendedImageButton buttonDelete;
+	private ExtendedImageButton buttonIcon;
+	private ExtendedImageButton buttonRename;
 	private ExtendedImageButton buttonLock;
 	private ExtendedImageButton buttonUnlock;
 	// Switch Buttons
@@ -109,11 +114,12 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 			// Create Buttons
 			this.createAllButtons();
 			// Top 
-			this.addRenderableWidget(this.buttonRename);
 			this.addRenderableWidget(this.buttonRepair);
 			// Toolbar Buttons
 			this.addRenderableWidget(this.buttonOrganize);
 			this.addRenderableWidget(this.buttonDelete);
+			this.addRenderableWidget(this.buttonIcon);
+			this.addRenderableWidget(this.buttonRename);
 			this.addRenderableWidget(this.buttonLock);
 			this.addRenderableWidget(this.buttonUnlock);
 			// Switch Buttons
@@ -138,9 +144,6 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 	
 	private void createAllButtons() {
 		// Top Buttons
-		this.buttonRename = new ExtendedImageButton(this.leftPos + 8, this.topPos + 4, 12, 12, SPRITES_BUTTON_RENAME,
-				button -> ExtendedInventory.openRenameScreen(this.minecraft),
-				Component.translatable("container.builders_inventory.extended_inventory.tooltip.button.rename").withStyle(ChatFormatting.WHITE));
 		this.buttonRepair = new ExtendedImageButton(this.leftPos + 192, this.topPos + 4, 12, 12, SPRITES_BUTTON_REPAIR,
 				button -> {
 					int page = ExtendedInventory.getPage();
@@ -159,6 +162,13 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 				button -> ExtendedInventory.openDeleteScreen(this.minecraft),
 				Component.translatable("container.builders_inventory.extended_inventory.tooltip.button.delete").withStyle(ChatFormatting.WHITE),
 				Component.translatable("container.builders_inventory.extended_inventory.tooltip.button.delete.desc").withStyle(ChatFormatting.GRAY));
+		this.buttonIcon = new ExtendedImageButton(this.leftPos + 136, this.topPos + 126, 12, 12, SPRITES_BUTTON_ICON,
+				button -> ExtendedInventory.openIconSelectScreen(this.minecraft),
+				Component.translatable("container.builders_inventory.extended_inventory.tooltip.button.icon").withStyle(ChatFormatting.WHITE),
+				Component.translatable("container.builders_inventory.extended_inventory.tooltip.button.icon.desc").withStyle(ChatFormatting.GRAY));
+		this.buttonRename = new ExtendedImageButton(this.leftPos + 118, this.topPos + 126, 12, 12, SPRITES_BUTTON_RENAME,
+				button -> ExtendedInventory.openRenameScreen(this.minecraft),
+				Component.translatable("container.builders_inventory.extended_inventory.tooltip.button.rename").withStyle(ChatFormatting.WHITE));
 		this.buttonLock = new ExtendedImageButton(this.leftPos + 100, this.topPos + 126, 12, 12, SPRITES_BUTTON_UNLOCKED,
 				button -> ExtendedInventory.lock(this),
 				SoundEvents.LODESTONE_COMPASS_LOCK,
@@ -203,10 +213,11 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 		
 		if (ExtendedInventoryPages.isValid()) {
 			// Top Buttons
-			this.buttonRename.active = validPage;
 			this.buttonRepair.visible = !validPage;
 			// Toolbar Buttons
 			this.buttonDelete.active = true;
+			this.buttonIcon.active = validPage;
+			this.buttonRename.active = validPage;
 			this.buttonLock.active = validPage;
 			this.buttonLock.visible = !lockedPage;
 			this.buttonUnlock.active = validPage;
@@ -219,10 +230,11 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 			if (this.buttonRightNew.visible) this.clearFocus();
 		} else {
 			// Top Buttons
-			this.buttonRename.active = false;
 			this.buttonRepair.visible = false;
 			// Toolbar Buttons
 			this.buttonDelete.active = false;
+			this.buttonIcon.active = false;
+			this.buttonRename.active = false;
 			this.buttonLock.active = false;
 			this.buttonLock.visible = !lockedPage;
 			this.buttonUnlock.active = false;

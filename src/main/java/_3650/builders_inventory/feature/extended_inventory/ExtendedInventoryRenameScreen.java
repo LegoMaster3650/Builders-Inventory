@@ -116,7 +116,7 @@ public class ExtendedInventoryRenameScreen extends Screen {
 	
 	@Override
 	public void renderBackground(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
-		super.renderBackground(gui, mouseX, mouseY, partialTick);
+		this.renderTransparentBackground(gui);
 		gui.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 	}
 	

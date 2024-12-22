@@ -24,12 +24,49 @@ public class ExtendedInventoryPageFixer {
 		// do not put break after any updates, they're meant to be sequential
 		switch (version) {
 		default:
-			return Optional.empty();
+			return tryUpdateItems(tag, dataFixer);
 		case 1:
 			tag = update1to2(tag, dataFixer);
 		}
 		
 		return Optional.of(tag);
+	}
+	
+	private static Optional<CompoundTag> tryUpdateItems(CompoundTag old, DataFixer dataFixer) {
+		int oldVersion = NbtUtils.getDataVersion(old, VERSION_1_20_4);
+		if (oldVersion < ModDataFixer.currentVersion()) {
+			BuildersInventory.LOGGER.info("Updating outdated items for extended inventory");
+			
+			if (!old.contains("items", Tag.TAG_LIST)) {
+				BuildersInventory.LOGGER.error("Could not update inventory page data {}: No valid items tag", old);
+				return Optional.empty();
+			}
+			
+			CompoundTag tag = old.copy();
+			ListTag oldItems = old.getList("items", Tag.TAG_COMPOUND);
+			if (oldItems == null || oldItems.isEmpty()) {
+				BuildersInventory.LOGGER.error("Could not update inventory page items {}: Invalid items tag", oldItems);
+				return Optional.empty();
+			}
+			
+			ListTag items = new ListTag();
+			for (int i = 0; i < oldItems.size(); i++) {
+				CompoundTag item = ModDataFixer.updateToCurrentVersion(dataFixer, oldItems.getCompound(i), oldVersion, References.ITEM_STACK);
+				items.add(item);
+			}
+			tag.put("items", items);
+			
+			if (old.contains("icon", Tag.TAG_COMPOUND)) {
+				tag.put("icon", ModDataFixer.updateToCurrentVersion(dataFixer, old.getCompound("icon"), oldVersion, References.ITEM_STACK));
+			}
+			
+			if (old.contains("original_icon", Tag.TAG_COMPOUND)) {
+				tag.put("original_icon", ModDataFixer.updateToCurrentVersion(dataFixer, old.getCompound("original_icon"), oldVersion, References.ITEM_STACK));
+			}
+			
+			return Optional.of(tag);
+		}
+		return Optional.empty();
 	}
 	
 	private static CompoundTag update1to2(CompoundTag old, DataFixer dataFixer) {
@@ -41,12 +78,6 @@ public class ExtendedInventoryPageFixer {
 		// unchanged values
 		if (old.contains("locked", Tag.TAG_BYTE)) tag.putBoolean("locked", old.getBoolean("locked"));
 		if (old.contains("name", Tag.TAG_STRING)) tag.putString("name", old.getString("name"));
-
-		
-		// new values
-		
-		// DataVersion
-		NbtUtils.addCurrentDataVersion(tag);
 		
 		
 		// changed values
@@ -54,13 +85,13 @@ public class ExtendedInventoryPageFixer {
 		// items
 		if (!old.contains("items", Tag.TAG_LIST)) {
 			BuildersInventory.LOGGER.error("Could not update inventory page data {}: No valid items tag", old);
-			return tag;
+			return null;
 		}
 		
 		ListTag oldItems = old.getList("items", Tag.TAG_COMPOUND);
 		if (oldItems == null || oldItems.isEmpty()) {
 			BuildersInventory.LOGGER.error("Could not update inventory page items {}: Invalid items tag", oldItems);
-			return tag;
+			return null;
 		}
 		
 		ListTag items = new ListTag();

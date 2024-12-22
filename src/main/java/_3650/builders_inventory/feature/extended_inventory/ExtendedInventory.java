@@ -206,6 +206,10 @@ public class ExtendedInventory {
 		if (PAGE_CONTAINER.isValid()) mc.setScreen(new ExtendedInventoryRenameScreen(getPage()));
 	}
 	
+	public static void openIconSelectScreen(Minecraft mc) {
+		if (PAGE_CONTAINER.isValid()) mc.setScreen(new ExtendedInventoryIconScreen(getPage()));
+	}
+	
 	public static void openOrganizeScreen(Minecraft mc) {
 		mc.setScreen(new ExtendedInventoryOrganizeScreen());
 	}
