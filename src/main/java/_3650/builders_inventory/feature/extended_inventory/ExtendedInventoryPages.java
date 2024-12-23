@@ -17,7 +17,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
@@ -178,7 +178,7 @@ public class ExtendedInventoryPages {
 	
 	public static Optional<ExtendedInventoryPage> loadPage(Path path, int id) throws Exception {
 		Minecraft mc = Minecraft.getInstance();
-		HolderLookup.Provider registryAccess = mc.level.registryAccess();
+		RegistryAccess registryAccess = mc.level.registryAccess();
 		
 		CompoundTag tag = NbtIo.read(path);
 		
@@ -259,7 +259,7 @@ public class ExtendedInventoryPages {
 		try {
 			if (!Files.isDirectory(root)) Files.createDirectories(root);
 			
-			final ArrayList<Pair<Path, ExtendedInventoryPage>> storeFiles = new ArrayList<>(PAGES.size());
+			final ArrayList<Pair<CompoundTag, Path>> storeFiles = new ArrayList<>(PAGES.size());
 			final ArrayList<Path> deleteFiles = new ArrayList<>();
 			
 			// Prepare Page Data
@@ -268,7 +268,9 @@ public class ExtendedInventoryPages {
 				if (!page.valid) continue;
 				if (!page.resetChanged()) continue; // resetChanged returns true if changed
 				
-				storeFiles.add(Pair.of(root.resolve(FILE_PREFIX + (i + 1) + FILE_SUFFIX), page));
+				CompoundTag pageTag = writeTag(page);
+				
+				storeFiles.add(Pair.of(pageTag, root.resolve(FILE_PREFIX + (i + 1) + FILE_SUFFIX)));
 			}
 			
 			// Prepare deletions
@@ -288,7 +290,7 @@ public class ExtendedInventoryPages {
 				for (int i = 0; i < storeFiles.size(); i++) {
 					var pair = storeFiles.get(i);
 					try {
-						savePage(pair.getValue(), pair.getKey());
+						NbtIo.write(pair.getLeft(), pair.getRight());
 						++counter;
 					} catch (Exception e) {
 						++failCounter;
@@ -337,18 +339,15 @@ public class ExtendedInventoryPages {
 		return true;
 	}
 	
-	public static void savePage(ExtendedInventoryPage page, Path path) throws Exception {
-		CompoundTag tag = writeTag(page);
-		
-		NbtIo.write(tag, path);
-	}
-	
 	public static CompoundTag writeTag(ExtendedInventoryPage page) {
+		Minecraft mc = Minecraft.getInstance();
+		RegistryAccess registryAccess = mc.level.registryAccess();
+		
 		CompoundTag tag = new CompoundTag();
 		
 		NbtUtils.addCurrentDataVersion(tag);
 		tag.putInt("version", ModDataFixer.VERSION);
-		tag.put("items", page.createTag());
+		tag.put("items", page.createTag(registryAccess));
 		tag.putBoolean("locked", page.isLocked());
 		if (!page.getName().isBlank()) tag.putString("name", page.getName());
 		if (!page.icon.isEmpty()) {

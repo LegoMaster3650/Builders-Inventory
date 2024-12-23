@@ -67,11 +67,11 @@ public class ExtendedInventoryPage {
 		if (valid && !locked) items.clear();
 	}
 	
-	public ListTag createTag() {
+	public ListTag createTag(HolderLookup.Provider registryAccess) {
 		var tag = new ListTag();
 		
 		for (var stack : items) {
-			var result = ItemStack.OPTIONAL_CODEC.encodeStart(NbtOps.INSTANCE, stack).resultOrPartial();
+			var result = ItemStack.OPTIONAL_CODEC.encodeStart(registryAccess.createSerializationContext(NbtOps.INSTANCE), stack).resultOrPartial();
 			if (result.isPresent()) tag.add(result.get());
 		}
 		
