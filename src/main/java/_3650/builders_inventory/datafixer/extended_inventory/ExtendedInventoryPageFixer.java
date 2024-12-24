@@ -29,7 +29,7 @@ public class ExtendedInventoryPageFixer {
 			tag = update1to2(tag, dataFixer);
 		}
 		
-		return Optional.of(tag);
+		return Optional.ofNullable(tag);
 	}
 	
 	private static Optional<CompoundTag> tryUpdateItems(CompoundTag old, DataFixer dataFixer) {
