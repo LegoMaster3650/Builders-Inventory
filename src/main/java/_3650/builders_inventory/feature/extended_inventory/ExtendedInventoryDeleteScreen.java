@@ -9,6 +9,8 @@ import org.jetbrains.annotations.Nullable;
 
 import _3650.builders_inventory.BuildersInventory;
 import _3650.builders_inventory.ModKeybinds;
+import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButton;
+import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButtonGui;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.gui.ComponentPath;
@@ -29,15 +31,15 @@ public class ExtendedInventoryDeleteScreen extends Screen {
 		new DecimalFormat("0.0"), decimalFormat -> decimalFormat.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT))
 	);
 	
-	private static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "textures/gui/container/extended_inventory_delete.png");
+	private static final ResourceLocation BACKGROUND = BuildersInventory.modLoc("textures/gui/container/extended_inventory/delete.png");
 	
 	private static final WidgetSprites SPRITES_BUTTON_DELETE = new WidgetSprites(
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/delete/button_delete"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/delete/button_delete_disabled"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/delete/button_delete_highlighted"));
+			BuildersInventory.modLoc("extended_inventory/delete/button_delete"),
+			BuildersInventory.modLoc("extended_inventory/delete/button_delete_disabled"),
+			BuildersInventory.modLoc("extended_inventory/delete/button_delete_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_CANCEL = new WidgetSprites(
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/delete/button_cancel"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/delete/button_cancel_highlighted"));
+			BuildersInventory.modLoc("extended_inventory/delete/button_cancel"),
+			BuildersInventory.modLoc("extended_inventory/delete/button_cancel_highlighted"));
 	
 	private final ExtendedImageButtonGui exGui = new ExtendedImageButtonGui();
 	private final int imageWidth;
@@ -76,18 +78,19 @@ public class ExtendedInventoryDeleteScreen extends Screen {
 	}
 	
 	private void createButtons() {
-		this.deleteButton = new ExtendedImageButton(this.leftPos + 77, this.topPos + 129, 26, 26, SPRITES_BUTTON_DELETE,
+		this.deleteButton = new ExtendedImageButton(this.leftPos + 77, this.topPos + 129, 26, 26,
+				() -> List.of(Component.translatable("container.builders_inventory.extended_inventory.delete.tooltip.button.delete").withStyle(ChatFormatting.WHITE),
+						Component.translatable("container.builders_inventory.extended_inventory.delete.tooltip.button.delete.desc").withStyle(ChatFormatting.RED),
+						Component.translatable("container.builders_inventory.extended_inventory.delete.tooltip.button.delete.desc.disabled",
+								TIMER_FORMAT.format(Math.max(0L, this.enableTimer - Util.getMillis()) / 1000.0)).withStyle(ChatFormatting.GRAY)),
+				SPRITES_BUTTON_DELETE,
 				button -> {
 					ExtendedInventoryPages.delete(this.pageIndex);
 					ExtendedInventory.setPage(Math.min(ExtendedInventoryPages.size() - 1, this.pageIndex));
 					ExtendedInventory.open(this.minecraft);
 				},
 				List.of(Component.translatable("container.builders_inventory.extended_inventory.delete.tooltip.button.delete").withStyle(ChatFormatting.WHITE),
-						Component.translatable("container.builders_inventory.extended_inventory.delete.tooltip.button.delete.desc").withStyle(ChatFormatting.RED)),
-				() -> List.of(Component.translatable("container.builders_inventory.extended_inventory.delete.tooltip.button.delete").withStyle(ChatFormatting.WHITE),
-						Component.translatable("container.builders_inventory.extended_inventory.delete.tooltip.button.delete.desc").withStyle(ChatFormatting.RED),
-						Component.translatable("container.builders_inventory.extended_inventory.delete.tooltip.button.delete.desc.disabled",
-								TIMER_FORMAT.format(Math.max(0L, this.enableTimer - Util.getMillis()) / 1000.0)).withStyle(ChatFormatting.GRAY))
+						Component.translatable("container.builders_inventory.extended_inventory.delete.tooltip.button.delete.desc").withStyle(ChatFormatting.RED))
 				) {
 			@Nullable
 			@Override
@@ -96,7 +99,8 @@ public class ExtendedInventoryDeleteScreen extends Screen {
 			}
 		};
 		this.deleteButton.active = false;
-		this.cancelButton = new ExtendedImageButton(this.leftPos + 110, this.topPos + 135, 14, 14, SPRITES_BUTTON_CANCEL,
+		this.cancelButton = new ExtendedImageButton(this.leftPos + 110, this.topPos + 135, 14, 14,
+				SPRITES_BUTTON_CANCEL,
 				button -> {
 					ExtendedInventory.open(this.minecraft);
 				},

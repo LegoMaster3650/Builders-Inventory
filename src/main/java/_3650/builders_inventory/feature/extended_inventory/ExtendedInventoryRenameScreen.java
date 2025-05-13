@@ -3,7 +3,10 @@ package _3650.builders_inventory.feature.extended_inventory;
 import org.lwjgl.glfw.GLFW;
 
 import _3650.builders_inventory.BuildersInventory;
+import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButton;
+import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButtonGui;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
@@ -16,17 +19,17 @@ import net.minecraft.resources.ResourceLocation;
 
 public class ExtendedInventoryRenameScreen extends Screen {
 	
-	private static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "textures/gui/container/extended_inventory_rename.png");
+	private static final ResourceLocation BACKGROUND = BuildersInventory.modLoc("textures/gui/container/extended_inventory/rename.png");
 	
 	private static final WidgetSprites SPRITES_BUTTON_CONFIRM = new WidgetSprites(
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/rename/button_confirm"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/rename/button_confirm_highlighted"));
+			BuildersInventory.modLoc("extended_inventory/rename/button_confirm"),
+			BuildersInventory.modLoc("extended_inventory/rename/button_confirm_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_CANCEL = new WidgetSprites(
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/rename/button_cancel"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/rename/button_cancel_highlighted"));
+			BuildersInventory.modLoc("extended_inventory/rename/button_cancel"),
+			BuildersInventory.modLoc("extended_inventory/rename/button_cancel_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_CLEAR = new WidgetSprites(
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/rename/button_clear"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/rename/button_clear_highlighted"));
+			BuildersInventory.modLoc("extended_inventory/rename/button_clear"),
+			BuildersInventory.modLoc("extended_inventory/rename/button_clear_highlighted"));
 	
 	private final ExtendedImageButtonGui exGui = new ExtendedImageButtonGui();
 	private final int imageWidth;
@@ -50,7 +53,7 @@ public class ExtendedInventoryRenameScreen extends Screen {
 		this.topPos = (this.height - this.imageHeight) / 2;
 		
 		// Text Field
-		this.name = new EditBox(this.font, this.leftPos + 22, this.topPos + 23, 154, 12, title);
+		this.name = new EditBox(this.font, this.leftPos + 22, this.topPos + 23, 154, 12, Component.empty());
 		this.name.setCanLoseFocus(false);
 		this.name.setTextColor(-1);
 		this.name.setTextColorUneditable(-1);
@@ -58,25 +61,39 @@ public class ExtendedInventoryRenameScreen extends Screen {
 		this.name.setMaxLength(22);
 		this.name.setValue(ExtendedInventory.getPageName());
 		this.addRenderableWidget(this.name);
-		this.setInitialFocus(this.name);
 		
 		// Buttons
-		this.addRenderableWidget(new ExtendedImageButton(this.leftPos + 180, this.topPos + 20, 14, 14, SPRITES_BUTTON_CONFIRM,
+		this.addRenderableWidget(new ExtendedImageButton(this.leftPos + 180, this.topPos + 20, 14, 14,
+				SPRITES_BUTTON_CONFIRM,
 				button -> {
 					this.confirmPageName();
 					ExtendedInventory.open(this.minecraft);
 				},
 				Component.translatable("container.builders_inventory.extended_inventory.rename.tooltip.button.confirm").withStyle(ChatFormatting.WHITE)));
-		this.addRenderableWidget(new ExtendedImageButton(this.leftPos + 181, this.topPos + 5, 12, 12, SPRITES_BUTTON_CANCEL,
+		this.addRenderableWidget(new ExtendedImageButton(this.leftPos + 181, this.topPos + 5, 12, 12,
+				SPRITES_BUTTON_CANCEL,
 				button -> {
 					ExtendedInventory.open(this.minecraft);
 				},
 				Component.translatable("container.builders_inventory.extended_inventory.rename.tooltip.button.cancel").withStyle(ChatFormatting.WHITE)));
-		this.addRenderableWidget(new ExtendedImageButton(this.leftPos + 5, this.topPos + 21, 12, 12, SPRITES_BUTTON_CLEAR,
+		this.addRenderableWidget(new ExtendedImageButton(this.leftPos + 5, this.topPos + 21, 12, 12,
+				SPRITES_BUTTON_CLEAR,
 				button -> {
 					this.name.setValue("");
 				},
 				Component.translatable("container.builders_inventory.extended_inventory.rename.tooltip.button.clear").withStyle(ChatFormatting.WHITE)));
+	}
+	
+	@Override
+	protected void setInitialFocus() {
+		this.setInitialFocus(this.name);
+	}
+	
+	@Override
+	public void resize(Minecraft minecraft, int width, int height) {
+		String text = this.name.getValue();
+		super.resize(minecraft, width, height);
+		this.name.setValue(text);
 	}
 	
 	private void confirmPageName() {

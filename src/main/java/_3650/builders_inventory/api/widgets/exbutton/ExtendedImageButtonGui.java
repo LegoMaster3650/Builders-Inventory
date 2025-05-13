@@ -1,4 +1,4 @@
-package _3650.builders_inventory.feature.extended_inventory;
+package _3650.builders_inventory.api.widgets.exbutton;
 
 import java.util.ArrayList;
 
@@ -10,35 +10,36 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 
 public class ExtendedImageButtonGui {
 	
-	private final ArrayList<ExtendedImageButton> exButtons = new ArrayList<>();
+	private final ArrayList<AbstractExtendedImageButton> exButtons = new ArrayList<>();
 	
 	public void init() {
 		this.clearWidgets();
 	}
 	
 	public <T extends GuiEventListener & Renderable & NarratableEntry> void addRenderableWidget(T widget) {
-		if (widget instanceof ExtendedImageButton button) this.exButtons.add(button);
+		if (widget instanceof AbstractExtendedImageButton button) this.exButtons.add(button);
 	}
 	
 	public void clearWidgets() {
 		this.exButtons.clear();
 	}
 	
-	public boolean renderTooltip(Font font, GuiGraphics gui, int x, int y) {
+	public boolean renderTooltip(Font font, GuiGraphics gui, int mouseX, int mouseY) {
 		for (var button : this.exButtons) {
-			if (button.isActive() && button.isHoveredOrFocused() && !button.tooltip.isEmpty()) {
+			final var tooltip = button.tooltip();
+			if (button.isActive() && button.isHoveredOrFocused() && !tooltip.isEmpty()) {
 				gui.renderComponentTooltip(font,
-						button.tooltip,
-						button.isHovered() ? x : button.getCenterX(),
-						button.isHovered() ? y : button.getCenterY());
+						tooltip,
+						button.isHovered() ? mouseX : button.getCenterX(),
+						button.isHovered() ? mouseY : button.getCenterY());
 				return true;
 			} else {
-				var disabledTooltip = button.disabledTooltip.get();
+				final var disabledTooltip = button.disabledTooltip.get();
 				if (button.visible && !button.active && button.isHoveredOrFocused() && !disabledTooltip.isEmpty()) {
 					gui.renderComponentTooltip(font,
 							disabledTooltip,
-							button.isHovered() ? x : button.getCenterX(),
-							button.isHovered() ? y : button.getCenterY());
+							button.isHovered() ? mouseX : button.getCenterX(),
+							button.isHovered() ? mouseY : button.getCenterY());
 					return true;
 				}
 			}

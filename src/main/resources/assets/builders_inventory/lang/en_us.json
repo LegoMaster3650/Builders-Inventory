@@ -7,6 +7,9 @@
 	"key.builders_inventory.extended_inventory.open": "Open Extended Inventory",
 	
 	
+	"err.builders_inventory.minimessage.mismatch": "Mismatch between input and output at index %s\nReport this and include the log!",
+	
+	
 	"container.builders_inventory.extended_inventory": "Extended Inventory",
 	"container.builders_inventory.extended_inventory.page": "Extended Inventory (Page %s)",
 	"container.builders_inventory.extended_inventory.page.custom": "%s (Page %s)",
@@ -73,8 +76,14 @@
 	"container.builders_inventory.extended_inventory.delete.tooltip.button.cancel": "Cancel Delete",
 	"container.builders_inventory.extended_inventory.delete.tooltip.button.cancel.desc": "Return to page",
 	
-	"container.builders_inventory.extended_inventory.util.tooltip.button.cancel": "Cancel",
-	"container.builders_inventory.extended_inventory.util.tooltip.button.cancel.desc": "Close and revert the value",
+	
+	"container.builders_inventory.minimessage.tooltip.button.chat_force": "Force MiniMessage Formatting",
+	"container.builders_inventory.minimessage.tooltip.button.chat_force.desc.enable": "Forces MiniMessage formatting on all chat input",
+	"container.builders_inventory.minimessage.tooltip.button.chat_force.desc.disable": "Returns MiniMessage formatting to only specific inputs",
+	
+	
+	"container.builders_inventory.util.tooltip.button.cancel": "Cancel",
+	"container.builders_inventory.util.tooltip.button.cancel.desc": "Close and revert the value",
 	
 	
 	"error.builders_inventory.extended_inventory.load_failed": "Failed to load extended inventory! Report this issue to the builder's inventory developer!",
@@ -91,6 +100,10 @@
 	"enum.builders_inventory.extended_inventory.clear_behavior.clear_player": "Clear Player",
 	"enum.builders_inventory.extended_inventory.clear_behavior.clear_extended": "Clear Extended",
 	"enum.builders_inventory.extended_inventory.clear_behavior.clear_all": "Clear All",
+	
+	"enum.builders_inventory.minimessage.button_position.none": "None",
+	"enum.builders_inventory.minimessage.button_position.left": "Left",
+	"enum.builders_inventory.minimessage.button_position.right": "Right",
 	
 	"yacl3.config.builders_inventory:config.category.hotbar_swapper": "Hotbar Swapper",
 	"yacl3.config.builders_inventory:config.hotbar_swapper_behavior": "Keybind Behavior",
@@ -113,10 +126,34 @@
 	"yacl3.config.builders_inventory:config.extended_inventory_clear_behavior.desc": "How the clear items button should behave in the extended inventory when shift clicked.\n(Note: Only applies to clear button in extended inventory, creative inventory is unchanged)Values:\n- NONE - Does absolutely nothing\n- CLEAR_PLAYER - Clears just the player inventory, like vanilla minecraft (DEFAULT)\n- CLEAR_EXTENDED - Clears just the current extended inventory tab\n- CLEAR_ALL - Clears both the player inventory and current extended inventory tab",
 	"yacl3.config.builders_inventory:config.extended_inventory_save_delay": "Save Delay",
 	"yacl3.config.builders_inventory:config.extended_inventory_save_delay.desc": "Delay in seconds between modifying extended inventory and saving\nLower delays are safer against crashes but write files more often",
+
+	"yacl3.config.builders_inventory:config.category.minimessage": "MiniMessage",
+	"yacl3.config.builders_inventory:config.minimessage_syntaxHighlighting": "Syntax Highlighting",
+	"yacl3.config.builders_inventory:config.minimessage_syntaxHighlighting.desc": "Whether minimessage inputs will be formatted to resemble the output\nDoes not copy style or font changes to maintain clarity",
+	"yacl3.config.builders_inventory:config.minimessage_messagePreview": "Preview",
+	"yacl3.config.builders_inventory:config.minimessage_messagePreview.desc": "Whether the formatted minimessage preview displays\nThis only affects valid previews, errors will always display",
+	"yacl3.config.builders_inventory:config.minimessage_suggestions": "Suggestions",
+	"yacl3.config.builders_inventory:config.minimessage_suggestions.desc": "Whether suggestions for tags will be shown when typing in a minimessage input",
+	"yacl3.config.builders_inventory:config.minimessage_updateDelay": "Update Delay",
+	"yacl3.config.builders_inventory:config.minimessage_updateDelay.desc": "Number of ticks you must go without typing to update the minimessage formatter\nNot recommended unless typing in a minimessage input slows your game",
+	"yacl3.config.builders_inventory:config.minimessage_enabledChat": "Enabled in Chat",
+	"yacl3.config.builders_inventory:config.minimessage_enabledChat.desc": "Whether minimessage features are enabled for chat",
+	"yacl3.config.builders_inventory:config.minimessage_chatPreviewHeight": "Chat Preview Height",
+	"yacl3.config.builders_inventory:config.minimessage_chatPreviewHeight.desc": "How high above the chat input the message preview is",
+	"yacl3.config.builders_inventory:config.minimessage_previewOffsetsChat": "Preview Offsets Chat",
+	"yacl3.config.builders_inventory:config.minimessage_previewOffsetsChat.desc": "Whether the chat minimessage preview will shift the chat itself away from itself",
+	"yacl3.config.builders_inventory:config.minimessage_previewOffsetIgnored": "Preview Offset Ignored",
+	"yacl3.config.builders_inventory:config.minimessage_previewOffsetIgnored.desc": "How many messages to ignore before shifting the chat UI if previewOffsetsChat is enabled",
+	"yacl3.config.builders_inventory:config.minimessage_chatForceButtonDisplay": "Force MiniMessage Button",
+	"yacl3.config.builders_inventory:config.minimessage_chatForceButtonDisplay.desc": "Where on the chat bar to show the force minimessage formatting button\nValues:\n- NONE - Button hidden, normal chat\n- LEFT - Button on left edge of chat\n- RIGHT - Button on right edge of chat",
+	"yacl3.config.builders_inventory:config.minimessage_chatForceDefault": "Force MiniMessage Default",
+	"yacl3.config.builders_inventory:config.minimessage_chatForceDefault.desc": "Whether the force minimessage formatting toggle is always on by default in chat\nThis is the value that the toggle will be set to when joining any world or server",
+	"yacl3.config.builders_inventory:config.minimessage_perServerCommands": "Per-Server MiniMessage Commands",
+	"yacl3.config.builders_inventory:config.minimessage_perServerCommands.desc": "Map of server ips to regular expressions (regexes) that match commands to auto format minimessage on\nUSAGE: <server ip>=<command pattern>\nserver ip - The end of the server's address to match\ncommand pattern - A regex that matches the commands for that server\nThe final regex will actually be ^/(?:<YOUR REGEX>)\\\\s+\nTo apply changes, restart the game or Ctrl+Shift+Click the force minimessage toggle button",
 	
 	"yacl3.config.builders_inventory:config.category.operator_items": "Operator Items",
 	"yacl3.config.builders_inventory:config.operator_items_force": "Force Operator Items",
-	"yacl3.config.builders_inventory:config.operator_items_force.desc": "Force the creative mode operator items tab to appear, even if you don't have OP\n(Useful for most players on diamondfire who lack operator permissions)",
+	"yacl3.config.builders_inventory:config.operator_items_force.desc": "Force the creative mode operator items tab to appear, even if you don't have OP\n(Useful for most players on creative servers who lack operator permissions)",
 	
 	"_builders_inventory.comment.endkey": "End key to avoid having to scroll to add commas all the time"
 	

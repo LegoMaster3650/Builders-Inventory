@@ -2,15 +2,15 @@ package _3650.builders_inventory.feature.extended_inventory;
 
 import _3650.builders_inventory.BuildersInventory;
 import _3650.builders_inventory.ModKeybinds;
+import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButton;
 import _3650.builders_inventory.config.Config;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickType;
@@ -69,22 +69,24 @@ public class ExtendedInventory {
 	 */
 	
 	private static final WidgetSprites OPEN_BUTTON_SPRITES = new WidgetSprites(
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_open"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/button_open_highlighted"));
+			BuildersInventory.modLoc("extended_inventory/button_open"),
+			BuildersInventory.modLoc("extended_inventory/button_open_highlighted"));
 	
 	/*
 	 * Creative Screen Switch Button
 	 */
 	
 	public static ExtendedImageButton createOpenButton(int midX, int midY) {
-		return new ExtendedImageButton(midX + 57, midY - 28, 12, 12, OPEN_BUTTON_SPRITES, ExtendedInventory::onPressOpenButton);
+		return new ExtendedImageButton(midX + 57, midY - 28, 12, 12,
+				OPEN_BUTTON_SPRITES,
+				ExtendedInventory::onPressOpenButton);
 	}
 	
 	public static boolean isOpenButtonVisible(CreativeModeTab tab) {
 		return enabled && tab.getType() == CreativeModeTab.Type.INVENTORY;
 	}
 	
-	private static void onPressOpenButton(Button button) {
+	private static void onPressOpenButton(ExtendedImageButton button) {
 		Minecraft mc = Minecraft.getInstance();
 		open(mc);
 	}
@@ -94,17 +96,20 @@ public class ExtendedInventory {
 	 */
 	
 	public static void switchLeft(ExtendedInventoryScreen screen) {
-		int page = getPage();
-		if (page > 0) setPage(page - 1);
+		int page = getPage() - 1;
+		if (page > 0) setPage(page);
 		refreshScreen(screen);
 	}
 	
 	public static void switchRight(ExtendedInventoryScreen screen) {
-		int page = getPage();
-		for (int i = 0; page >= ExtendedInventoryPages.size() - 1 && i < 3; i++) {
-			ExtendedInventoryPages.create();
-		}
-		setPage(page + 1);
+		int page = getPage() + 1;
+		if (page < ExtendedInventoryPages.size()) setPage(page);
+		refreshScreen(screen);
+	}
+	
+	public static void createPageAndSwitch(ExtendedInventoryScreen screen) {
+		ExtendedInventoryPages.create();
+		setPage(ExtendedInventoryPages.size() - 1);
 		refreshScreen(screen);
 	}
 	
@@ -168,7 +173,7 @@ public class ExtendedInventory {
 		
 		ExtendedInventoryPages.tick(mc);
 		
-		if (ModKeybinds.OPEN_EXTENDED_INVENTORY.consumeClick() && mc.gameMode.hasInfiniteItems()) {
+		if (mc.screen == null && ModKeybinds.OPEN_EXTENDED_INVENTORY.consumeClick() && mc.gameMode.hasInfiniteItems()) {
 			open(mc);
 		}
 	}
@@ -176,13 +181,13 @@ public class ExtendedInventory {
 	public static void onJoinWorld(ClientPacketListener handler, PacketSender sender, Minecraft mc) {
 		if (!enabled) return;
 		
-		ExtendedInventoryPages.load();
+		ExtendedInventoryPages.load(handler.registryAccess());
 	}
 	
-	public static void onQuitWorld(ClientPacketListener handler, Minecraft mc) {
+	public static void onQuitWorld(RegistryAccess registryAccess) {
 		if (!enabled) return;
 		
-		ExtendedInventoryPages.save();
+		ExtendedInventoryPages.save(registryAccess);
 	}
 	
 	/*
@@ -227,7 +232,7 @@ public class ExtendedInventory {
 			
 			mc.gameMode.handleCreativeModeItemAdd(
 					PAGE_CONTAINER.swapItem(slot - 36, mc.player.getInventory().items.get(hotbar)),
-					hotbar == 45 ? 45 : hotbar + InventoryMenu.USE_ROW_SLOT_START);
+					hotbar == InventoryMenu.SHIELD_SLOT ? InventoryMenu.SHIELD_SLOT : hotbar + InventoryMenu.USE_ROW_SLOT_START);
 		}
 	}
 	

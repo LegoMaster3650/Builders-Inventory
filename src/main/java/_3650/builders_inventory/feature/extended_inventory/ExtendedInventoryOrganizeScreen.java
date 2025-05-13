@@ -11,6 +11,8 @@ import org.joml.Math;
 
 import _3650.builders_inventory.BuildersInventory;
 import _3650.builders_inventory.ModKeybinds;
+import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButton;
+import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButtonGui;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.gui.ComponentPath;
@@ -37,38 +39,38 @@ import net.minecraft.world.item.ItemStack;
 
 public class ExtendedInventoryOrganizeScreen extends Screen {
 	
-	private static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "textures/gui/container/extended_inventory_organize.png");
+	private static final ResourceLocation BACKGROUND = BuildersInventory.modLoc("textures/gui/container/extended_inventory/organize.png");
 	
 	private static final ResourceLocation SPRITE_CREATIVE_SCROLLER = ResourceLocation.withDefaultNamespace("container/creative_inventory/scroller");
 	private static final ResourceLocation SPRITE_CREATIVE_SCROLLER_DISABLED = ResourceLocation.withDefaultNamespace("container/creative_inventory/scroller_disabled");
 	
 	private static final WidgetSprites SPRITES_BUTTON_BACK = new WidgetSprites(
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/button_back"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/button_back_highlighted"));
+			BuildersInventory.modLoc("extended_inventory/organize/button_back"),
+			BuildersInventory.modLoc("extended_inventory/organize/button_back_highlighted"));
 	
-	private static final ResourceLocation SPRITE_TILE = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/tile");
-	private static final ResourceLocation SPRITE_TILE_SELECTED = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_highlighted");
-	private static final ResourceLocation SPRITE_TILE_SHADOW = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_shadow");
+	private static final ResourceLocation SPRITE_TILE = BuildersInventory.modLoc("extended_inventory/organize/tile");
+	private static final ResourceLocation SPRITE_TILE_SELECTED = BuildersInventory.modLoc("extended_inventory/organize/tile_highlighted");
+	private static final ResourceLocation SPRITE_TILE_SHADOW = BuildersInventory.modLoc("extended_inventory/organize/tile_shadow");
 	private static final WidgetSprites SPRITES_TILE = new WidgetSprites(
 			SPRITE_TILE,
 			SPRITE_TILE_SELECTED);
-	private static final ResourceLocation SPRITE_TILE_ACTIVE = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_active");
-	private static final ResourceLocation SPRITE_TILE_ACTIVE_SELECTED = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_active_highlighted");
+	private static final ResourceLocation SPRITE_TILE_ACTIVE = BuildersInventory.modLoc("extended_inventory/organize/tile_active");
+	private static final ResourceLocation SPRITE_TILE_ACTIVE_SELECTED = BuildersInventory.modLoc("extended_inventory/organize/tile_active_highlighted");
 	private static final WidgetSprites SPRITES_TILE_ACTIVE = new WidgetSprites(
 			SPRITE_TILE_ACTIVE,
 			SPRITE_TILE_ACTIVE_SELECTED);
-	private static final ResourceLocation SPRITE_TILE_CREATE = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_create");
-	private static final ResourceLocation SPRITE_TILE_CREATE_SELECTED = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_create_highlighted");
+	private static final ResourceLocation SPRITE_TILE_CREATE = BuildersInventory.modLoc("extended_inventory/organize/tile_create");
+	private static final ResourceLocation SPRITE_TILE_CREATE_SELECTED = BuildersInventory.modLoc("extended_inventory/organize/tile_create_highlighted");
 	@SuppressWarnings("unused")
 	private static final WidgetSprites SPRITES_TILE_CREATE = new WidgetSprites(
 			SPRITE_TILE_CREATE,
 			SPRITE_TILE_CREATE_SELECTED);
 	@SuppressWarnings("unused")
-	private static final ResourceLocation SPRITE_TILE_CREATE_DIM = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_create_dim");
+	private static final ResourceLocation SPRITE_TILE_CREATE_DIM = BuildersInventory.modLoc("extended_inventory/organize/tile_create_dim");
 	
-	private static final ResourceLocation SPRITE_BACKGROUND = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/hover_background");
-	private static final ResourceLocation SPRITE_BACKGROUND_LOCKED = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/hover_background_locked");
-	private static final ResourceLocation SPRITE_BACKGROUND_INVALID = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/hover_background_invalid");
+	private static final ResourceLocation SPRITE_BACKGROUND = BuildersInventory.modLoc("extended_inventory/organize/hover_background");
+	private static final ResourceLocation SPRITE_BACKGROUND_LOCKED = BuildersInventory.modLoc("extended_inventory/organize/hover_background_locked");
+	private static final ResourceLocation SPRITE_BACKGROUND_INVALID = BuildersInventory.modLoc("extended_inventory/organize/hover_background_invalid");
 	
 	private final ExtendedImageButtonGui exGui = new ExtendedImageButtonGui();
 	private final int imageWidth;
@@ -110,13 +112,13 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 		this.leftPos = (this.width - this.imageWidth) / 2;
 		this.topPos = (this.height - this.imageHeight) / 2;
 		
-		this.addRenderableWidget(new ExtendedImageButton(this.leftPos + 193, this.topPos + 4, 12, 12, SPRITES_BUTTON_BACK,
+		this.addRenderableWidget(new ExtendedImageButton(this.leftPos + 193, this.topPos + 4, 12, 12,
+				SPRITES_BUTTON_BACK,
 				button -> {
 					ExtendedInventory.open(this.minecraft);
 				},
 				Component.translatable("container.builders_inventory.extended_inventory.organize.tooltip.button.back").withStyle(ChatFormatting.WHITE)));
 		
-		this.tiles.clear();
 		int scrollRow = this.scrollRow;
 		int scrollRowMax = scrollRow + 10;
 		for (int i = 0; i < ExtendedInventoryPages.size(); i++) {
@@ -256,11 +258,13 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 	@Override
 	protected void clearWidgets() {
 		this.exGui.clearWidgets();
+		this.tiles.clear();
 		super.clearWidgets();
 	}
 	
 	@Override
 	public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
+		this.tileTexts.clear();
 		super.render(gui, mouseX, mouseY, partialTick);
 		gui.drawString(this.font, this.title, this.leftPos + 8, this.topPos + 6, 0x404040, false);
 		
@@ -271,7 +275,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 //			gui.fill(this.leftPos + tileX(col) + 1, this.topPos + tileY(row) + 1, this.leftPos + tileX(col) + 1 + 16, this.topPos + tileY(row) + 1 + 16, 1, 0xBB77BB77); //DEBUG THING
 			gui.blitSprite(this.dragTileIndex == ExtendedInventory.getPage() ? SPRITE_TILE_ACTIVE_SELECTED : SPRITE_TILE_SELECTED, mouseX - this.dragOffsetX, mouseY - this.dragOffsetY, PageTileWidget.TILE_Z_4, 16, 16);
 			if (this.dragTile.page.icon.isEmpty()) {
-				this.renderTileText(this.dragTileIndex + 1, gui, mouseX - this.dragOffsetX + 8, mouseY - this.dragOffsetY + 4, PageTileWidget.TILE_Z_4);
+				this.renderTileText(this.dragTileIndex + 1, mouseX - this.dragOffsetX + 8, mouseY - this.dragOffsetY + 4, PageTileWidget.TILE_Z_4);
 			} else {
 				this.renderTileIcon(this.dragTile.page.icon, this.dragTile.page.iconScaleDown, gui, mouseX - this.dragOffsetX, mouseY - this.dragOffsetY, PageTileWidget.TILE_Z_4);
 			}
@@ -280,6 +284,26 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 			this.renderTooltip(gui, mouseX, mouseY, PageTileWidget.TILE_Z_4);
 		}
 		
+		this.drawTileTexts(gui);
+	}
+	
+	@SuppressWarnings("deprecation")
+	private void drawTileTexts(GuiGraphics gui) {
+		gui.drawManaged(() -> {
+			for (var tt : this.tileTexts) {
+				String text = String.valueOf(tt.number);
+				gui.pose().pushPose();
+				gui.pose().translate(tt.x, tt.y, tt.z);
+				if (text.length() > 2) {
+					float scale = 2f / text.length();
+					gui.pose().translate(0, 4 * (1f - scale), 0); // (8*scale - 8) / 2
+					gui.pose().scale(scale, scale, 1f);
+				}
+				gui.drawString(this.font, text, -font.width(text) / 2, 0, 0xFFFFFF, true);
+				gui.pose().popPose();
+			}
+		});
+		this.tileTexts.clear();
 	}
 	
 	protected void renderTooltip(GuiGraphics gui, int mouseX, int mouseY, int z) {
@@ -293,17 +317,23 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 		this.exGui.renderTooltip(this.font, gui, mouseX, mouseY);
 	}
 	
-	void renderTileText(int number, GuiGraphics gui, int x, int y, int z) {
-		String text = String.valueOf(number);
-		gui.pose().pushPose();
-		gui.pose().translate(x, y, z);
-		if (text.length() > 2) {
-			float scale = 2f / text.length();
-			gui.pose().translate(0, 4 * (1f - scale), 0); // (8*scale - 8) / 2
-			gui.pose().scale(scale, scale, 1f);
+	private final ArrayList<TileTextRenderData> tileTexts = new ArrayList<>();
+	
+	private static class TileTextRenderData {
+		public final int number;
+		public final int x;
+		public final int y;
+		public final int z;
+		public TileTextRenderData(int number, int x, int y, int z) {
+			this.number = number;
+			this.x = x;
+			this.y = y;
+			this.z = z;
 		}
-		gui.drawCenteredString(this.font, Component.literal(text), 0, 0, 0xFFFFFF);
-		gui.pose().popPose();
+	}
+	
+	void renderTileText(int number, int x, int y, int z) {
+		this.tileTexts.add(new TileTextRenderData(number, x, y, z));
 	}
 	
 	void renderTileIcon(ItemStack icon, int iconScaleDown, GuiGraphics gui, int x, int y, int z) {
@@ -593,14 +623,14 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 				if (this.slowMoveShadow) gui.blitSprite(SPRITE_TILE_SHADOW, x, y, 16, 16);
 				gui.blitSprite(sprite, mx, my, this.slowMoveZ, 16, 16);
 				if (this.page.icon.isEmpty()) {
-					this.screen.renderTileText(this.index + 1, gui, mx + 8, my + 4, this.slowMoveZ);
+					this.screen.renderTileText(this.index + 1, mx + 8, my + 4, this.slowMoveZ);
 				} else {
 					this.screen.renderTileIcon(this.page.icon, this.page.iconScaleDown, gui, mx, my, this.slowMoveZ);
 				}
 			} else {
 				gui.blitSprite(sprite, x, y, 16, 16);
 				if (this.page.icon.isEmpty()) {
-					this.screen.renderTileText(this.index + 1, gui, x + 8, y + 4, 0);
+					this.screen.renderTileText(this.index + 1, x + 8, y + 4, 0);
 				} else {
 					this.screen.renderTileIcon(this.page.icon, this.page.iconScaleDown, gui, x, y, 0);
 				}

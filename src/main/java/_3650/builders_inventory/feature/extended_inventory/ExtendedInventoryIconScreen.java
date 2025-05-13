@@ -4,8 +4,12 @@ import java.util.List;
 
 import _3650.builders_inventory.BuildersInventory;
 import _3650.builders_inventory.ModKeybinds;
-import _3650.builders_inventory.util.StepSliderWidget;
+import _3650.builders_inventory.api.widgets.StepSliderWidget;
+import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButton;
+import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButtonGui;
+import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageDualButton;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.WidgetSprites;
@@ -21,56 +25,56 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 
 public class ExtendedInventoryIconScreen extends Screen {
 	
-	private static final ResourceLocation BACKGROUND = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "textures/gui/container/extended_inventory_icon.png");
+	private static final ResourceLocation BACKGROUND = BuildersInventory.modLoc("textures/gui/container/extended_inventory/icon.png");
 	
 	private static final WidgetSprites SPRITES_TILE = new WidgetSprites(
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/tile"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_highlighted"));
+			BuildersInventory.modLoc("extended_inventory/organize/tile"),
+			BuildersInventory.modLoc("extended_inventory/organize/tile_highlighted"));
 	private static final WidgetSprites SPRITES_TILE_ACTIVE = new WidgetSprites(
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_active"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/organize/tile_active_highlighted"));
+			BuildersInventory.modLoc("extended_inventory/organize/tile_active"),
+			BuildersInventory.modLoc("extended_inventory/organize/tile_active_highlighted"));
 	
 	private static final WidgetSprites SPRITES_BUTTON_COUNT = new WidgetSprites(
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_count"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_count_disabled"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_count_highlighted"));
+			BuildersInventory.modLoc("extended_inventory/icon/button_count"),
+			BuildersInventory.modLoc("extended_inventory/icon/button_count_disabled"),
+			BuildersInventory.modLoc("extended_inventory/icon/button_count_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_COUNT_OPEN = new WidgetSprites(
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_count_open"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_count_disabled"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_count_open_highlighted"));
+			BuildersInventory.modLoc("extended_inventory/icon/button_count_open"),
+			BuildersInventory.modLoc("extended_inventory/icon/button_count_disabled"),
+			BuildersInventory.modLoc("extended_inventory/icon/button_count_open_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_DATA = new WidgetSprites(
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_data"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_data_disabled"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_data_highlighted"));
-	private static final WidgetSprites SPRITES_BUTTON_DATA_OFF = new WidgetSprites(
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_data_off"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_data_disabled"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_data_off_highlighted"));
+			BuildersInventory.modLoc("extended_inventory/icon/button_data"),
+			BuildersInventory.modLoc("extended_inventory/icon/button_data_disabled"),
+			BuildersInventory.modLoc("extended_inventory/icon/button_data_highlighted"));
+	private static final WidgetSprites SPRITES_BUTTON_DATA_ACTIVE = new WidgetSprites(
+			BuildersInventory.modLoc("extended_inventory/icon/button_data_active"),
+			BuildersInventory.modLoc("extended_inventory/icon/button_data_disabled"),
+			BuildersInventory.modLoc("extended_inventory/icon/button_data_active_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_SIZE = new WidgetSprites(
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_size"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_size_disabled"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_size_highlighted"));
+			BuildersInventory.modLoc("extended_inventory/icon/button_size"),
+			BuildersInventory.modLoc("extended_inventory/icon/button_size_disabled"),
+			BuildersInventory.modLoc("extended_inventory/icon/button_size_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_SIZE_OPEN = new WidgetSprites(
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_size_open"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_size_disabled"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_size_open_highlighted"));
+			BuildersInventory.modLoc("extended_inventory/icon/button_size_open"),
+			BuildersInventory.modLoc("extended_inventory/icon/button_size_disabled"),
+			BuildersInventory.modLoc("extended_inventory/icon/button_size_open_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_CLEAR = new WidgetSprites(
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_clear"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_clear_disabled"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_clear_highlighted"));
+			BuildersInventory.modLoc("extended_inventory/icon/button_clear"),
+			BuildersInventory.modLoc("extended_inventory/icon/button_clear_disabled"),
+			BuildersInventory.modLoc("extended_inventory/icon/button_clear_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_RESET = new WidgetSprites(
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_reset"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_reset_disabled"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_reset_highlighted"));
+			BuildersInventory.modLoc("extended_inventory/icon/button_reset"),
+			BuildersInventory.modLoc("extended_inventory/icon/button_reset_disabled"),
+			BuildersInventory.modLoc("extended_inventory/icon/button_reset_highlighted"));
 	
 	private static final WidgetSprites SPRITES_BUTTON_CANCEL = new WidgetSprites(
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_cancel"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_cancel_disabled"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_cancel_highlighted"));
+			BuildersInventory.modLoc("extended_inventory/icon/button_cancel"),
+			BuildersInventory.modLoc("extended_inventory/icon/button_cancel_disabled"),
+			BuildersInventory.modLoc("extended_inventory/icon/button_cancel_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_CONFIRM = new WidgetSprites(
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_confirm"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_confirm_disabled"),
-			ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "extended_inventory/icon/button_confirm_highlighted"));
+			BuildersInventory.modLoc("extended_inventory/icon/button_confirm"),
+			BuildersInventory.modLoc("extended_inventory/icon/button_confirm_disabled"),
+			BuildersInventory.modLoc("extended_inventory/icon/button_confirm_highlighted"));
 	
 	private final ExtendedImageButtonGui exGui = new ExtendedImageButtonGui();
 	private final int imageWidth;
@@ -80,15 +84,11 @@ public class ExtendedInventoryIconScreen extends Screen {
 	private int topPos;
 	
 	// Preview Tile
-	private ExtendedImageButton tilePreview;
-	private ExtendedImageButton tilePreviewActive;
+	private ExtendedImageDualButton tilePreview;
 	// Toolbar Top
-	private ExtendedImageButton buttonCount;
-	private ExtendedImageButton buttonCountOpen;
-	private ExtendedImageButton buttonData;
-	private ExtendedImageButton buttonDataOff;
-	private ExtendedImageButton buttonSize;
-	private ExtendedImageButton buttonSizeOpen;
+	private ExtendedImageDualButton buttonCount;
+	private ExtendedImageDualButton buttonData;
+	private ExtendedImageDualButton buttonSize;
 	private ExtendedImageButton buttonClear;
 	private ExtendedImageButton buttonReset;
 	// Toolbar Bottom
@@ -132,14 +132,10 @@ public class ExtendedInventoryIconScreen extends Screen {
 		this.createAllButtons();
 		// Preview Tile
 		this.addRenderableWidget(this.tilePreview);
-		this.addRenderableWidget(this.tilePreviewActive);
 		// Toolbar Top
 		this.addRenderableWidget(this.buttonCount);
-		this.addRenderableWidget(this.buttonCountOpen);
 		this.addRenderableWidget(this.buttonData);
-		this.addRenderableWidget(this.buttonDataOff);
 		this.addRenderableWidget(this.buttonSize);
-		this.addRenderableWidget(this.buttonSizeOpen);
 		this.addRenderableWidget(this.buttonClear);
 		this.addRenderableWidget(this.buttonReset);
 		// Toolbar Bottom
@@ -150,77 +146,95 @@ public class ExtendedInventoryIconScreen extends Screen {
 	
 	private void createAllButtons() {
 		// Preview Tile
-		this.tilePreview = new ExtendedImageButton(this.leftPos + 6, this.topPos + 17, 16, 16, SPRITES_TILE,
+		this.tilePreview = new ExtendedImageDualButton(this.leftPos + 6, this.topPos + 17, 16, 16,
+				SPRITES_TILE,
 				button -> {
 					this.tileActive = true;
 					updateButtons();
-				});
-		this.tilePreviewActive = new ExtendedImageButton(this.leftPos + 6, this.topPos + 17, 16, 16, SPRITES_TILE_ACTIVE,
+				},
+				SPRITES_TILE_ACTIVE,
 				button -> {
 					this.tileActive = false;
 					updateButtons();
-				});
+				}
+				);
 		// Toolbar Top
-		this.buttonCount = new ExtendedImageButton(this.leftPos + 7, this.topPos + 37, 14, 14, SPRITES_BUTTON_COUNT,
+		this.buttonCount = new ExtendedImageDualButton(this.leftPos + 6, this.topPos + 37, 14, 14,
+				SPRITES_BUTTON_COUNT,
 				button -> {
 					openCountSlider();
 				},
-				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.count").withStyle(ChatFormatting.WHITE),
-				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.count.desc").withStyle(ChatFormatting.GRAY),
-				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.count.desc.closed").withStyle(ChatFormatting.GRAY));
-		this.buttonCountOpen = new ExtendedImageButton(this.leftPos + 7, this.topPos + 37, 14, 14, SPRITES_BUTTON_COUNT_OPEN,
+				List.of(
+						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.count").withStyle(ChatFormatting.WHITE),
+						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.count.desc").withStyle(ChatFormatting.GRAY),
+						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.count.desc.closed").withStyle(ChatFormatting.GRAY)),
+				SPRITES_BUTTON_COUNT_OPEN,
 				button -> {
 					closeCountSlider();
 				},
-				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.count").withStyle(ChatFormatting.WHITE),
-				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.count.desc").withStyle(ChatFormatting.GRAY),
-				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.count.desc.open").withStyle(ChatFormatting.GRAY));
-		this.buttonData = new ExtendedImageButton(this.leftPos + 7, this.topPos + 55, 14, 14, SPRITES_BUTTON_DATA,
-				button -> {
-					dataOff();
-				},
-				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.data").withStyle(ChatFormatting.WHITE),
-				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.data.desc").withStyle(ChatFormatting.GRAY));
-		this.buttonDataOff = new ExtendedImageButton(this.leftPos + 7, this.topPos + 55, 14, 14, SPRITES_BUTTON_DATA_OFF,
+				List.of(
+						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.count").withStyle(ChatFormatting.WHITE),
+						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.count.desc").withStyle(ChatFormatting.GRAY),
+						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.count.desc.open").withStyle(ChatFormatting.GRAY))
+				);
+		this.buttonData = new ExtendedImageDualButton(this.leftPos + 6, this.topPos + 55, 14, 14,
+				SPRITES_BUTTON_DATA,
 				button -> {
 					dataOn();
 				},
-				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.data").withStyle(ChatFormatting.WHITE),
-				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.data.desc").withStyle(ChatFormatting.GRAY));
-		this.buttonSize = new ExtendedImageButton(this.leftPos + 7, this.topPos + 73, 14, 14, SPRITES_BUTTON_SIZE,
+				List.of(
+						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.data").withStyle(ChatFormatting.WHITE),
+						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.data.desc").withStyle(ChatFormatting.GRAY)),
+				SPRITES_BUTTON_DATA_ACTIVE,
+				button -> {
+					dataOff();
+				},
+				List.of(
+						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.data").withStyle(ChatFormatting.WHITE),
+						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.data.desc").withStyle(ChatFormatting.GRAY))
+				);
+		this.buttonSize = new ExtendedImageDualButton(this.leftPos + 6, this.topPos + 73, 14, 14,
+				SPRITES_BUTTON_SIZE,
 				button -> {
 					openSizeSlider();
 				},
-				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.size").withStyle(ChatFormatting.WHITE),
-				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.size.desc").withStyle(ChatFormatting.GRAY),
-				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.size.desc.closed").withStyle(ChatFormatting.GRAY));
-		this.buttonSizeOpen = new ExtendedImageButton(this.leftPos + 7, this.topPos + 73, 14, 14, SPRITES_BUTTON_SIZE_OPEN,
+				List.of(
+						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.size").withStyle(ChatFormatting.WHITE),
+						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.size.desc").withStyle(ChatFormatting.GRAY),
+						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.size.desc.closed").withStyle(ChatFormatting.GRAY)),
+				SPRITES_BUTTON_SIZE_OPEN,
 				button -> {
 					closeSizeSlider();
 				},
-				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.size").withStyle(ChatFormatting.WHITE),
-				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.size.desc").withStyle(ChatFormatting.GRAY),
-				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.size.desc.open").withStyle(ChatFormatting.GRAY));
-		this.buttonClear = new ExtendedImageButton(this.leftPos + 7, this.topPos + 91, 14, 14, SPRITES_BUTTON_CLEAR,
+				List.of(
+						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.size").withStyle(ChatFormatting.WHITE),
+						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.size.desc").withStyle(ChatFormatting.GRAY),
+						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.size.desc.open").withStyle(ChatFormatting.GRAY))
+				);
+		this.buttonClear = new ExtendedImageButton(this.leftPos + 7, this.topPos + 91, 14, 14,
+				SPRITES_BUTTON_CLEAR,
 				button -> {
 					clearPreview();
 				},
 				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.clear").withStyle(ChatFormatting.WHITE),
 				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.clear.desc").withStyle(ChatFormatting.GRAY));
-		this.buttonReset = new ExtendedImageButton(this.leftPos + 7, this.topPos + 109, 14, 14, SPRITES_BUTTON_RESET,
+		this.buttonReset = new ExtendedImageButton(this.leftPos + 7, this.topPos + 109, 14, 14,
+				SPRITES_BUTTON_RESET,
 				button -> {
 					resetPreview();
 				},
 				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.reset").withStyle(ChatFormatting.WHITE),
 				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.reset.desc").withStyle(ChatFormatting.GRAY));
 		// Toolbar Bottom
-		this.buttonCancel = new ExtendedImageButton(this.leftPos + 7, this.topPos + 163, 14, 14, SPRITES_BUTTON_CANCEL,
+		this.buttonCancel = new ExtendedImageButton(this.leftPos + 7, this.topPos + 163, 14, 14,
+				SPRITES_BUTTON_CANCEL,
 				button -> {
 					ExtendedInventory.open(this.minecraft);
 				},
 				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.cancel").withStyle(ChatFormatting.WHITE),
 				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.cancel.desc").withStyle(ChatFormatting.GRAY));
-		this.buttonConfirm = new ExtendedImageButton(this.leftPos + 7, this.topPos + 181, 14, 14, SPRITES_BUTTON_CONFIRM,
+		this.buttonConfirm = new ExtendedImageButton(this.leftPos + 7, this.topPos + 181, 14, 14,
+				SPRITES_BUTTON_CONFIRM,
 				button -> {
 					savePreview();
 					ExtendedInventory.open(this.minecraft);
@@ -233,38 +247,49 @@ public class ExtendedInventoryIconScreen extends Screen {
 	
 	private void updateButtons() {
 		// Preview Tile
-		this.tilePreview.visible = !this.tileActive;
-		this.tilePreviewActive.visible = this.tileActive;
+		this.tilePreview.secondMode = this.tileActive;
 		// Toolbar
 		if (this.iconPreview.isEmpty()) {
 			// Top
 			this.buttonCount.active = false;
-			this.buttonCountOpen.active = false;
 			this.buttonData.active = false;
-			this.buttonDataOff.active = false;
 			this.buttonSize.active = false;
-			this.buttonSizeOpen.active = false;
 			this.buttonClear.active = false;
 		} else {
 			// Top
 			this.buttonCount.active = true;
-			this.buttonCountOpen.active = true;
 			this.buttonData.active = !this.iconPreviewOriginal.getComponentsPatch().isEmpty();
-			this.buttonDataOff.active = this.buttonData.active;
 			this.buttonSize.active = this.minecraft.options.guiScale().get() >= 2;
-			this.buttonSizeOpen.active = true;
 			this.buttonClear.active = true;
 		}
 		// Top
-		this.buttonCount.visible = this.countSlider == null;
-		this.buttonCountOpen.visible = this.countSlider != null;
-		this.buttonData.visible = this.dataActive;
-		this.buttonDataOff.visible = !this.dataActive;
-		this.buttonSize.visible = this.sizeSlider == null;
-		this.buttonSizeOpen.visible = this.sizeSlider != null;
+		this.buttonCount.secondMode = this.countSlider != null;
+		this.buttonData.secondMode = this.dataActive;
+		this.buttonSize.secondMode = this.sizeSlider != null;
 		this.buttonReset.active = hasChanged;
 		// Bottom
 		this.buttonConfirm.active = hasChanged;
+	}
+	
+	@Override
+	public void resize(Minecraft minecraft, int width, int height) {
+		super.resize(minecraft, width, height);
+		if (this.countSlider != null) {
+			int initial = this.countSlider.initialValue;
+			int value = this.countSlider.value;
+			this.iconPreview.setCount(initial);
+			this.closeCountSlider();
+			this.openCountSlider();
+			this.iconPreview.setCount(value);
+		}
+		if (this.sizeSlider != null) {
+			int initial = this.sizeSlider.initialValue;
+			int value = this.sizeSlider.value;
+			this.iconScaleDown = -initial;
+			this.closeSizeSlider();
+			this.openSizeSlider();
+			this.iconScaleDown = -value;
+		}
 	}
 	
 	@Override

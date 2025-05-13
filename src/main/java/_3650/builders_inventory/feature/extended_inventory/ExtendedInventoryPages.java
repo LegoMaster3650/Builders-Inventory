@@ -1,5 +1,6 @@
 package _3650.builders_inventory.feature.extended_inventory;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class ExtendedInventoryPages {
 		if (hasChanged && --timeToSave <= 0) save();
 		
 		if (!PLAYER_MESSAGE_QUEUE.isEmpty() && mc.player != null) {
-			ArrayList<Component> messages = new ArrayList<>(50);
+			ArrayList<Component> messages = new ArrayList<>();
 			PLAYER_MESSAGE_QUEUE.drainTo(messages);
 			for (var msg : messages) mc.player.sendSystemMessage(msg);
 		}
@@ -64,17 +65,26 @@ public class ExtendedInventoryPages {
 	}
 	
 	public static void load() {
+		Minecraft mc = Minecraft.getInstance();
+		if (mc.level != null) load(mc.level.registryAccess());
+		else if (mc.getConnection() != null) load(mc.getConnection().registryAccess());
+		else {
+			BuildersInventory.LOGGER.error("Error loading extended inventory saved data: Not in-game!");
+			PLAYER_MESSAGE_QUEUE.add(Component.translatable("error.builders_inventory.extended_inventory.load_failed"));
+		}
+	}
+	
+	public static void load(RegistryAccess registryAccess) {
 		BuildersInventory.LOGGER.info("Loading Extended Inventory...");
 		BuildersInventory.LOGGER.info("Hey Log Readers: LOGS ARE ZERO-INDEXED");
 		
 		if (loaded && valid && hasChanged) {
 			BuildersInventory.LOGGER.info("Must save extended inventory before reloading");
-			if (save()) {
-//				BuildersInventory.LOGGER.info("Saved");
+			if (save(registryAccess)) {
+				BuildersInventory.LOGGER.info("Saved");
 			} else {
 				BuildersInventory.LOGGER.error("Error loading extended inventory saved data: Could not save first!");
-				var mc = Minecraft.getInstance();
-				mc.player.sendSystemMessage(Component.translatable("error.builders_inventory.extended_inventory.load_failed"));
+				PLAYER_MESSAGE_QUEUE.add(Component.translatable("error.builders_inventory.extended_inventory.load_failed"));
 				return;
 			}
 		}
@@ -85,9 +95,15 @@ public class ExtendedInventoryPages {
 		PAGES.clear();
 		ExtendedInventory.PAGE_CONTAINER.reset();
 		
-		Path root = FabricLoader.getInstance().getConfigDir().resolve(BuildersInventory.MOD_ID);
+		Path root = FabricLoader.getInstance().getGameDir().resolve(BuildersInventory.MOD_ID).resolve("extended_inventory");
 		try {
-			if (!Files.isDirectory(root)) Files.createDirectories(root);
+			if (!Files.isDirectory(root)) {
+				Path oldRoot = FabricLoader.getInstance().getConfigDir().resolve(BuildersInventory.MOD_ID);
+				if (Files.isDirectory(oldRoot)) {
+					root = oldRoot;
+					forceUpdate = true;
+				}
+			}
 			
 			// Get possible filenames
 			String[] filenames = root.toFile().list((dir, name) -> name.startsWith(FILE_PREFIX) && name.endsWith(FILE_SUFFIX));
@@ -102,7 +118,7 @@ public class ExtendedInventoryPages {
 				try {
 					int id = Integer.parseInt(idStr) - 1;
 					
-					var optPage = loadPage(root.resolve(name), id);
+					var optPage = loadPage(registryAccess, root.resolve(name), id);
 					if (optPage.isPresent()) {
 						if (id > max) max = id;
 						pageMap.put(id, optPage.get());
@@ -159,10 +175,13 @@ public class ExtendedInventoryPages {
 				ExtendedInventory.PAGE_CONTAINER.setPage(0);
 			}
 			
-			// Save if forced update (currently only if datafixer runs)
+			// Save if forced update (after datafixer run or folder switch)
 			if (forceUpdate) {
 				BuildersInventory.LOGGER.info("Pages have been migrated from an older version, saving...");
-				if (!save()) {
+				hasChanged = true;
+				for (var page : PAGES) page.discreteChange();
+				deleted = 0;
+				if (!save(registryAccess)) {
 					BuildersInventory.LOGGER.error("Could not save migrated pages!");
 				}
 				BuildersInventory.LOGGER.info("Saved migrated data!");
@@ -171,14 +190,11 @@ public class ExtendedInventoryPages {
 			
 		} catch (Exception e) {
 			BuildersInventory.LOGGER.error("Error loading extended inventory pages!", e);
-			var mc = Minecraft.getInstance();
-			mc.player.sendSystemMessage(Component.translatable("error.builders_inventory.extended_inventory.load_failed").withStyle(ChatFormatting.RED));
+			PLAYER_MESSAGE_QUEUE.add(Component.translatable("error.builders_inventory.extended_inventory.load_failed").withStyle(ChatFormatting.RED));
 		}
 	}
 	
-	public static Optional<ExtendedInventoryPage> loadPage(Path path, int id) throws Exception {
-		Minecraft mc = Minecraft.getInstance();
-		RegistryAccess registryAccess = mc.level.registryAccess();
+	public static Optional<ExtendedInventoryPage> loadPage(RegistryAccess registryAccess, Path path, int id) throws Exception {
 		
 		CompoundTag tag = NbtIo.read(path);
 		
@@ -243,7 +259,22 @@ public class ExtendedInventoryPages {
 	}
 	
 	public static boolean save() {
+		Minecraft mc = Minecraft.getInstance();
+		if (mc.level != null) return save(mc.level.registryAccess());
+		else if (mc.getConnection() != null) return save(mc.getConnection().registryAccess());
+		else {
+			BuildersInventory.LOGGER.error("Error saving extended inventory saved data: Not in-game!");
+			PLAYER_MESSAGE_QUEUE.add(Component.translatable("error.builders_inventory.extended_inventory.save_failed"));
+			return false;
+		}
+	}
+	
+	public static boolean save(RegistryAccess registryAccess) {
 		BuildersInventory.LOGGER.info("Saving Extended Inventory...");
+		if (!hasChanged) {
+			BuildersInventory.LOGGER.info("Nothing to save.");
+			return false;
+		}
 		BuildersInventory.LOGGER.info("Hey Log Readers: LOGS ARE ZERO-INDEXED");
 		
 		timeToSave = 0;
@@ -255,9 +286,8 @@ public class ExtendedInventoryPages {
 			return false;
 		}
 		
-		Path root = FabricLoader.getInstance().getConfigDir().resolve(BuildersInventory.MOD_ID);
+		Path root = FabricLoader.getInstance().getGameDir().resolve(BuildersInventory.MOD_ID).resolve("extended_inventory");
 		try {
-			if (!Files.isDirectory(root)) Files.createDirectories(root);
 			
 			final ArrayList<Pair<CompoundTag, Path>> storeFiles = new ArrayList<>(PAGES.size());
 			final ArrayList<Path> deleteFiles = new ArrayList<>();
@@ -268,7 +298,7 @@ public class ExtendedInventoryPages {
 				if (!page.valid) continue;
 				if (!page.resetChanged()) continue; // resetChanged returns true if changed
 				
-				CompoundTag pageTag = writeTag(page);
+				CompoundTag pageTag = writeTag(registryAccess, page);
 				
 				storeFiles.add(Pair.of(pageTag, root.resolve(FILE_PREFIX + (i + 1) + FILE_SUFFIX)));
 			}
@@ -280,6 +310,18 @@ public class ExtendedInventoryPages {
 					deleteFiles.add(root.resolve(FILE_PREFIX + (i + 1) + FILE_SUFFIX));
 				}
 				deleted = 0;
+			}
+			
+			
+			// Create directory (doing this outside of thread to make sure it gets made before anything else)
+			if (!Files.isDirectory(root)) {
+				try {
+					Files.createDirectories(root);
+				} catch (IOException e) {
+					BuildersInventory.LOGGER.error("Error saving extended inventory pages!", e);
+					PLAYER_MESSAGE_QUEUE.add(Component.translatable("error.builders_inventory.extended_inventory.save_failed").withStyle(ChatFormatting.RED));
+					return false;
+				}
 			}
 			
 			// Make another thread save the stuff instead of the main one :troll:
@@ -308,8 +350,7 @@ public class ExtendedInventoryPages {
 				for (int i = 0; i < deleteFiles.size(); i++) {
 					var path = deleteFiles.get(i);
 					try {
-						Files.deleteIfExists(path);
-						++counter;
+						if (Files.deleteIfExists(path)) ++counter;
 					} catch (Exception e) {
 						++failCounter;
 						BuildersInventory.LOGGER.error("Error deleting extended inventory file " + path.toString() + "!", e);
@@ -332,16 +373,13 @@ public class ExtendedInventoryPages {
 			}
 		} catch (Exception e) {
 			BuildersInventory.LOGGER.error("Error saving extended inventory pages!", e);
-			var mc = Minecraft.getInstance();
-			mc.player.sendSystemMessage(Component.translatable("error.builders_inventory.extended_inventory.save_failed").withStyle(ChatFormatting.RED));
+			PLAYER_MESSAGE_QUEUE.add(Component.translatable("error.builders_inventory.extended_inventory.save_failed").withStyle(ChatFormatting.RED));
 			return false;
 		}
 		return true;
 	}
 	
-	public static CompoundTag writeTag(ExtendedInventoryPage page) {
-		Minecraft mc = Minecraft.getInstance();
-		RegistryAccess registryAccess = mc.level.registryAccess();
+	public static CompoundTag writeTag(RegistryAccess registryAccess, ExtendedInventoryPage page) {
 		
 		CompoundTag tag = new CompoundTag();
 		

@@ -17,7 +17,7 @@ import net.minecraft.world.item.ItemStack;
 public class HotbarSwapper {
 	
 	private static final ResourceLocation SPRITE_HOTBAR = ResourceLocation.withDefaultNamespace("hud/hotbar");
-	private static final ResourceLocation SPRITE_HOTBAR_SELECTION_WIDE = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "hud/hotbar_selection_wide");
+	private static final ResourceLocation SPRITE_HOTBAR_SELECTION_WIDE = BuildersInventory.modLoc("hud/hotbar_selection_wide");
 	
 	public static boolean selecting = false;
 	public static boolean singleColumn = false;

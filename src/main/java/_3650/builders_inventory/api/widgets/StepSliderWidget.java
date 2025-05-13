@@ -1,4 +1,4 @@
-package _3650.builders_inventory.util;
+package _3650.builders_inventory.api.widgets;
 
 import java.util.List;
 import java.util.function.IntConsumer;
@@ -17,13 +17,13 @@ import net.minecraft.util.Mth;
 
 public class StepSliderWidget extends AbstractWidget {
 	
-	private static final ResourceLocation SPRITE_BACKGROUND = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "util/slider_background");
-	private static final ResourceLocation SPRITE_BACKGROUND_CANCEL = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "util/slider_background_cancel");
-	private static final ResourceLocation SPRITE_NOTCH = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "util/slider_notch");
-	private static final ResourceLocation SPRITE_BAR = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "util/slider_bar");
-	private static final ResourceLocation SPRITE_BAR_HIGHLIGHTED = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "util/slider_bar_highlighted");
-	private static final ResourceLocation SPRITE_BUTTON_CANCEL = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "util/button_cancel");
-	private static final ResourceLocation SPRITE_BUTTON_CANCEL_HIGHLIGHTED = ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "util/button_cancel_highlighted");
+	private static final ResourceLocation SPRITE_BACKGROUND = BuildersInventory.modLoc("util/slider_background");
+	private static final ResourceLocation SPRITE_BACKGROUND_CANCEL = BuildersInventory.modLoc("util/slider_background_cancel");
+	private static final ResourceLocation SPRITE_NOTCH = BuildersInventory.modLoc("util/slider_notch");
+	private static final ResourceLocation SPRITE_BAR = BuildersInventory.modLoc("util/slider_bar");
+	private static final ResourceLocation SPRITE_BAR_HIGHLIGHTED = BuildersInventory.modLoc("util/slider_bar_highlighted");
+	private static final ResourceLocation SPRITE_BUTTON_CANCEL = BuildersInventory.modLoc("util/button_cancel");
+	private static final ResourceLocation SPRITE_BUTTON_CANCEL_HIGHLIGHTED = BuildersInventory.modLoc("util/button_cancel_highlighted");
 	
 	private static final IntConsumer NO_CANCEL = x -> {};
 	
@@ -31,7 +31,7 @@ public class StepSliderWidget extends AbstractWidget {
 	private final int z;
 	private final int min;
 	private final int max;
-	private final int initialValue;
+	public final int initialValue;
 	private final Font font;
 	private final Int2ObjectFunction<List<Component>> tooltipFormat;
 	private final IntConsumer onChange;
@@ -123,8 +123,8 @@ public class StepSliderWidget extends AbstractWidget {
 			gui.blitSprite(cancelSprite, this.getX() + cancelX, this.getY() + 4, 12, 12);
 			if (hoveringCancel) {
 				gui.renderComponentTooltip(this.font, List.of(
-						Component.translatable("container.builders_inventory.extended_inventory.util.tooltip.button.cancel").withStyle(ChatFormatting.WHITE),
-						Component.translatable("container.builders_inventory.extended_inventory.util.tooltip.button.cancel.desc").withStyle(ChatFormatting.GRAY)
+						Component.translatable("container.builders_inventory.util.tooltip.button.cancel").withStyle(ChatFormatting.WHITE),
+						Component.translatable("container.builders_inventory.util.tooltip.button.cancel.desc").withStyle(ChatFormatting.GRAY)
 						), mouseX, mouseY);
 			}
 		}
