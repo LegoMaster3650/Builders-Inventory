@@ -579,7 +579,7 @@ public class MiniMessageInstance {
 	}
 	
 	private double toPreviewX(double mouseX) {
-		return ((_previewXMin - mouseX) / _previewScale) - 4;
+		return ((mouseX - 4) / _previewScale) - _previewXMin;
 	}
 	
 	private double toPreviewYLine(double mouseY) {
@@ -590,7 +590,7 @@ public class MiniMessageInstance {
 	 * Make sure to test if line >= 0 outside
 	 */
 	private int getPreviewLine(double localX, double localY) {
-		if (localX >= 4.0 && localX <= Mth.floor(_previewWidth / _previewScale)) {
+		if (localX >= 0 && localX <= Mth.floor(_previewWidth / _previewScale)) {
 			int line = Mth.floor(localY);
 			if (line < previewLines.size()) return line; // line >= 0 tested outside
 		}

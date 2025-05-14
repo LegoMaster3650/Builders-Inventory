@@ -26,8 +26,6 @@ import net.minecraft.world.item.Item;
 public abstract class ClientConfigurationPacketListenerImplMixin {
 	
 	@Shadow
-	private RegistryAccess.Frozen receivedRegistries;
-	@Shadow
 	private FeatureFlagSet enabledFeatures;
 	
 	@Inject(method = "handleConfigurationFinished", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
