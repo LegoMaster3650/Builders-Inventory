@@ -6,7 +6,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -40,9 +39,9 @@ public abstract class GuiMixin {
 	}
 	
 	// Hotbar Selector
-	@Redirect(method = "renderItemHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lnet/minecraft/resources/ResourceLocation;IIII)V", ordinal = 1))
-	private void builders_inventory_hotbarswapper_renderHotbarSelector(GuiGraphics gui, ResourceLocation sprite, int x, int y, int width, int height) {
-		if (!HotbarSwapper.renderHotbarSelector(gui, minecraft, sprite)) gui.blitSprite(sprite, x, y, width, height);
+	@WrapOperation(method = "renderItemHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lnet/minecraft/resources/ResourceLocation;IIII)V", ordinal = 1))
+	private void builders_inventory_hotbarswapper_renderHotbarSelector(GuiGraphics gui, ResourceLocation sprite, int x, int y, int width, int height, Operation<Void> operation) {
+		if (!HotbarSwapper.renderHotbarSelector(gui, minecraft, sprite)) operation.call(gui, sprite, x, y, width, height);
 	}
 	
 	// Items

@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import _3650.builders_inventory.api.minimessage.autocomplete.ReloadableResourceArg;
 import net.minecraft.client.multiplayer.ClientConfigurationPacketListenerImpl;
@@ -25,13 +26,11 @@ import net.minecraft.world.item.Item;
 public abstract class ClientConfigurationPacketListenerImplMixin {
 	
 	@Shadow
-	private RegistryAccess.Frozen receivedRegistries;
-	@Shadow
 	private FeatureFlagSet enabledFeatures;
 	
-	@Inject(method = "handleConfigurationFinished", at = @At("TAIL"))
-	private void builders_inventory_captureItemsAndEntities(ClientboundFinishConfigurationPacket packet, CallbackInfo ci) {
-		HolderLookup<Item> itemReg = this.receivedRegistries.lookupOrThrow(Registries.ITEM).filterFeatures(this.enabledFeatures);
+	@Inject(method = "handleConfigurationFinished", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
+	private void builders_inventory_captureItemsAndEntities(ClientboundFinishConfigurationPacket packet, CallbackInfo ci, RegistryAccess.Frozen registryAccess) {
+		HolderLookup<Item> itemReg = registryAccess.lookupOrThrow(Registries.ITEM).filterFeatures(this.enabledFeatures);
 		ArrayList<String> items = itemReg.listElementIds()
 				.map(ResourceKey::location)
 				.map(ResourceLocation::getPath)
@@ -39,7 +38,7 @@ public abstract class ClientConfigurationPacketListenerImplMixin {
 				.collect(Collectors.toCollection(() -> new ArrayList<>()));
 		ReloadableResourceArg.ITEMS.loadStr(items);
 		
-		HolderLookup<EntityType<?>> entityReg = this.receivedRegistries.lookupOrThrow(Registries.ENTITY_TYPE).filterFeatures(this.enabledFeatures);
+		HolderLookup<EntityType<?>> entityReg = registryAccess.lookupOrThrow(Registries.ENTITY_TYPE).filterFeatures(this.enabledFeatures);
 		ArrayList<String> entities = entityReg.listElementIds()
 				.map(ResourceKey::location)
 				.map(ResourceLocation::getPath)
