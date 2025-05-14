@@ -116,10 +116,6 @@ public class StandardMiniMessageTags {
 						.resource(ReloadableResourceArg.FONTS)
 				)
 				.entry("newline", "br").build()
-//				.entry("space").build(b -> b
-//						.emptyArg()
-//				)
-//				.entry("empty").build()
 				;
 	}
 	
