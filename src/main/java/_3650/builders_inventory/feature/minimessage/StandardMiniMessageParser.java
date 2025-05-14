@@ -268,7 +268,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 							if (rmKey.isEmpty()) return false;
 							
 							ResourceLocation loc = ResourceLocation.parse(rmKey);
-							DataComponentType<?> type = BuiltInRegistries.DATA_COMPONENT_TYPE.get(loc);
+							DataComponentType<?> type = BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(loc);
 							if (type == null) {
 								if (output == MiniMessageTagOutput.SINK && !args.hasNext()) break;
 								else throw invalid("Invalid component type %s", key);
@@ -280,7 +280,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 						} else {
 							// component
 							ResourceLocation loc = ResourceLocation.parse(key);
-							DataComponentType<?> type = BuiltInRegistries.DATA_COMPONENT_TYPE.get(loc);
+							DataComponentType<?> type = BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(loc);
 							if (type == null) {
 								if (output == MiniMessageTagOutput.SINK && !args.hasNext()) break;
 								else throw invalid("Invalid component type %s", key);

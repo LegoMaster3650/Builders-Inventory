@@ -4,6 +4,7 @@ import java.util.List;
 
 import _3650.builders_inventory.BuildersInventory;
 import _3650.builders_inventory.ModKeybinds;
+import _3650.builders_inventory.api.util.GuiUtil;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButton;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButtonGui;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageDualButton;
@@ -315,7 +316,7 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 		int relX = (this.width - this.imageWidth) / 2;
 		int relY = (this.height - this.imageHeight) / 2;
 		ResourceLocation bg = ExtendedInventory.PAGE_CONTAINER.isValid() ? ExtendedInventory.PAGE_CONTAINER.isLocked() ? BACKGROUND_LOCKED : BACKGROUND : BACKGROUND_INVALID;
-		gui.blit(bg, relX, relY, 0, 0, this.imageWidth, this.imageHeight);
+		GuiUtil.blitScreenBackground(gui, bg, relX, relY, this.imageWidth, this.imageHeight);
 	}
 	
 	@Override

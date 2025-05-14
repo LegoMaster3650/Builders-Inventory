@@ -431,7 +431,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 						this.getY() + this.innerPadding(),
 						this.getY() + this.innerPadding() + (int)this.scrollAmount * (this.height - this.totalVerticalPadding() - scrollBarHeight) / this.getMaxScrollAmount());
 				RenderSystem.enableBlend();
-				gui.blitSprite(this.options.getScrollbarSprite(this.isActive(), this.isFocused()), x, y, 1, this.options.scrollbarWidth(), scrollBarHeight);
+				gui.blitSprite(RenderType::guiTextured, this.options.getScrollbarSprite(this.isActive(), this.isFocused()), x, y, 1, this.options.scrollbarWidth(), scrollBarHeight);
 				RenderSystem.disableBlend();
 			}
 			if (this.hasMaxLength()) {
@@ -444,7 +444,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 	
 	private void renderBackground(GuiGraphics gui) {
 		ResourceLocation background = this.options.getBackgroundSprite(this.isActive(), this.isFocused());
-		gui.blitSprite(background, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+		gui.blitSprite(RenderType::guiTextured, background, this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 	
 	private void renderContents(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {

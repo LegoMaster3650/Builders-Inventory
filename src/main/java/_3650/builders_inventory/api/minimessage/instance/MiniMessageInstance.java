@@ -40,6 +40,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import net.minecraft.util.profiling.Profiler;
+import net.minecraft.util.profiling.ProfilerFiller;
 
 // help me
 /**
@@ -618,9 +620,10 @@ public class MiniMessageInstance {
 		ArrayList<String> formatUnclosed = new ArrayList<>(unclosed.size());
 		for (String s : unclosed) formatUnclosed.add("</" + s + '>');
 		endSuggestion = new SuggestionList(formatUnclosed, 0);
-		minecraft.getProfiler().push("cursorMovedMM");
+		ProfilerFiller profiler = Profiler.get();
+		profiler.push("cursorMovedMM");
 		cursorMoved(input.getValue(), input.getCursorPosition());
-		minecraft.getProfiler().pop();
+		profiler.pop();
 	}
 	
 	private void cursorMoved(String value, int cursor) {

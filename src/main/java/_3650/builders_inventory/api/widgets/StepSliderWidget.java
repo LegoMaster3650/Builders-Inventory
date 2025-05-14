@@ -11,6 +11,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -97,18 +98,18 @@ public class StepSliderWidget extends AbstractWidget {
 		gui.pose().pushPose();
 		gui.pose().translate(0, 0, this.z);
 		
-		gui.blitSprite(this.canCancel ? SPRITE_BACKGROUND_CANCEL : SPRITE_BACKGROUND, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+		gui.blitSprite(RenderType::guiTextured, this.canCancel ? SPRITE_BACKGROUND_CANCEL : SPRITE_BACKGROUND, this.getX(), this.getY(), this.getWidth(), this.getHeight());
 		
 		for (int i = 1; i <= this.innerNotch; i++) {
 			final int snx = 6 + Math.round(i * this.notchStep);
-			gui.blitSprite(SPRITE_NOTCH, this.getX() + snx, this.getY() + 9, 1, 5);
+			gui.blitSprite(RenderType::guiTextured, SPRITE_NOTCH, this.getX() + snx, this.getY() + 9, 1, 5);
 		}
 		
 		final int x = mouseX - this.getX();
 		final int y = mouseY - this.getY();
 		final int sbx = 4 + Math.round((this.value - this.min) * this.notchStep);
 		final ResourceLocation barSprite = (dragging || x >= sbx && x < sbx + 4 && y >= 6 && y < 18) ? SPRITE_BAR_HIGHLIGHTED : SPRITE_BAR;
-		gui.blitSprite(barSprite, this.getX() + sbx, this.getY() + 5, 5, 13);
+		gui.blitSprite(RenderType::guiTextured, barSprite, this.getX() + sbx, this.getY() + 5, 5, 13);
 		
 		if (x >= 4 && x < this.innerWidth + 8 && y >= 4 && y < 18) {
 			final int newVal = Mth.clamp((int) Math.round(this.min + (x - 6.0) / this.innerWidth * this.range), this.min, this.max);
@@ -120,7 +121,7 @@ public class StepSliderWidget extends AbstractWidget {
 			final int cancelX = this.width - 16;
 			final boolean hoveringCancel = !dragging && x >= cancelX && x < cancelX + 12 && y >= 4 && y < 16;
 			final ResourceLocation cancelSprite = hoveringCancel ? SPRITE_BUTTON_CANCEL_HIGHLIGHTED : SPRITE_BUTTON_CANCEL;
-			gui.blitSprite(cancelSprite, this.getX() + cancelX, this.getY() + 4, 12, 12);
+			gui.blitSprite(RenderType::guiTextured, cancelSprite, this.getX() + cancelX, this.getY() + 4, 12, 12);
 			if (hoveringCancel) {
 				gui.renderComponentTooltip(this.font, List.of(
 						Component.translatable("container.builders_inventory.util.tooltip.button.cancel").withStyle(ChatFormatting.WHITE),

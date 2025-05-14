@@ -48,7 +48,7 @@ public class ExtendedInventoryPages {
 		if (!PLAYER_MESSAGE_QUEUE.isEmpty() && mc.player != null) {
 			ArrayList<Component> messages = new ArrayList<>();
 			PLAYER_MESSAGE_QUEUE.drainTo(messages);
-			for (var msg : messages) mc.player.sendSystemMessage(msg);
+			for (var msg : messages) mc.player.displayClientMessage(msg, false);
 		}
 	}
 	

@@ -48,8 +48,8 @@ dependencies {
 	modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
 	
 	// Testing Mods
-	modLocalRuntime "maven.modrinth:raised:Fabric-1.21.1-4.0.1"
-	modLocalRuntime "maven.modrinth:spark:1.10.109-fabric"
+	modLocalRuntime "maven.modrinth:raised:Fabric-1.21.3-4.0.1"
+	modLocalRuntime "maven.modrinth:spark:1.10.119-fabric"
 	modLocalRuntime "maven.modrinth:fabric-permissions-api:0.3.3"
 }
 

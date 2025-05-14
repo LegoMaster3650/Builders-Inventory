@@ -1,12 +1,13 @@
 package _3650.builders_inventory.mixin.feature.hotbar_swapper;
 
+import java.util.function.Function;
+
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -18,6 +19,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.PlayerRideableJumping;
 import net.minecraft.world.item.ItemStack;
@@ -34,15 +36,15 @@ public abstract class GuiMixin {
 	 */
 	
 	// Hotbars
-	@Inject(method = "renderItemHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lnet/minecraft/resources/ResourceLocation;IIII)V", ordinal = 0, shift = At.Shift.AFTER))
+	@Inject(method = "renderItemHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Ljava/util/function/Function;Lnet/minecraft/resources/ResourceLocation;IIII)V", ordinal = 0, shift = At.Shift.AFTER))
 	private void builders_inventory_hotbarswapper_renderHotbars(GuiGraphics gui, DeltaTracker deltaTick, CallbackInfo ci) {
 		HotbarSwapper.renderHotbars(gui, minecraft);
 	}
 	
 	// Hotbar Selector
-	@Redirect(method = "renderItemHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lnet/minecraft/resources/ResourceLocation;IIII)V", ordinal = 1))
-	private void builders_inventory_hotbarswapper_renderHotbarSelector(GuiGraphics gui, ResourceLocation sprite, int x, int y, int width, int height) {
-		if (!HotbarSwapper.renderHotbarSelector(gui, minecraft, sprite)) gui.blitSprite(sprite, x, y, width, height);
+	@WrapOperation(method = "renderItemHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Ljava/util/function/Function;Lnet/minecraft/resources/ResourceLocation;IIII)V", ordinal = 1))
+	private void builders_inventory_hotbarswapper_renderHotbarSelector(GuiGraphics gui, Function<ResourceLocation, RenderType> renderTypeGetter, ResourceLocation sprite, int x, int y, int width, int height, Operation<Void> operation) {
+		if (!HotbarSwapper.renderHotbarSelector(gui, minecraft, sprite)) operation.call(gui, renderTypeGetter, sprite, x, y, width, height);
 	}
 	
 	// Items

@@ -11,6 +11,7 @@ import org.joml.Math;
 
 import _3650.builders_inventory.BuildersInventory;
 import _3650.builders_inventory.ModKeybinds;
+import _3650.builders_inventory.api.util.GuiUtil;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButton;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButtonGui;
 import net.minecraft.ChatFormatting;
@@ -27,6 +28,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.CommonComponents;
@@ -264,46 +266,24 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 	
 	@Override
 	public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
-		this.tileTexts.clear();
 		super.render(gui, mouseX, mouseY, partialTick);
 		gui.drawString(this.font, this.title, this.leftPos + 8, this.topPos + 6, 0x404040, false);
 		
 		if (this.dragTile != null) {
 			int col = this.lastHoveredIndex % 10;
 			int row = (this.lastHoveredIndex / 10) - this.scrollRow;
-			gui.blitSprite(SPRITE_TILE_SHADOW, this.leftPos + tileX(col) + 1, this.topPos + tileY(row) + 1, 16, 16);
+			gui.blitSprite(RenderType::guiTextured, SPRITE_TILE_SHADOW, this.leftPos + tileX(col) + 1, this.topPos + tileY(row) + 1, 16, 16);
 //			gui.fill(this.leftPos + tileX(col) + 1, this.topPos + tileY(row) + 1, this.leftPos + tileX(col) + 1 + 16, this.topPos + tileY(row) + 1 + 16, 1, 0xBB77BB77); //DEBUG THING
-			gui.blitSprite(this.dragTileIndex == ExtendedInventory.getPage() ? SPRITE_TILE_ACTIVE_SELECTED : SPRITE_TILE_SELECTED, mouseX - this.dragOffsetX, mouseY - this.dragOffsetY, PageTileWidget.TILE_Z_4, 16, 16);
+			gui.blitSprite(RenderType::guiTextured, this.dragTileIndex == ExtendedInventory.getPage() ? SPRITE_TILE_ACTIVE_SELECTED : SPRITE_TILE_SELECTED, mouseX - this.dragOffsetX, mouseY - this.dragOffsetY, PageTileWidget.TILE_Z_4, 16, 16);
 			if (this.dragTile.page.icon.isEmpty()) {
-				this.renderTileText(this.dragTileIndex + 1, mouseX - this.dragOffsetX + 8, mouseY - this.dragOffsetY + 4, PageTileWidget.TILE_Z_4);
+				this.renderTileText(gui, this.dragTileIndex + 1, mouseX - this.dragOffsetX + 8, mouseY - this.dragOffsetY + 4, PageTileWidget.TILE_Z_4);
 			} else {
-				this.renderTileIcon(this.dragTile.page.icon, this.dragTile.page.iconScaleDown, gui, mouseX - this.dragOffsetX, mouseY - this.dragOffsetY, PageTileWidget.TILE_Z_4);
+				this.renderTileIcon(gui, this.dragTile.page.icon, this.dragTile.page.iconScaleDown, mouseX - this.dragOffsetX, mouseY - this.dragOffsetY, PageTileWidget.TILE_Z_4);
 			}
 			if (!this.dragPickup) this.renderTileTooltip(this.dragTile, this.dragTileIndex, gui, mouseX, mouseY, PageTileWidget.TILE_Z_4);
 		} else {
 			this.renderTooltip(gui, mouseX, mouseY, PageTileWidget.TILE_Z_4);
 		}
-		
-		this.drawTileTexts(gui);
-	}
-	
-	@SuppressWarnings("deprecation")
-	private void drawTileTexts(GuiGraphics gui) {
-		gui.drawManaged(() -> {
-			for (var tt : this.tileTexts) {
-				String text = String.valueOf(tt.number);
-				gui.pose().pushPose();
-				gui.pose().translate(tt.x, tt.y, tt.z);
-				if (text.length() > 2) {
-					float scale = 2f / text.length();
-					gui.pose().translate(0, 4 * (1f - scale), 0); // (8*scale - 8) / 2
-					gui.pose().scale(scale, scale, 1f);
-				}
-				gui.drawString(this.font, text, -font.width(text) / 2, 0, 0xFFFFFF, true);
-				gui.pose().popPose();
-			}
-		});
-		this.tileTexts.clear();
 	}
 	
 	protected void renderTooltip(GuiGraphics gui, int mouseX, int mouseY, int z) {
@@ -317,26 +297,20 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 		this.exGui.renderTooltip(this.font, gui, mouseX, mouseY);
 	}
 	
-	private final ArrayList<TileTextRenderData> tileTexts = new ArrayList<>();
-	
-	private static class TileTextRenderData {
-		public final int number;
-		public final int x;
-		public final int y;
-		public final int z;
-		public TileTextRenderData(int number, int x, int y, int z) {
-			this.number = number;
-			this.x = x;
-			this.y = y;
-			this.z = z;
+	void renderTileText(GuiGraphics gui, int number, int x, int y, int z) {
+		String text = String.valueOf(number);
+		gui.pose().pushPose();
+		gui.pose().translate(x, y, z);
+		if (text.length() > 2) {
+			float scale = 2f / text.length();
+			gui.pose().translate(0, 4 * (1f - scale), 0); // (8*scale - 8) / 2
+			gui.pose().scale(scale, scale, 1f);
 		}
+		gui.drawCenteredString(this.font, text, 0, 0, 0xFFFFFF);
+		gui.pose().popPose();
 	}
 	
-	void renderTileText(int number, int x, int y, int z) {
-		this.tileTexts.add(new TileTextRenderData(number, x, y, z));
-	}
-	
-	void renderTileIcon(ItemStack icon, int iconScaleDown, GuiGraphics gui, int x, int y, int z) {
+	void renderTileIcon(GuiGraphics gui, ItemStack icon, int iconScaleDown, int x, int y, int z) {
 		gui.pose().pushPose();
 		gui.pose().translate(x, y, z);
 		if (iconScaleDown > 0) {
@@ -474,10 +448,10 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 	@Override
 	public void renderBackground(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
 		this.renderTransparentBackground(gui);
-		gui.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+		GuiUtil.blitScreenBackground(gui, BACKGROUND, this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
 		
 		ResourceLocation scrollSprite = this.canScroll() ? SPRITE_CREATIVE_SCROLLER : SPRITE_CREATIVE_SCROLLER_DISABLED;
-		gui.blitSprite(scrollSprite, this.leftPos + 193, this.topPos + 18 + (int)((178 - 15) * this.scrollAmount), 12, 15);
+		gui.blitSprite(RenderType::guiTextured, scrollSprite, this.leftPos + 193, this.topPos + 18 + (int)((178 - 15) * this.scrollAmount), 12, 15);
 	}
 	
 	@Override
@@ -620,19 +594,19 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 				}
 				int mx = this.slowMoveStartX + (int)((x - this.slowMoveStartX) * progress);
 				int my = this.slowMoveStartY + (int)((y - this.slowMoveStartY) * progress);
-				if (this.slowMoveShadow) gui.blitSprite(SPRITE_TILE_SHADOW, x, y, 16, 16);
-				gui.blitSprite(sprite, mx, my, this.slowMoveZ, 16, 16);
+				if (this.slowMoveShadow) gui.blitSprite(RenderType::guiTextured, SPRITE_TILE_SHADOW, x, y, 16, 16);
+				gui.blitSprite(RenderType::guiTextured, sprite, mx, my, this.slowMoveZ, 16, 16);
 				if (this.page.icon.isEmpty()) {
-					this.screen.renderTileText(this.index + 1, mx + 8, my + 4, this.slowMoveZ);
+					this.screen.renderTileText(gui, this.index + 1, mx + 8, my + 4, this.slowMoveZ);
 				} else {
-					this.screen.renderTileIcon(this.page.icon, this.page.iconScaleDown, gui, mx, my, this.slowMoveZ);
+					this.screen.renderTileIcon(gui, this.page.icon, this.page.iconScaleDown, mx, my, this.slowMoveZ);
 				}
 			} else {
-				gui.blitSprite(sprite, x, y, 16, 16);
+				gui.blitSprite(RenderType::guiTextured, sprite, x, y, 16, 16);
 				if (this.page.icon.isEmpty()) {
-					this.screen.renderTileText(this.index + 1, x + 8, y + 4, 0);
+					this.screen.renderTileText(gui, this.index + 1, x + 8, y + 4, 0);
 				} else {
-					this.screen.renderTileIcon(this.page.icon, this.page.iconScaleDown, gui, x, y, 0);
+					this.screen.renderTileIcon(gui, this.page.icon, this.page.iconScaleDown, x, y, 0);
 				}
 			}
 		}
@@ -653,14 +627,14 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 		}
 		
 		@Override
-		public int getHeight() {
+		public int getHeight(Font font) {
 			return 120;
 		}
 		
 		@Override
-		public void renderImage(Font font, int x, int y, GuiGraphics gui) {
+		public void renderImage(Font font, int x, int y, int width, int height, GuiGraphics gui) {
 			ResourceLocation background = this.page.valid ? this.page.isLocked() ? SPRITE_BACKGROUND_LOCKED : SPRITE_BACKGROUND : SPRITE_BACKGROUND_INVALID;
-			gui.blitSprite(background, x, y, this.getWidth(font), this.getHeight());
+			gui.blitSprite(RenderType::guiTextured, background, x, y, this.getWidth(font), this.getHeight(font));
 			if (!this.page.valid) return;
 			int slot = 0;
 			for (int row = 0; row < 6; row++) {

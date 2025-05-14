@@ -7,6 +7,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.CommonComponents;
@@ -39,7 +40,7 @@ public abstract class AbstractExtendedImageButton extends AbstractButton {
 			this.setFocused(false);
 		}
 		var sprite = this.sprites().get(this.isActive(), this.isHoveredOrFocused());
-		gui.blitSprite(sprite, this.getX(), this.getY(), this.width, this.height);
+		gui.blitSprite(RenderType::guiTextured, sprite, this.getX(), this.getY(), this.width, this.height);
 	}
 	
 	@Override

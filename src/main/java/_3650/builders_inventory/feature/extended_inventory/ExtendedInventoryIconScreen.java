@@ -4,6 +4,7 @@ import java.util.List;
 
 import _3650.builders_inventory.BuildersInventory;
 import _3650.builders_inventory.ModKeybinds;
+import _3650.builders_inventory.api.util.GuiUtil;
 import _3650.builders_inventory.api.widgets.StepSliderWidget;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButton;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButtonGui;
@@ -402,7 +403,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 	@Override
 	public void renderBackground(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
 		this.renderTransparentBackground(gui);
-		gui.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+		GuiUtil.blitScreenBackground(gui, BACKGROUND, this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
 	}
 	
 	public void openCountSlider() {
