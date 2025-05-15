@@ -77,32 +77,12 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 				if (output == MiniMessageTagOutput.SINK) return false;
 				else throw invalid("Color name cannot be empty");
 			}
-			if (colName.charAt(0) == '#') {
-				// hex color tag
-				try {
-					int color = Integer.parseInt(colName.substring(1), 16);
-					if (color > 0xFFFFFF) throw invalid("Color %s must be less than #FFFFFF", name);
-					output.push(new ColorFormat(argString, name, TextColor.fromRgb(color)));
-					return true;
-				} catch (NumberFormatException e) {
-					if (output == MiniMessageTagOutput.SINK) return false;
-					else throw invalid("%s is not a valid hex color", name);
-				} catch (IndexOutOfBoundsException e) {
-					if (output == MiniMessageTagOutput.SINK) return false;
-					else throw invalid("Color cannot be empty");
-				}
-			}
-			if (colName.equalsIgnoreCase("grey")) colName = "gray";
-			if (MiniMessageParser.INVALID_COLOR_NAME.matcher(colName.toLowerCase(Locale.ROOT)).find()) {
+			var color = MiniMessageParser.parseColor(colName);
+			if (color.isEmpty()) {
 				if (output == MiniMessageTagOutput.SINK) return false;
 				else throw invalid("%s is not a valid color", colName);
 			}
-			var format = ChatFormatting.getByName(colName);
-			if (format == null) {
-				if (output == MiniMessageTagOutput.SINK) return false;
-				else throw invalid("%s is not a valid color", colName);
-			}
-			output.push(new ColorFormat(argString, name, TextColor.fromLegacyFormat(format)));
+			output.push(new ColorFormat(argString, name, color.get()));
 			return true;
 		}
 		case "black":
@@ -124,8 +104,12 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 		case "yellow":
 		case "white":
 		{
-			var format = ChatFormatting.getByName(name);
-			if (format != null) output.push(new ColorFormat(argString, name, TextColor.fromLegacyFormat(format)));
+			var color = MiniMessageParser.parseColor(name);
+			if (color.isEmpty()) {
+				if (output == MiniMessageTagOutput.SINK) return false;
+				else throw invalid("%s is not a valid color, but should be! Please report this bug!", name);
+			}
+			output.push(new ColorFormat(argString, name, color.get()));
 			return true;
 		}
 		case "bold":

@@ -9,11 +9,11 @@ import net.minecraft.resources.ResourceLocation;
 
 public class UnsetColorStyle {
 	
-	private final boolean bold;
-	private final boolean italic;
-	private final boolean underlined;
-	private final boolean strikethrough;
-	private final boolean obfuscated;
+	private final Boolean bold;
+	private final Boolean italic;
+	private final Boolean underlined;
+	private final Boolean strikethrough;
+	private final Boolean obfuscated;
 	private final ClickEvent clickEvent;
 	private final HoverEvent hoverEvent;
 	private final String insertion;
