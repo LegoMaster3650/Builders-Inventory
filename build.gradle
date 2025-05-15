@@ -49,7 +49,7 @@ dependencies {
 	
 	// Testing Mods
 	modLocalRuntime "maven.modrinth:raised:Fabric-1.21.3-4.0.1"
-	modLocalRuntime "maven.modrinth:spark:1.10.119-fabric"
+	modLocalRuntime "maven.modrinth:spark:1.10.121-fabric"
 	modLocalRuntime "maven.modrinth:fabric-permissions-api:0.3.3"
 }
 

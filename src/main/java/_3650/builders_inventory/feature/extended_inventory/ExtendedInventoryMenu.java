@@ -1,9 +1,5 @@
 package _3650.builders_inventory.feature.extended_inventory;
 
-import org.jetbrains.annotations.Nullable;
-
-import com.mojang.datafixers.util.Pair;
-
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -148,11 +144,16 @@ public class ExtendedInventoryMenu extends AbstractContainerMenu {
 			return this.target.getMaxStackSize(stack);
 		}
 		
-		@Nullable
 		@Override
-		public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
-			return this.target.getNoItemIcon();
+		public ResourceLocation getNoItemIcon() {
+			return super.getNoItemIcon();
 		}
+		
+//		@Nullable
+//		@Override
+//		public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
+//			return this.target.getNoItemIcon();
+//		}
 		
 		@Override
 		public ItemStack remove(int amount) {

@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.regex.Pattern;
-
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.serialization.DynamicOps;
@@ -380,8 +378,6 @@ public class MiniMessageParser {
 		return new Literal(arg);
 	}
 	
-	public static final Pattern INVALID_COLOR_NAME = Pattern.compile("[^a-z]");
-	
 	public static Optional<TextColor> parseColor(String color) {
 		if (color.startsWith("#")) {
 			try {
@@ -391,11 +387,48 @@ public class MiniMessageParser {
 				return Optional.empty();
 			}
 		} else {
-			String colorLower = color.toLowerCase(Locale.ROOT);
-			if (INVALID_COLOR_NAME.matcher(colorLower).find()) return Optional.empty();
-			var format = ChatFormatting.getByName(colorLower);
-			return format == null ? Optional.empty() : Optional.ofNullable(TextColor.fromLegacyFormat(format));
+			return parseNamedColor(color);
 		}
+	}
+	
+	public static Optional<TextColor> parseNamedColor(String color) {
+		switch (color.toLowerCase(Locale.ROOT)) {
+		case "black":
+			return Optional.of(TextColor.fromLegacyFormat(ChatFormatting.BLACK));
+		case "dark_blue":
+			return Optional.of(TextColor.fromLegacyFormat(ChatFormatting.DARK_BLUE));
+		case "dark_green":
+			return Optional.of(TextColor.fromLegacyFormat(ChatFormatting.DARK_GREEN));
+		case "dark_aqua":
+			return Optional.of(TextColor.fromLegacyFormat(ChatFormatting.DARK_AQUA));
+		case "dark_red":
+			return Optional.of(TextColor.fromLegacyFormat(ChatFormatting.DARK_RED));
+		case "dark_purple":
+			return Optional.of(TextColor.fromLegacyFormat(ChatFormatting.DARK_PURPLE));
+		case "gold":
+			return Optional.of(TextColor.fromLegacyFormat(ChatFormatting.GOLD));
+		case "gray":
+		case "grey":
+			return Optional.of(TextColor.fromLegacyFormat(ChatFormatting.GRAY));
+		case "dark_gray":
+		case "dark_grey":
+			return Optional.of(TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY));
+		case "blue":
+			return Optional.of(TextColor.fromLegacyFormat(ChatFormatting.BLUE));
+		case "green":
+			return Optional.of(TextColor.fromLegacyFormat(ChatFormatting.GREEN));
+		case "aqua":
+			return Optional.of(TextColor.fromLegacyFormat(ChatFormatting.AQUA));
+		case "red":
+			return Optional.of(TextColor.fromLegacyFormat(ChatFormatting.RED));
+		case "light_purple":
+			return Optional.of(TextColor.fromLegacyFormat(ChatFormatting.LIGHT_PURPLE));
+		case "yellow":
+			return Optional.of(TextColor.fromLegacyFormat(ChatFormatting.YELLOW));
+		case "white":
+			return Optional.of(TextColor.fromLegacyFormat(ChatFormatting.WHITE));
+		}
+		return Optional.empty();
 	}
 	
 	public <T> boolean parseComponent(DataComponentType<T> type, Tag tag, DataComponentPatch.Builder components) {

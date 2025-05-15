@@ -77,6 +77,9 @@ public class StandardMiniMessageTags {
 						.arg(colorsArg)
 				)
 				.entry(colors).build()
+				.entry("shadow").build(b -> b
+						.arg(colorsArg)
+				)
 				.entry(styles).build()
 				.entry("reset").build()
 				.entry("click").build(b -> b

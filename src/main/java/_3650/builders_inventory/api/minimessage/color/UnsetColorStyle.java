@@ -9,17 +9,19 @@ import net.minecraft.resources.ResourceLocation;
 
 public class UnsetColorStyle {
 	
-	private final boolean bold;
-	private final boolean italic;
-	private final boolean underlined;
-	private final boolean strikethrough;
-	private final boolean obfuscated;
+	private final Integer shadowColor;
+	private final Boolean bold;
+	private final Boolean italic;
+	private final Boolean underlined;
+	private final Boolean strikethrough;
+	private final Boolean obfuscated;
 	private final ClickEvent clickEvent;
 	private final HoverEvent hoverEvent;
 	private final String insertion;
 	private final ResourceLocation font;
 	
 	public UnsetColorStyle(Style style) {
+		this.shadowColor = style.getShadowColor();
 		this.bold = style.isBold();
 		this.italic = style.isItalic();
 		this.underlined = style.isUnderlined();
@@ -32,7 +34,7 @@ public class UnsetColorStyle {
 	}
 	
 	public Style withColor(int color) {
-		Style style = StyleInvoker.construct(TextColor.fromRgb(color), this.bold, this.italic, this.underlined, this.strikethrough, this.obfuscated, clickEvent, hoverEvent, insertion, font);
+		Style style = StyleInvoker.construct(TextColor.fromRgb(color), this.shadowColor, this.bold, this.italic, this.underlined, this.strikethrough, this.obfuscated, clickEvent, hoverEvent, insertion, font);
 		return style.equals(Style.EMPTY) ? Style.EMPTY : style;
 	}
 	
