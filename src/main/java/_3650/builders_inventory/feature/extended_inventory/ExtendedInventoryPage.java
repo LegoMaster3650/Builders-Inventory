@@ -1,11 +1,9 @@
 package _3650.builders_inventory.feature.extended_inventory;
 
 import java.util.List;
+import java.util.stream.Stream;
 
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.item.ItemStack;
 
 public class ExtendedInventoryPage {
@@ -67,15 +65,8 @@ public class ExtendedInventoryPage {
 		if (valid && !locked) items.clear();
 	}
 	
-	public ListTag createTag(HolderLookup.Provider registryAccess) {
-		var tag = new ListTag();
-		
-		for (var stack : items) {
-			var result = ItemStack.OPTIONAL_CODEC.encodeStart(registryAccess.createSerializationContext(NbtOps.INSTANCE), stack).resultOrPartial();
-			if (result.isPresent()) tag.add(result.get());
-		}
-		
-		return tag;
+	protected Stream<ItemStack> streamItems() {
+		return items.stream();
 	}
 
 	public static ExtendedInventoryPage of(

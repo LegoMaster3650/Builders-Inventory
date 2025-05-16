@@ -20,13 +20,14 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.item.ItemStack;
 
 public class ExtendedInventoryPages {
@@ -67,21 +68,21 @@ public class ExtendedInventoryPages {
 	
 	public static void load() {
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.level != null) load(mc.level.registryAccess());
-		else if (mc.getConnection() != null) load(mc.getConnection().registryAccess());
+		if (mc.level != null) load(mc.level.registryAccess().createSerializationContext(NbtOps.INSTANCE));
+		else if (mc.getConnection() != null) load(mc.getConnection().registryAccess().createSerializationContext(NbtOps.INSTANCE));
 		else {
 			BuildersInventory.LOGGER.error("Error loading extended inventory saved data: Not in-game!");
 			PLAYER_MESSAGE_QUEUE.add(Component.translatable("error.builders_inventory.extended_inventory.load_failed"));
 		}
 	}
 	
-	public static void load(RegistryAccess registryAccess) {
+	public static void load(RegistryOps<Tag> registryOps) {
 		BuildersInventory.LOGGER.info("Loading Extended Inventory...");
 		BuildersInventory.LOGGER.info("Hey Log Readers: LOGS ARE ZERO-INDEXED");
 		
 		if (loaded && valid && hasChanged) {
 			BuildersInventory.LOGGER.info("Must save extended inventory before reloading");
-			if (save(registryAccess)) {
+			if (save(registryOps)) {
 				BuildersInventory.LOGGER.info("Saved");
 			} else {
 				BuildersInventory.LOGGER.error("Error loading extended inventory saved data: Could not save first!");
@@ -119,7 +120,7 @@ public class ExtendedInventoryPages {
 				try {
 					int id = Integer.parseInt(idStr) - 1;
 					
-					var optPage = loadPage(registryAccess, root.resolve(name), id);
+					var optPage = loadPage(registryOps, root.resolve(name), id);
 					if (optPage.isPresent()) {
 						if (id > max) max = id;
 						pageMap.put(id, optPage.get());
@@ -181,7 +182,7 @@ public class ExtendedInventoryPages {
 				hasChanged = true;
 				for (var page : PAGES) page.discreteChange();
 				deleted = 0;
-				if (!save(registryAccess)) {
+				if (!save(registryOps)) {
 					BuildersInventory.LOGGER.error("Could not save migrated pages!");
 				}
 				BuildersInventory.LOGGER.info("Saved migrated data!");
@@ -194,7 +195,7 @@ public class ExtendedInventoryPages {
 		}
 	}
 	
-	public static Optional<ExtendedInventoryPage> loadPage(RegistryAccess registryAccess, Path path, int id) throws Exception {
+	public static Optional<ExtendedInventoryPage> loadPage(RegistryOps<Tag> registryOps, Path path, int id) throws Exception {
 		
 		CompoundTag tag = NbtIo.read(path);
 		
@@ -220,7 +221,7 @@ public class ExtendedInventoryPages {
 		
 		List<ItemStack> items = itemTags.stream()
 				.map(itemTag -> ItemStack.OPTIONAL_CODEC
-					.parse(registryAccess.createSerializationContext(NbtOps.INSTANCE), itemTag)
+					.parse(registryOps, itemTag)
 					.resultOrPartial(err -> BuildersInventory.LOGGER.error("Could not parse extended inventory item: '{}'", err))
 					.orElse(ItemStack.EMPTY))
 				.collect(Collectors.toList());
@@ -230,12 +231,12 @@ public class ExtendedInventoryPages {
 		String name = tag.getStringOr("name", "");
 		
 		ItemStack icon = tag.getCompound("icon").flatMap(iconTag -> ItemStack.OPTIONAL_CODEC
-					.parse(registryAccess.createSerializationContext(NbtOps.INSTANCE), iconTag)
+					.parse(registryOps, iconTag)
 					.resultOrPartial(err -> BuildersInventory.LOGGER.error("Could not parse extended inventory icon {}: '{}'", iconTag, err)))
 				.orElse(ItemStack.EMPTY);
 		
 		ItemStack originalIcon = tag.getCompound("original_icon").flatMap(originalIconTag -> ItemStack.OPTIONAL_CODEC
-					.parse(registryAccess.createSerializationContext(NbtOps.INSTANCE), originalIconTag)
+					.parse(registryOps, originalIconTag)
 					.resultOrPartial(err -> BuildersInventory.LOGGER.error("Could not parse extended inventory icon {}: '{}'", originalIconTag, err)))
 				.orElse(ItemStack.EMPTY);
 		
@@ -253,8 +254,8 @@ public class ExtendedInventoryPages {
 	
 	public static boolean save() {
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.level != null) return save(mc.level.registryAccess());
-		else if (mc.getConnection() != null) return save(mc.getConnection().registryAccess());
+		if (mc.level != null) return save(mc.level.registryAccess().createSerializationContext(NbtOps.INSTANCE));
+		else if (mc.getConnection() != null) return save(mc.getConnection().registryAccess().createSerializationContext(NbtOps.INSTANCE));
 		else {
 			BuildersInventory.LOGGER.error("Error saving extended inventory saved data: Not in-game!");
 			PLAYER_MESSAGE_QUEUE.add(Component.translatable("error.builders_inventory.extended_inventory.save_failed"));
@@ -262,7 +263,7 @@ public class ExtendedInventoryPages {
 		}
 	}
 	
-	public static boolean save(RegistryAccess registryAccess) {
+	public static boolean save(RegistryOps<Tag> registryOps) {
 		BuildersInventory.LOGGER.info("Saving Extended Inventory...");
 		if (!hasChanged) {
 			BuildersInventory.LOGGER.info("Nothing to save.");
@@ -291,7 +292,7 @@ public class ExtendedInventoryPages {
 				if (!page.valid) continue;
 				if (!page.resetChanged()) continue; // resetChanged returns true if changed
 				
-				CompoundTag pageTag = writeTag(registryAccess, page);
+				CompoundTag pageTag = writeTag(registryOps, page);
 				
 				storeFiles.add(Pair.of(pageTag, root.resolve(FILE_PREFIX + (i + 1) + FILE_SUFFIX)));
 			}
@@ -372,13 +373,17 @@ public class ExtendedInventoryPages {
 		return true;
 	}
 	
-	public static CompoundTag writeTag(RegistryAccess registryAccess, ExtendedInventoryPage page) {
+	public static CompoundTag writeTag(RegistryOps<Tag> registryOps, ExtendedInventoryPage page) {
 		
 		CompoundTag tag = new CompoundTag();
 		
 		NbtUtils.addCurrentDataVersion(tag);
 		tag.putInt("version", ModDataFixer.VERSION);
-		tag.put("items", page.createTag(registryAccess));
+		tag.put("items", page.streamItems()
+				.map(stack -> ItemStack.OPTIONAL_CODEC.encodeStart(registryOps, stack)
+						.resultOrPartial()
+						.orElse(new CompoundTag()))
+				.collect(Collectors.toCollection(ListTag::new)));
 		tag.putBoolean("locked", page.isLocked());
 		if (!page.getName().isBlank()) tag.putString("name", page.getName());
 		if (!page.icon.isEmpty()) {
