@@ -233,9 +233,7 @@ public class ExtendedInventory {
 			ItemStack swapItem = PAGE_CONTAINER.swapItem(slot - 36, mc.player.getInventory().getItem(hotbar));
 			int swapSlot = hotbar == InventoryMenu.SHIELD_SLOT ? InventoryMenu.SHIELD_SLOT : hotbar + InventoryMenu.USE_ROW_SLOT_START;
 			mc.player.inventoryMenu.getSlot(swapSlot).set(swapItem);
-			mc.gameMode.handleCreativeModeItemAdd(
-					swapItem,
-					swapSlot);
+			mc.gameMode.handleCreativeModeItemAdd(swapItem, swapSlot);
 		}
 	}
 	
