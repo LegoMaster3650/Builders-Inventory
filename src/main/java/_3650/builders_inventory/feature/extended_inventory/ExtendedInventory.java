@@ -173,7 +173,7 @@ public class ExtendedInventory {
 		
 		ExtendedInventoryPages.tick(mc);
 		
-		if (mc.screen == null && ModKeybinds.OPEN_EXTENDED_INVENTORY.consumeClick() && mc.gameMode.hasInfiniteItems()) {
+		if (mc.screen == null && ModKeybinds.OPEN_EXTENDED_INVENTORY.consumeClick() && mc.player != null && mc.player.isCreative()) {
 			open(mc);
 		}
 	}
@@ -237,7 +237,7 @@ public class ExtendedInventory {
 	}
 	
 	public static ItemStack getItem(Minecraft mc, int slot) {
-		return slot < 36 ? mc.player.getInventory().items.get(slot) : PAGE_CONTAINER.getItem(slot - 36);
+		return slot < 36 ? mc.player.getInventory().getItem(slot) : PAGE_CONTAINER.getItem(slot - 36);
 	}
 	
 }

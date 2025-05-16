@@ -5,8 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -154,16 +156,16 @@ public class ExtendedInventoryPages {
 				}
 				
 				if (tag.contains("page", Tag.TAG_INT)) {
-					int savePage = tag.getInt("page");
-					if (savePage >= 0 && savePage < PAGES.size()) {
-						ExtendedInventory.PAGE_CONTAINER.setPage(savePage);
-						BuildersInventory.LOGGER.info("Loaded selected page as {}...", savePage);
-					} else if (savePage >= 0 && PAGES.size() > 0) {
+					int savedPage = tag.getInt("page");
+					if (savedPage >= 0 && savedPage < PAGES.size()) {
+						ExtendedInventory.PAGE_CONTAINER.setPage(savedPage);
+						BuildersInventory.LOGGER.info("Loaded selected page as {}...", savedPage);
+					} else if (savedPage >= 0 && PAGES.size() > 0) {
 						int newPage = Math.max(0, PAGES.size() - 1);
 						ExtendedInventory.PAGE_CONTAINER.setPage(newPage);
-						BuildersInventory.LOGGER.warn("Loaded page out of bounds {}, switched to page {}", savePage, newPage);
+						BuildersInventory.LOGGER.warn("Loaded page out of bounds {}, switched to page {}", savedPage, newPage);
 					} else {
-						BuildersInventory.LOGGER.error("Failed to load invalid selected page {}...", savePage);
+						BuildersInventory.LOGGER.error("Failed to load invalid selected page {}...", savedPage);
 					}
 				}
 				
@@ -206,11 +208,18 @@ public class ExtendedInventoryPages {
 			return Optional.empty();
 		}
 		
-		ListTag items = tag.getList("items", Tag.TAG_COMPOUND);
-		if (items == null || items.isEmpty()) {
-			BuildersInventory.LOGGER.error("Error loading extended inventory page {} items {}: Invalid Data!", id, items);
+		ListTag itemTags = tag.getList("items", Tag.TAG_COMPOUND);
+		if (itemTags == null || itemTags.isEmpty()) {
+			BuildersInventory.LOGGER.error("Error loading extended inventory page {} items {}: Invalid Data!", id, itemTags);
 			return Optional.empty();
 		}
+		
+		List<ItemStack> items = itemTags.stream()
+				.map(itemTag -> ItemStack.OPTIONAL_CODEC
+						.parse(registryAccess.createSerializationContext(NbtOps.INSTANCE), itemTag)
+						.resultOrPartial(err -> BuildersInventory.LOGGER.error("Could not parse extended inventory item: '{}'", err))
+						.orElse(ItemStack.EMPTY))
+				.collect(Collectors.toList());
 		
 		boolean locked = false;
 		if (tag.contains("locked", Tag.TAG_BYTE)) {
