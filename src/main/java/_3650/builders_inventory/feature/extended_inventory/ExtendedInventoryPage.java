@@ -79,7 +79,6 @@ public class ExtendedInventoryPage {
 	}
 
 	public static ExtendedInventoryPage of(
-			HolderLookup.Provider registryAccess,
 			List<ItemStack> items,
 			boolean locked,
 			String name,

@@ -259,7 +259,7 @@ public class ExtendedInventoryPages {
 			iconScaleDown = tag.getInt("icon_scale_down");
 		}
 		
-		var page = ExtendedInventoryPage.of(registryAccess, items, locked, name, icon, originalIcon, iconDataActive, iconScaleDown);
+		var page = ExtendedInventoryPage.of(items, locked, name, icon, originalIcon, iconDataActive, iconScaleDown);
 		if (datafix.isPresent()) {
 			forceUpdate = true;
 			page.discreteChange();
