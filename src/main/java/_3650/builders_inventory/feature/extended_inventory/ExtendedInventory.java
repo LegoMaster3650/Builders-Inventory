@@ -173,7 +173,7 @@ public class ExtendedInventory {
 		
 		ExtendedInventoryPages.tick(mc);
 		
-		if (mc.screen == null && ModKeybinds.OPEN_EXTENDED_INVENTORY.consumeClick() && mc.gameMode.hasInfiniteItems()) {
+		if (mc.screen == null && ModKeybinds.OPEN_EXTENDED_INVENTORY.consumeClick() && mc.player != null && mc.player.isCreative()) {
 			open(mc);
 		}
 	}
@@ -230,14 +230,15 @@ public class ExtendedInventory {
 //							mc.player.getInventory().removeItemNoUpdate(hotbar)));
 //			mc.player.inventoryMenu.broadcastChanges();
 			
-			mc.gameMode.handleCreativeModeItemAdd(
-					PAGE_CONTAINER.swapItem(slot - 36, mc.player.getInventory().items.get(hotbar)),
-					hotbar == InventoryMenu.SHIELD_SLOT ? InventoryMenu.SHIELD_SLOT : hotbar + InventoryMenu.USE_ROW_SLOT_START);
+			ItemStack swapItem = PAGE_CONTAINER.swapItem(slot - 36, mc.player.getInventory().getItem(hotbar));
+			int swapSlot = hotbar == InventoryMenu.SHIELD_SLOT ? InventoryMenu.SHIELD_SLOT : hotbar + InventoryMenu.USE_ROW_SLOT_START;
+			mc.player.inventoryMenu.getSlot(swapSlot).set(swapItem);
+			mc.gameMode.handleCreativeModeItemAdd(swapItem, swapSlot);
 		}
 	}
 	
 	public static ItemStack getItem(Minecraft mc, int slot) {
-		return slot < 36 ? mc.player.getInventory().items.get(slot) : PAGE_CONTAINER.getItem(slot - 36);
+		return slot < 36 ? mc.player.getInventory().getItem(slot) : PAGE_CONTAINER.getItem(slot - 36);
 	}
 	
 }

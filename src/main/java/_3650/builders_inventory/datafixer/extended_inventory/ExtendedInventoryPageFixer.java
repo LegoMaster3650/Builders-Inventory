@@ -72,22 +72,13 @@ public class ExtendedInventoryPageFixer {
 	private static CompoundTag update1to2(CompoundTag old, DataFixer dataFixer) {
 		if (old == null) return null;
 		
-		// new tag
-		CompoundTag tag = new CompoundTag();
-		
-		// unchanged values
-		if (old.contains("locked", Tag.TAG_BYTE)) tag.putBoolean("locked", old.getBoolean("locked"));
-		if (old.contains("name", Tag.TAG_STRING)) tag.putString("name", old.getString("name"));
-		
-		
-		// changed values
-		
 		// items
 		if (!old.contains("items", Tag.TAG_LIST)) {
 			BuildersInventory.LOGGER.error("Could not update inventory page data {}: No valid items tag", old);
 			return null;
 		}
 		
+		CompoundTag tag = old.copy();
 		ListTag oldItems = old.getList("items", Tag.TAG_COMPOUND);
 		if (oldItems == null || oldItems.isEmpty()) {
 			BuildersInventory.LOGGER.error("Could not update inventory page items {}: Invalid items tag", oldItems);
