@@ -178,7 +178,7 @@ public class HotbarSwapper {
 	
 	public static void clientTick(Minecraft mc) {
 		if (mc.player == null) return;
-		if (!mc.gameMode.hasInfiniteItems()) {
+		if (!mc.player.isCreative()) {
 			if (selecting) reset();
 			return;
 		}
@@ -253,7 +253,7 @@ public class HotbarSwapper {
 			reset();
 			return;
 		}
-		if (!mc.gameMode.hasInfiniteItems()) {
+		if (!mc.player.isCreative()) {
 			reset();
 			return;
 		}
