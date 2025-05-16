@@ -9,7 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -181,13 +181,13 @@ public class ExtendedInventory {
 	public static void onJoinWorld(ClientPacketListener handler, PacketSender sender, Minecraft mc) {
 		if (!enabled) return;
 		
-		ExtendedInventoryPages.load(handler.registryAccess());
+		ExtendedInventoryPages.load(handler.registryAccess().createSerializationContext(NbtOps.INSTANCE));
 	}
 	
-	public static void onQuitWorld(RegistryAccess registryAccess) {
+	public static void onQuitWorld(ClientPacketListener handler) {
 		if (!enabled) return;
 		
-		ExtendedInventoryPages.save(registryAccess);
+		ExtendedInventoryPages.save(handler.registryAccess().createSerializationContext(NbtOps.INSTANCE));
 	}
 	
 	/*
