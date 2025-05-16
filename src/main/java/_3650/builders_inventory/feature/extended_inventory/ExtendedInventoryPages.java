@@ -221,9 +221,9 @@ public class ExtendedInventoryPages {
 		
 		List<ItemStack> items = itemTags.stream()
 				.map(itemTag -> ItemStack.OPTIONAL_CODEC
-					.parse(registryOps, itemTag)
-					.resultOrPartial(err -> BuildersInventory.LOGGER.error("Could not parse extended inventory item: '{}'", err))
-					.orElse(ItemStack.EMPTY))
+						.parse(registryOps, itemTag)
+						.resultOrPartial(err -> BuildersInventory.LOGGER.error("Could not parse extended inventory item: '{}'", err))
+						.orElse(ItemStack.EMPTY))
 				.collect(Collectors.toList());
 		
 		boolean locked = tag.getBooleanOr("locked", false);
