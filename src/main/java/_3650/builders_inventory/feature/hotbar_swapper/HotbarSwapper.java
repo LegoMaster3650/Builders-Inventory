@@ -58,7 +58,7 @@ public class HotbarSwapper {
 			int width = gui.guiWidth() / 2;
 			
 			if (singleColumn) {
-				int offset = mc.player.getInventory().selected * 20;
+				int offset = mc.player.getInventory().getSelectedSlot() * 20;
 				for (int i = 1; i < max; i++) {
 					int y = gui.guiHeight() - 22 - (i * 22);
 					if (i > 3) y -= extendedOffset;
@@ -84,7 +84,7 @@ public class HotbarSwapper {
 				var spriteWidth = sprite.width();
 				var spriteHeight = sprite.height();
 				
-				int offset = mc.player.getInventory().selected * 20;
+				int offset = mc.player.getInventory().getSelectedSlot() * 20;
 				int y = gui.guiHeight() - 22 - 1 - (row * 22);
 				if (row > 3) y -= extendedOffset;
 				gui.blitSprite(RenderType::guiTextured, selectorSprite, width - 91 - 1 + offset, y, spriteWidth, spriteHeight);
@@ -105,11 +105,11 @@ public class HotbarSwapper {
 			LocalPlayer player = mc.player;
 			
 			if (singleColumn) {
-				int x = width - 91 + 3 + (player.getInventory().selected * 20);
+				int x = width - 91 + 3 + (player.getInventory().getSelectedSlot() * 20);
 				for (int i = 1; i < max; i++) {
 					int y = gui.guiHeight() - 22 + 3 - (i * 22);
 					if (i > 3) y -= extendedOffset;
-					hud.callRenderSlot(gui, x, y, deltaTick, player, ExtendedInventory.getItem(mc, getSlot(i, player.getInventory().selected)), x + (y * 22));
+					hud.callRenderSlot(gui, x, y, deltaTick, player, ExtendedInventory.getItem(mc, getSlot(i, player.getInventory().getSelectedSlot())), x + (y * 22));
 				}
 			} else {
 				for (int i = 1; i < max; i++) {
@@ -128,7 +128,7 @@ public class HotbarSwapper {
 		if (selecting) {
 			int width = gui.guiWidth() / 2;
 			
-			int x = singleColumn ? (width - 91 - 7 + (mc.player.getInventory().selected * 20)) : (width - 91 - 7);
+			int x = singleColumn ? (width - 91 - 7 + (mc.player.getInventory().getSelectedSlot() * 20)) : (width - 91 - 7);
 			for (int i = 1; i < max; i++) {
 				int y = gui.guiHeight() - 22 + 7 - (i * 22);
 				if (i > 3) y -= extendedOffset;
@@ -178,7 +178,7 @@ public class HotbarSwapper {
 	
 	public static void clientTick(Minecraft mc) {
 		if (mc.player == null) return;
-		if (!mc.gameMode.hasInfiniteItems()) {
+		if (!mc.player.isCreative()) {
 			if (selecting) reset();
 			return;
 		}
@@ -253,7 +253,7 @@ public class HotbarSwapper {
 			reset();
 			return;
 		}
-		if (!mc.gameMode.hasInfiniteItems()) {
+		if (!mc.player.isCreative()) {
 			reset();
 			return;
 		}
@@ -266,7 +266,7 @@ public class HotbarSwapper {
 		Inventory inv = player.getInventory();
 		
 		if (singleColumn) {
-			swap(mc, inv.selected);
+			swap(mc, inv.getSelectedSlot());
 		} else {
 			for (int i = 0; i < 9; i++) swap(mc, i);
 		}
@@ -289,7 +289,7 @@ public class HotbarSwapper {
 	
 	private static ItemStack getMainItem(Minecraft mc) {
 		if (singleColumn) {
-			return ExtendedInventory.getItem(mc, getSlot(row, mc.player.getInventory().selected));
+			return ExtendedInventory.getItem(mc, getSlot(row, mc.player.getInventory().getSelectedSlot()));
 		} else {
 			for (int i = 0; i < 9; i++) {
 				ItemStack stack = ExtendedInventory.getItem(mc, getSlot(row, i));

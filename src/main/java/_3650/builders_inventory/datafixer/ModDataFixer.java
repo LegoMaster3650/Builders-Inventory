@@ -16,7 +16,7 @@ public class ModDataFixer {
 	public static final int VERSION = 2;
 	
 	public static int getVersion(CompoundTag tag, int defaultVersion) {
-		return tag.contains("version", Tag.TAG_INT) ? tag.getInt("version") : defaultVersion;
+		return tag.getIntOr("version", defaultVersion);
 	}
 	
 	public static Dynamic<Tag> tagDynamic(CompoundTag tag) {

@@ -4,13 +4,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 import _3650.builders_inventory.api.minimessage.tags.Node;
-import _3650.builders_inventory.mixin.feature.minimessage.HoverEvent_ItemStackInfoInvoker;
 import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 public class HoverFormat extends Format {
 	
@@ -23,7 +22,7 @@ public class HoverFormat extends Format {
 	
 	@Override
 	public MutableComponent format(MutableComponent component) {
-		return component.setStyle(component.getStyle().withHoverEvent(contents.event()));
+		return component.setStyle(component.getStyle().withHoverEvent(contents.build()));
 	}
 	
 	public static TextContents text(Node contents) {
@@ -33,7 +32,7 @@ public class HoverFormat extends Format {
 	public static ItemContents item(Item item, int count, DataComponentPatch components) {
 		@SuppressWarnings("deprecation")
 		var itemHolder = item.builtInRegistryHolder();
-		return new ItemContents(HoverEvent_ItemStackInfoInvoker.construct(itemHolder, count, components));
+		return new ItemContents(new ItemStack(itemHolder, count, components));
 	}
 	
 	public static EntityContents entity(EntityType<?> type, UUID id) {
@@ -44,44 +43,40 @@ public class HoverFormat extends Format {
 		return new EntityContents(type, id, Optional.of(name));
 	}
 	
-	public static abstract class HoverContents<T> {
-		public final HoverEvent.Action<T> type;
+	public static abstract class HoverContents<T extends HoverEvent> {
+		public final HoverEvent.Action type;
 		
-		protected HoverContents(HoverEvent.Action<T> type) {
+		protected HoverContents(HoverEvent.Action type) {
 			this.type = type;
-		}
-		public HoverEvent event() {
-			HoverEvent evt = new HoverEvent(this.type, this.build());
-			return evt;
 		}
 		protected abstract T build();
 	}
 	
-	private static class TextContents extends HoverContents<Component> {
+	private static class TextContents extends HoverContents<HoverEvent.ShowText> {
 		public final Node contents;
 		private TextContents(Node contents) {
 			super(HoverEvent.Action.SHOW_TEXT);
 			this.contents = contents;
 		}
 		@Override
-		protected Component build() {
-			return this.contents.visit();
+		protected HoverEvent.ShowText build() {
+			return new HoverEvent.ShowText(this.contents.visit());
 		}
 	}
 	
-	private static class ItemContents extends HoverContents<HoverEvent.ItemStackInfo> {
-		public final HoverEvent.ItemStackInfo contents;
-		private ItemContents(HoverEvent.ItemStackInfo contents) {
+	private static class ItemContents extends HoverContents<HoverEvent.ShowItem> {
+		public final HoverEvent.ShowItem contents;
+		private ItemContents(ItemStack contents) {
 			super(HoverEvent.Action.SHOW_ITEM);
-			this.contents = contents;
+			this.contents = new HoverEvent.ShowItem(contents);
 		}
 		@Override
-		protected HoverEvent.ItemStackInfo build() {
+		protected HoverEvent.ShowItem build() {
 			return this.contents;
 		}
 	}
 	
-	private static class EntityContents extends HoverContents<HoverEvent.EntityTooltipInfo> {
+	private static class EntityContents extends HoverContents<HoverEvent.ShowEntity> {
 		public final EntityType<?> type;
 		public final UUID id;
 		public final Optional<Node> name;
@@ -92,9 +87,9 @@ public class HoverFormat extends Format {
 			this.name = name;
 		}
 		@Override
-		protected HoverEvent.EntityTooltipInfo build() {
+		protected HoverEvent.ShowEntity build() {
 			var info = new HoverEvent.EntityTooltipInfo(this.type, this.id, this.name.map(Node::visit));
-			return info;
+			return new HoverEvent.ShowEntity(info);
 		}
 	}
 	

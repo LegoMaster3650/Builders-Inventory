@@ -26,11 +26,13 @@ import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.TextColor;
 
 public class MiniMessageParser {
 	
 	public final Optional<DynamicOps<Tag>> registryOps;
+	public final TagParser<Tag> tagParser;
 	@Nullable
 	private final String server;
 	private MiniMessageTagOutput tagOutput;
@@ -75,6 +77,7 @@ public class MiniMessageParser {
 		this.root = new Branch(format);
 		this.ctx = root;
 		this.registryOps = registryOps;
+		this.tagParser = TagParser.create(registryOps.orElse(NbtOps.INSTANCE));
 		this.server = null;
 		this.tagOutput = new MiniMessageTagOutput() {
 			@Override

@@ -1,9 +1,9 @@
 package _3650.builders_inventory.feature.extended_inventory;
 
-import _3650.builders_inventory.BuildersInventory;
+import java.util.List;
+
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.item.ItemStack;
@@ -80,7 +80,7 @@ public class ExtendedInventoryPage {
 
 	public static ExtendedInventoryPage of(
 			HolderLookup.Provider registryAccess,
-			ListTag items,
+			List<ItemStack> items,
 			boolean locked,
 			String name,
 			ItemStack icon,
@@ -89,15 +89,7 @@ public class ExtendedInventoryPage {
 			int iconScaleDown) {
 		var page = new ExtendedInventoryPage(true);
 		
-		for (int i = 0; i < items.size(); i++) {
-			CompoundTag itemTag = items.getCompound(i);
-			
-			var result = ItemStack.OPTIONAL_CODEC
-					.parse(registryAccess.createSerializationContext(NbtOps.INSTANCE), itemTag)
-					.resultOrPartial(err -> BuildersInventory.LOGGER.error("Could not parse extended inventory item: '{}'", err))
-					.orElse(ItemStack.EMPTY);
-			page.items.set(i, result);
-		}
+		for (int i = 0; i < items.size(); i++) page.items.set(i, items.get(i));
 		page.changed = false;
 		page.locked = locked;
 		page.icon = icon;

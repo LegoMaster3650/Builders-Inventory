@@ -22,7 +22,6 @@
 		"feature.minimessage.screens.ChatScreenMixin",
 		"feature.minimessage.ChatComponentInvoker",
 		"feature.minimessage.EditBoxAccessor",
-		"feature.minimessage.HoverEvent_ItemStackInfoInvoker",
 		"feature.minimessage.StyleInvoker",
 		"feature.operator_items.CreativeModeInventoryScreenMixin"
 	],

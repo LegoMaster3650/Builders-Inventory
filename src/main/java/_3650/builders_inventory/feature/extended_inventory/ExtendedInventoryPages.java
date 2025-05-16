@@ -5,8 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -24,7 +26,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
@@ -153,19 +154,18 @@ public class ExtendedInventoryPages {
 					BuildersInventory.LOGGER.error("Error loading extended inventory saved data: Invalid Data!");
 				}
 				
-				if (tag.contains("page", Tag.TAG_INT)) {
-					int savePage = tag.getInt("page");
-					if (savePage >= 0 && savePage < PAGES.size()) {
-						ExtendedInventory.PAGE_CONTAINER.setPage(savePage);
-						BuildersInventory.LOGGER.info("Loaded selected page as {}...", savePage);
-					} else if (savePage >= 0 && PAGES.size() > 0) {
+				tag.getInt("page").ifPresent(savedPage -> {
+					if (savedPage >= 0 && savedPage < PAGES.size()) {
+						ExtendedInventory.PAGE_CONTAINER.setPage(savedPage);
+						BuildersInventory.LOGGER.info("Loaded selected page as {}...", savedPage);
+					} else if (savedPage >= 0 && PAGES.size() > 0) {
 						int newPage = Math.max(0, PAGES.size() - 1);
 						ExtendedInventory.PAGE_CONTAINER.setPage(newPage);
-						BuildersInventory.LOGGER.warn("Loaded page out of bounds {}, switched to page {}", savePage, newPage);
+						BuildersInventory.LOGGER.warn("Loaded page out of bounds {}, switched to page {}", savedPage, newPage);
 					} else {
-						BuildersInventory.LOGGER.error("Failed to load invalid selected page {}...", savePage);
+						BuildersInventory.LOGGER.error("Failed to load invalid selected page {}...", savedPage);
 					}
-				}
+				});
 				
 			}
 			
@@ -201,54 +201,47 @@ public class ExtendedInventoryPages {
 		var datafix = ModDataFixer.extendedInventoryPage(tag, 1);
 		if (datafix.isPresent()) tag = datafix.get();
 		
-		if (tag == null || !tag.contains("items", Tag.TAG_LIST)) {
+		if (tag == null) {
 			BuildersInventory.LOGGER.error("Error loading extended inventory page {} tag {}: Invalid Data!", id, tag);
 			return Optional.empty();
 		}
 		
-		ListTag items = tag.getList("items", Tag.TAG_COMPOUND);
-		if (items == null || items.isEmpty()) {
-			BuildersInventory.LOGGER.error("Error loading extended inventory page {} items {}: Invalid Data!", id, items);
+		Optional<ListTag> itemsOpt = tag.getList("items");
+		if (itemsOpt.isEmpty()) {
+			BuildersInventory.LOGGER.error("Error loading extended inventory page {} tag {}: Invalid Items!", id, tag);
 			return Optional.empty();
 		}
 		
-		boolean locked = false;
-		if (tag.contains("locked", Tag.TAG_BYTE)) {
-			locked = tag.getBoolean("locked");
+		ListTag itemTags = itemsOpt.get();
+		if (itemTags.isEmpty()) {
+			BuildersInventory.LOGGER.error("Error loading extended inventory page {} items {}: Invalid Items!", id, itemTags);
+			return Optional.empty();
 		}
 		
-		String name = "";
-		if (tag.contains("name", Tag.TAG_STRING)) {
-			name = tag.getString("name");
-		}
+		List<ItemStack> items = itemTags.stream()
+				.map(itemTag -> ItemStack.OPTIONAL_CODEC
+					.parse(registryAccess.createSerializationContext(NbtOps.INSTANCE), itemTag)
+					.resultOrPartial(err -> BuildersInventory.LOGGER.error("Could not parse extended inventory item: '{}'", err))
+					.orElse(ItemStack.EMPTY))
+				.collect(Collectors.toList());
 		
-		ItemStack icon = ItemStack.EMPTY;
-		if (tag.contains("icon", Tag.TAG_COMPOUND)) {
-			CompoundTag iconTag = tag.getCompound("icon");
-			icon = ItemStack.OPTIONAL_CODEC
+		boolean locked = tag.getBooleanOr("locked", false);
+		
+		String name = tag.getStringOr("name", "");
+		
+		ItemStack icon = tag.getCompound("icon").flatMap(iconTag -> ItemStack.OPTIONAL_CODEC
 					.parse(registryAccess.createSerializationContext(NbtOps.INSTANCE), iconTag)
-					.resultOrPartial(err -> BuildersInventory.LOGGER.error("Could not parse extended inventory icon {}: '{}'", iconTag, err))
-					.orElse(ItemStack.EMPTY);
-		}
+					.resultOrPartial(err -> BuildersInventory.LOGGER.error("Could not parse extended inventory icon {}: '{}'", iconTag, err)))
+				.orElse(ItemStack.EMPTY);
 		
-		ItemStack originalIcon = ItemStack.EMPTY;
-		if (tag.contains("original_icon", Tag.TAG_COMPOUND)) {
-			CompoundTag iconTag = tag.getCompound("original_icon");
-			icon = ItemStack.OPTIONAL_CODEC
-					.parse(registryAccess.createSerializationContext(NbtOps.INSTANCE), iconTag)
-					.resultOrPartial(err -> BuildersInventory.LOGGER.error("Could not parse extended inventory original icon {}: '{}'", iconTag, err))
-					.orElse(ItemStack.EMPTY);
-		}
+		ItemStack originalIcon = tag.getCompound("original_icon").flatMap(originalIconTag -> ItemStack.OPTIONAL_CODEC
+					.parse(registryAccess.createSerializationContext(NbtOps.INSTANCE), originalIconTag)
+					.resultOrPartial(err -> BuildersInventory.LOGGER.error("Could not parse extended inventory icon {}: '{}'", originalIconTag, err)))
+				.orElse(ItemStack.EMPTY);
 		
-		boolean iconDataActive = false;
-		if (tag.contains("icon_data", Tag.TAG_BYTE)) {
-			iconDataActive = tag.getBoolean("icon_data");
-		}
+		boolean iconDataActive = tag.getBooleanOr("icon_data", false);
 		
-		int iconScaleDown = 0;
-		if (tag.contains("icon_scale_down", Tag.TAG_INT)) {
-			iconScaleDown = tag.getInt("icon_scale_down");
-		}
+		int iconScaleDown = tag.getIntOr("icon_scale_down", 0);
 		
 		var page = ExtendedInventoryPage.of(registryAccess, items, locked, name, icon, originalIcon, iconDataActive, iconScaleDown);
 		if (datafix.isPresent()) {

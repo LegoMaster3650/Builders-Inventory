@@ -289,8 +289,7 @@ public class MiniMessageInstance {
 		if (err > -1) {
 			previewComponent = Component.literal(highSeq.getString()).withStyle(style -> style
 					.applyFormat(ChatFormatting.DARK_RED)
-					.withHoverEvent(new HoverEvent(
-							HoverEvent.Action.SHOW_TEXT,
+					.withHoverEvent(new HoverEvent.ShowText(
 							Component.translatable("err.builders_inventory.minimessage.mismatch", err)
 							.withStyle(ChatFormatting.RED))));
 			BuildersInventory.LOGGER.error("FORMAT ERROR at {} for original {} and reconstructed {}", err, originalValue, formattedInput.text);
@@ -571,7 +570,7 @@ public class MiniMessageInstance {
 				Style style = font.getSplitter().componentStyleAtWidth(previewLines.get(line), Mth.floor(localX));
 				if (style == null) return null;
 				final ClickEvent click = style.getClickEvent();
-				if (click == null || click.getAction() == ClickEvent.Action.SUGGEST_COMMAND) return null;
+				if (click == null || click instanceof ClickEvent.SuggestCommand) return null;
 				return style;
 			}
 		}

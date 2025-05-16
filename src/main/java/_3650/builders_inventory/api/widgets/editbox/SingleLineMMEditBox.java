@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
-
 import _3650.builders_inventory.BuildersInventory;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance;
 import _3650.builders_inventory.api.minimessage.widgets.MMWidgetConstructor;
@@ -430,9 +428,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 				final int y = Math.max(
 						this.getY() + this.innerPadding(),
 						this.getY() + this.innerPadding() + (int)this.scrollAmount * (this.height - this.totalVerticalPadding() - scrollBarHeight) / this.getMaxScrollAmount());
-				RenderSystem.enableBlend();
 				gui.blitSprite(RenderType::guiTextured, this.options.getScrollbarSprite(this.isActive(), this.isFocused()), x, y, 1, this.options.scrollbarWidth(), scrollBarHeight);
-				RenderSystem.disableBlend();
 			}
 			if (this.hasMaxLength()) {
 				int charLimit = this.maxLength;
