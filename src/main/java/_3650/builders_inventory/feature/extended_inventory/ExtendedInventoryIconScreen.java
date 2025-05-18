@@ -160,7 +160,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 				}
 				);
 		// Toolbar Top
-		this.buttonCount = new ExtendedImageDualButton(this.leftPos + 6, this.topPos + 37, 14, 14,
+		this.buttonCount = new ExtendedImageDualButton(this.leftPos + 7, this.topPos + 37, 14, 14,
 				SPRITES_BUTTON_COUNT,
 				button -> {
 					openCountSlider();
@@ -178,7 +178,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.count.desc").withStyle(ChatFormatting.GRAY),
 						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.count.desc.open").withStyle(ChatFormatting.GRAY))
 				);
-		this.buttonData = new ExtendedImageDualButton(this.leftPos + 6, this.topPos + 55, 14, 14,
+		this.buttonData = new ExtendedImageDualButton(this.leftPos + 7, this.topPos + 55, 14, 14,
 				SPRITES_BUTTON_DATA,
 				button -> {
 					dataOn();
@@ -194,7 +194,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.data").withStyle(ChatFormatting.WHITE),
 						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.data.desc").withStyle(ChatFormatting.GRAY))
 				);
-		this.buttonSize = new ExtendedImageDualButton(this.leftPos + 6, this.topPos + 73, 14, 14,
+		this.buttonSize = new ExtendedImageDualButton(this.leftPos + 7, this.topPos + 73, 14, 14,
 				SPRITES_BUTTON_SIZE,
 				button -> {
 					openSizeSlider();
@@ -346,12 +346,15 @@ public class ExtendedInventoryIconScreen extends Screen {
 			gui.renderItemDecorations(this.font, stack, slotX, y);
 		}
 		
-		var hover = (this.countSlider == null && this.sizeSlider == null) ? findSlot(mouseX - this.leftPos, mouseY - this.topPos) : null;
+		ItemFindResult hover = findSlot(mouseX - this.leftPos, mouseY - this.topPos);
 		if (hover != null) {
 			int gx = this.leftPos + 26 + (hover.col * 18);
 			int gy = this.topPos + 18 + (hover.row * 18);
 			gui.fillGradient(RenderType.guiOverlay(), gx, gy, gx + 16, gy + 16, 0x80FFFFFF, 0x80FFFFFF, 2);
 		}
+		
+		if (this.countSlider != null) this.countSlider.render(gui, mouseX, mouseY, partialTick);
+		if (this.sizeSlider != null) this.sizeSlider.render(gui, mouseX, mouseY, partialTick);
 		
 		if (this.iconPreview.isEmpty()) {
 			this.renderTileText(this.pageIndex + 1, gui, this.leftPos + 6 + 8, this.topPos + 17 + 4, 100);
@@ -366,10 +369,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 		if (hover != null && !hover.item.isEmpty()) {
 			gui.renderTooltip(this.font, getTooltipFromItem(this.minecraft, hover.item), hover.item.getTooltipImage(), x, y);
 		} else {
-			gui.pose().pushPose();
-			gui.pose().translate(0, 0, 800);
 			this.exGui.renderTooltip(this.font, gui, x, y);
-			gui.pose().popPose();
 		}
 	}
 	
@@ -407,7 +407,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 	}
 	
 	public void openCountSlider() {
-		this.countSlider = new StepSliderWidget(this.leftPos + 24, this.topPos + 33, 600, 1, 64, this.iconPreview.getCount(), this.font,
+		this.countSlider = new StepSliderWidget(this.leftPos + 24, this.topPos + 33, 300, 1, 64, this.iconPreview.getCount(), this.font,
 				val -> {
 					return List.of(Component.literal(String.valueOf(val)));
 				},
@@ -420,7 +420,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 					this.iconPreview.setCount(initialVal);
 					closeCountSlider();
 				});
-		this.addRenderableWidget(this.countSlider);
+		this.addWidget(this.countSlider);
 		this.updateButtons();
 	}
 	
@@ -433,7 +433,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 	
 	public void openSizeSlider() {
 		final int guiScale = (int) (this.minecraft.getWindow().getGuiScale() + 0.5);
-		this.sizeSlider = new StepSliderWidget(this.leftPos + 24, this.topPos + 69, 600, 1 - guiScale, 0, -this.iconScaleDown, this.font,
+		this.sizeSlider = new StepSliderWidget(this.leftPos + 24, this.topPos + 69, 300, 1 - guiScale, 0, -this.iconScaleDown, this.font,
 				val -> {
 					final double sizePercent = (guiScale + val) * 100.0 / (guiScale);
 					return List.of(Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.slider.size",
@@ -448,7 +448,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 					this.iconScaleDown = -initialVal;
 					closeSizeSlider();
 				});
-		this.addRenderableWidget(this.sizeSlider);
+		this.addWidget(this.sizeSlider);
 		this.updateButtons();
 	}
 	
@@ -462,7 +462,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 	public void dataOff() {
 		if (!this.dataActive) return;
 		this.dataActive = false;
-		this.iconPreview = new ItemStack(this.iconPreviewOriginal.getItem(), this.iconPreview.getCount());
+		this.iconPreview = this.iconPreviewOriginal.isEmpty() ? ItemStack.EMPTY : new ItemStack(this.iconPreviewOriginal.getItem(), this.iconPreview.getCount());
 		updateButtons();
 	}
 	
@@ -475,7 +475,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 	
 	public void setPreview(ItemStack stack) {
 		this.iconPreviewOriginal = stack;
-		this.iconPreview = stack.copyWithCount(1);
+		this.iconPreview = stack.copyWithCount(Math.max(this.iconPreview.getCount(), 1));
 		this.dataActive = true;
 		this.hasChanged = true;
 		updateButtons();
@@ -510,14 +510,16 @@ public class ExtendedInventoryIconScreen extends Screen {
 	}
 	
 	public ItemFindResult findSlot(int x, int y) {
-		x -= 25;
-		y -= 17;
-		if (x >= 0 && x < 162 && y >= 0 && y < 180) {
-			int col = x / 18;
-			int row = y / 18;
-			if (row < 6) return new ItemFindResult(page.get(col + (row * 9)), row, col);
-			else if (row < 9) return new ItemFindResult(this.minecraft.player.getInventory().getItem(col + ((row - 6) * 9) + 9), row, col);
-			else if (row < 10) return new ItemFindResult(this.minecraft.player.getInventory().getItem(col + ((row - 9) * 9)), row, col);
+		if ((this.countSlider == null || !this.countSlider.isHovered()) && (this.sizeSlider == null || !this.sizeSlider.isHovered())) {
+			x -= 25;
+			y -= 17;
+			if (x >= 0 && x < 162 && y >= 0 && y < 180) {
+				int col = x / 18;
+				int row = y / 18;
+				if (row < 6) return new ItemFindResult(page.get(col + (row * 9)), row, col);
+				else if (row < 9) return new ItemFindResult(this.minecraft.player.getInventory().getItem(col + ((row - 6) * 9) + 9), row, col);
+				else if (row < 10) return new ItemFindResult(this.minecraft.player.getInventory().getItem(col + ((row - 9) * 9)), row, col);
+			}
 		}
 		return null;
 	}
