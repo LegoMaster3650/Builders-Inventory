@@ -438,7 +438,7 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 	@Override
 	protected void containerTick() {
 		super.containerTick();
-		if (this.minecraft.player != null && this.minecraft.player.isCreative()) {
+		if (this.minecraft.player != null && !this.minecraft.player.isCreative()) {
 			ExtendedInventory.close(this.minecraft);
 		}
 	}
