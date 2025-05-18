@@ -9,7 +9,6 @@ import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButton;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButtonGui;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageDualButton;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.WidgetSprites;
@@ -259,7 +258,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 			// Top
 			this.buttonCount.active = true;
 			this.buttonData.active = !this.iconPreviewOriginal.getComponentsPatch().isEmpty();
-			this.buttonSize.active = this.minecraft.options.guiScale().get() >= 2;
+			this.buttonSize.active = this.minecraft.getWindow().getGuiScale() >= 2;
 			this.buttonClear.active = true;
 		}
 		// Top
@@ -272,23 +271,23 @@ public class ExtendedInventoryIconScreen extends Screen {
 	}
 	
 	@Override
-	public void resize(Minecraft minecraft, int width, int height) {
-		super.resize(minecraft, width, height);
+	protected void rebuildWidgets() {
+		super.rebuildWidgets();
 		if (this.countSlider != null) {
 			int initial = this.countSlider.initialValue;
 			int value = this.countSlider.value;
 			this.iconPreview.setCount(initial);
 			this.closeCountSlider();
-			this.openCountSlider();
 			this.iconPreview.setCount(value);
+			this.openCountSlider();
 		}
 		if (this.sizeSlider != null) {
 			int initial = this.sizeSlider.initialValue;
 			int value = this.sizeSlider.value;
 			this.iconScaleDown = -initial;
 			this.closeSizeSlider();
-			this.openSizeSlider();
 			this.iconScaleDown = -value;
+			this.openSizeSlider();
 		}
 	}
 	
@@ -406,6 +405,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 	}
 	
 	public void openCountSlider() {
+		if (this.countSlider != null) this.closeCountSlider();
 		this.countSlider = new StepSliderWidget(this.leftPos + 24, this.topPos + 33, 300, 1, 64, this.iconPreview.getCount(), this.font,
 				val -> {
 					return List.of(Component.literal(String.valueOf(val)));
@@ -431,6 +431,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 	}
 	
 	public void openSizeSlider() {
+		if (this.sizeSlider != null) this.closeSizeSlider();
 		final int guiScale = (int) (this.minecraft.getWindow().getGuiScale() + 0.5);
 		this.sizeSlider = new StepSliderWidget(this.leftPos + 24, this.topPos + 69, 300, 1 - guiScale, 0, -this.iconScaleDown, this.font,
 				val -> {

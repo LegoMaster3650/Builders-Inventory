@@ -106,9 +106,11 @@ public class StepSliderWidget extends AbstractWidget {
 		
 		final int x = mouseX - this.getX();
 		final int y = mouseY - this.getY();
-		final int sbx = 4 + Math.round((this.value - this.min) * this.notchStep);
-		final ResourceLocation barSprite = (dragging || x >= sbx && x < sbx + 4 && y >= 6 && y < 18) ? SPRITE_BAR_HIGHLIGHTED : SPRITE_BAR;
-		gui.blitSprite(barSprite, this.getX() + sbx, this.getY() + 5, 5, 13);
+		if (this.value >= this.min && this.value <= this.max) {
+			final int sbx = 4 + Math.round((this.value - this.min) * this.notchStep);
+			final ResourceLocation barSprite = (dragging || x >= sbx && x < sbx + 4 && y >= 6 && y < 18) ? SPRITE_BAR_HIGHLIGHTED : SPRITE_BAR;
+			gui.blitSprite(barSprite, this.getX() + sbx, this.getY() + 5, 5, 13);
+		}
 		
 		if (x >= 4 && x < this.innerWidth + 8 && y >= 4 && y < 18) {
 			final int newVal = Mth.clamp((int) Math.round(this.min + (x - 6.0) / this.innerWidth * this.range), this.min, this.max);

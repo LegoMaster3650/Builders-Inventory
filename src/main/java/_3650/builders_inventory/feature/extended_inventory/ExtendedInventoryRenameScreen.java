@@ -6,7 +6,6 @@ import _3650.builders_inventory.BuildersInventory;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButton;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButtonGui;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
@@ -90,9 +89,9 @@ public class ExtendedInventoryRenameScreen extends Screen {
 	}
 	
 	@Override
-	public void resize(Minecraft minecraft, int width, int height) {
+	protected void rebuildWidgets() {
 		String text = this.name.getValue();
-		super.resize(minecraft, width, height);
+		super.rebuildWidgets();
 		this.name.setValue(text);
 	}
 	
