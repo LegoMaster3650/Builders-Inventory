@@ -345,14 +345,11 @@ public class ExtendedInventoryIconScreen extends Screen {
 			gui.renderItemDecorations(this.font, stack, slotX, y);
 		}
 		
-		ItemFindResult hover = null;
-		if ((this.countSlider == null || !this.countSlider.isHovered()) && (this.sizeSlider == null || !this.sizeSlider.isHovered())) {
-			hover = findSlot(mouseX - this.leftPos, mouseY - this.topPos);
-			if (hover != null) {
-				int gx = this.leftPos + 26 + (hover.col * 18);
-				int gy = this.topPos + 18 + (hover.row * 18);
-				gui.fillGradient(RenderType.guiOverlay(), gx, gy, gx + 16, gy + 16, 0x80FFFFFF, 0x80FFFFFF, 2);
-			}
+		ItemFindResult hover = findSlot(mouseX - this.leftPos, mouseY - this.topPos);
+		if (hover != null) {
+			int gx = this.leftPos + 26 + (hover.col * 18);
+			int gy = this.topPos + 18 + (hover.row * 18);
+			gui.fillGradient(RenderType.guiOverlay(), gx, gy, gx + 16, gy + 16, 0x80FFFFFF, 0x80FFFFFF, 2);
 		}
 		
 		if (this.countSlider != null) this.countSlider.render(gui, mouseX, mouseY, partialTick);
@@ -371,10 +368,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 		if (hover != null && !hover.item.isEmpty()) {
 			gui.renderTooltip(this.font, getTooltipFromItem(this.minecraft, hover.item), hover.item.getTooltipImage(), x, y);
 		} else {
-			gui.pose().pushPose();
-			gui.pose().translate(0, 0, 800);
 			this.exGui.renderTooltip(this.font, gui, x, y);
-			gui.pose().popPose();
 		}
 	}
 	
@@ -412,7 +406,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 	}
 	
 	public void openCountSlider() {
-		this.countSlider = new StepSliderWidget(this.leftPos + 24, this.topPos + 33, 600, 1, 64, this.iconPreview.getCount(), this.font,
+		this.countSlider = new StepSliderWidget(this.leftPos + 24, this.topPos + 33, 300, 1, 64, this.iconPreview.getCount(), this.font,
 				val -> {
 					return List.of(Component.literal(String.valueOf(val)));
 				},
@@ -515,14 +509,16 @@ public class ExtendedInventoryIconScreen extends Screen {
 	}
 	
 	public ItemFindResult findSlot(int x, int y) {
-		x -= 25;
-		y -= 17;
-		if (x >= 0 && x < 162 && y >= 0 && y < 180) {
-			int col = x / 18;
-			int row = y / 18;
-			if (row < 6) return new ItemFindResult(page.get(col + (row * 9)), row, col);
-			else if (row < 9) return new ItemFindResult(this.minecraft.player.getInventory().getItem(col + ((row - 6) * 9) + 9), row, col);
-			else if (row < 10) return new ItemFindResult(this.minecraft.player.getInventory().getItem(col + ((row - 9) * 9)), row, col);
+		if ((this.countSlider == null || !this.countSlider.isHovered()) && (this.sizeSlider == null || !this.sizeSlider.isHovered())) {
+			x -= 25;
+			y -= 17;
+			if (x >= 0 && x < 162 && y >= 0 && y < 180) {
+				int col = x / 18;
+				int row = y / 18;
+				if (row < 6) return new ItemFindResult(page.get(col + (row * 9)), row, col);
+				else if (row < 9) return new ItemFindResult(this.minecraft.player.getInventory().getItem(col + ((row - 6) * 9) + 9), row, col);
+				else if (row < 10) return new ItemFindResult(this.minecraft.player.getInventory().getItem(col + ((row - 9) * 9)), row, col);
+			}
 		}
 		return null;
 	}
