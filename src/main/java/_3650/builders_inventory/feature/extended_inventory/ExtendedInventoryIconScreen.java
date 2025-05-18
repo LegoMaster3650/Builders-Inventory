@@ -159,7 +159,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 				}
 				);
 		// Toolbar Top
-		this.buttonCount = new ExtendedImageDualButton(this.leftPos + 6, this.topPos + 37, 14, 14,
+		this.buttonCount = new ExtendedImageDualButton(this.leftPos + 7, this.topPos + 37, 14, 14,
 				SPRITES_BUTTON_COUNT,
 				button -> {
 					openCountSlider();
@@ -177,7 +177,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.count.desc").withStyle(ChatFormatting.GRAY),
 						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.count.desc.open").withStyle(ChatFormatting.GRAY))
 				);
-		this.buttonData = new ExtendedImageDualButton(this.leftPos + 6, this.topPos + 55, 14, 14,
+		this.buttonData = new ExtendedImageDualButton(this.leftPos + 7, this.topPos + 55, 14, 14,
 				SPRITES_BUTTON_DATA,
 				button -> {
 					dataOn();
@@ -193,7 +193,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.data").withStyle(ChatFormatting.WHITE),
 						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.data.desc").withStyle(ChatFormatting.GRAY))
 				);
-		this.buttonSize = new ExtendedImageDualButton(this.leftPos + 6, this.topPos + 73, 14, 14,
+		this.buttonSize = new ExtendedImageDualButton(this.leftPos + 7, this.topPos + 73, 14, 14,
 				SPRITES_BUTTON_SIZE,
 				button -> {
 					openSizeSlider();
@@ -345,12 +345,18 @@ public class ExtendedInventoryIconScreen extends Screen {
 			gui.renderItemDecorations(this.font, stack, slotX, y);
 		}
 		
-		var hover = (this.countSlider == null && this.sizeSlider == null) ? findSlot(mouseX - this.leftPos, mouseY - this.topPos) : null;
-		if (hover != null) {
-			int gx = this.leftPos + 26 + (hover.col * 18);
-			int gy = this.topPos + 18 + (hover.row * 18);
-			gui.fillGradient(RenderType.guiOverlay(), gx, gy, gx + 16, gy + 16, 0x80FFFFFF, 0x80FFFFFF, 2);
+		ItemFindResult hover = null;
+		if ((this.countSlider == null || !this.countSlider.isHovered()) && (this.sizeSlider == null || !this.sizeSlider.isHovered())) {
+			hover = findSlot(mouseX - this.leftPos, mouseY - this.topPos);
+			if (hover != null) {
+				int gx = this.leftPos + 26 + (hover.col * 18);
+				int gy = this.topPos + 18 + (hover.row * 18);
+				gui.fillGradient(RenderType.guiOverlay(), gx, gy, gx + 16, gy + 16, 0x80FFFFFF, 0x80FFFFFF, 2);
+			}
 		}
+		
+		if (this.countSlider != null) this.countSlider.render(gui, mouseX, mouseY, partialTick);
+		if (this.sizeSlider != null) this.sizeSlider.render(gui, mouseX, mouseY, partialTick);
 		
 		if (this.iconPreview.isEmpty()) {
 			this.renderTileText(this.pageIndex + 1, gui, this.leftPos + 6 + 8, this.topPos + 17 + 4, 100);
@@ -419,7 +425,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 					this.iconPreview.setCount(initialVal);
 					closeCountSlider();
 				});
-		this.addRenderableWidget(this.countSlider);
+		this.addWidget(this.countSlider);
 		this.updateButtons();
 	}
 	
@@ -447,7 +453,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 					this.iconScaleDown = -initialVal;
 					closeSizeSlider();
 				});
-		this.addRenderableWidget(this.sizeSlider);
+		this.addWidget(this.sizeSlider);
 		this.updateButtons();
 	}
 	
@@ -461,7 +467,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 	public void dataOff() {
 		if (!this.dataActive) return;
 		this.dataActive = false;
-		this.iconPreview = new ItemStack(this.iconPreviewOriginal.getItem(), this.iconPreview.getCount());
+		this.iconPreview = this.iconPreviewOriginal.isEmpty() ? ItemStack.EMPTY : new ItemStack(this.iconPreviewOriginal.getItem(), this.iconPreview.getCount());
 		updateButtons();
 	}
 	
@@ -474,7 +480,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 	
 	public void setPreview(ItemStack stack) {
 		this.iconPreviewOriginal = stack;
-		this.iconPreview = stack.copyWithCount(1);
+		this.iconPreview = stack.copyWithCount(Math.max(this.iconPreview.getCount(), 1));
 		this.dataActive = true;
 		this.hasChanged = true;
 		updateButtons();
