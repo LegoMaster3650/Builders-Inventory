@@ -135,10 +135,10 @@ public class StepSliderWidget extends AbstractWidget {
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (this.isValidClickButton(button)) {
-			final double x = mouseX - this.getX();
-			final double y = mouseY - this.getY();
+			final int x = Mth.floor(mouseX) - this.getX();
+			final int y = Mth.floor(mouseY) - this.getY();
 			if (x >= 4 && x < this.innerWidth + 8 && y >= 4 && y < 18) {
-				final int newVal = Mth.clamp((int) Math.round(this.min + (x - 6) / this.innerWidth * this.range), this.min, this.max);
+				final int newVal = Mth.clamp((int) Math.round(this.min + (x - 6.0) / this.innerWidth * this.range), this.min, this.max);
 				if (this.value != newVal) {
 					this.value = newVal;
 					this.onChange.accept(newVal);
@@ -166,9 +166,9 @@ public class StepSliderWidget extends AbstractWidget {
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
 		if (this.isValidClickButton(button) && dragging) {
-			final double x = mouseX - this.getX();
+			final int x = Mth.floor(mouseX) - this.getX();
 			
-			final int newVal = Mth.clamp((int) Math.round(this.min + (x - 6) / this.innerWidth * this.range), this.min, this.max);
+			final int newVal = Mth.clamp((int) Math.round(this.min + (x - 6.0) / this.innerWidth * this.range), this.min, this.max);
 			if (this.value != newVal) {
 				this.value = newVal;
 				this.onChange.accept(newVal);
