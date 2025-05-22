@@ -4,10 +4,11 @@ import java.util.List;
 
 import _3650.builders_inventory.BuildersInventory;
 import _3650.builders_inventory.ModKeybinds;
-import _3650.builders_inventory.api.widgets.StepSliderWidget;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButton;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButtonGui;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageDualButton;
+import _3650.builders_inventory.api.widgets.slider.SliderWidgetTheme;
+import _3650.builders_inventory.api.widgets.slider.StepSliderWidget;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
@@ -406,7 +407,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 	
 	public void openCountSlider() {
 		if (this.countSlider != null) this.closeCountSlider();
-		this.countSlider = new StepSliderWidget(this.leftPos + 24, this.topPos + 33, 300, 1, 64, this.iconPreview.getCount(), this.font,
+		this.countSlider = new StepSliderWidget(SliderWidgetTheme.CUBIC, this.leftPos + 24, this.topPos + 33, 300, 1, 64, this.iconPreview.getCount(), this.font,
 				val -> {
 					return List.of(Component.literal(String.valueOf(val)));
 				},
@@ -433,7 +434,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 	public void openSizeSlider() {
 		if (this.sizeSlider != null) this.closeSizeSlider();
 		final int guiScale = (int) (this.minecraft.getWindow().getGuiScale() + 0.5);
-		this.sizeSlider = new StepSliderWidget(this.leftPos + 24, this.topPos + 69, 300, 1 - guiScale, 0, -this.iconScaleDown, this.font,
+		this.sizeSlider = new StepSliderWidget(SliderWidgetTheme.CUBIC, this.leftPos + 24, this.topPos + 69, 300, 1 - guiScale, 0, -this.iconScaleDown, this.font,
 				val -> {
 					final double sizePercent = (guiScale + val) * 100.0 / (guiScale);
 					return List.of(Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.slider.size",

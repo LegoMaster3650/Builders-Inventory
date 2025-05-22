@@ -48,7 +48,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	private static final double SCROLL_RATE = 4.5;
 	
 	private final MMWidgetConstructor mmConstructor;
-	private final EditBoxTheme options;
+	private final EditBoxTheme theme;
 	private final Font font;
 	private final ArrayList<StringPos> displayLines = new ArrayList<>();
 	private final ArrayList<FormatLine> formatLines = new ArrayList<>();
@@ -82,7 +82,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	public MultiLineMMEditBox(MMWidgetConstructor mmConstructor, EditBoxTheme options, Font font, int x, int y, int width, int height, Component message) {
 		super(x, y, width, height, message);
 		this.mmConstructor = mmConstructor;
-		this.options = options;
+		this.theme = options;
 		this.font = font;
 		this.setValue("");
 //		this.textField = new SplitMultilineTextField(font, this.getInnerWidth());
@@ -207,7 +207,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
 		if (this.isActive() && this.isFocused() && this.scrolling) {
-			final int scrollSnapEdge = this.innerPadding() - this.options.borderThickness();
+			final int scrollSnapEdge = this.innerPadding() - this.theme.borderThickness;
 			if (mouseY < this.getY() + scrollSnapEdge) {
 				this.setScrollAmount(0);
 			} else if (mouseY > this.getY() + this.height - scrollSnapEdge) {
@@ -444,7 +444,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
 		if (this.visible) {
 			this.renderBackground(gui);
-			final int borderThickness = this.options.borderThickness();
+			final int borderThickness = this.theme.borderThickness;
 			gui.enableScissor(this.getX() + borderThickness, this.getY() + borderThickness, this.getX() + this.width - borderThickness, this.getY() + this.height - borderThickness);
 			gui.pose().pushPose();
 			gui.pose().translate(0, -this.scrollAmount, 0);
@@ -461,12 +461,12 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 			gui.disableScissor();
 			if (this.scrollBarVisible()) {
 				int scrollBarHeight = this.getScrollBarHeight();
-				final int x = this.getX() + this.width - this.scrollbarPadding + this.options.scrollbarPadding();
+				final int x = this.getX() + this.width - this.scrollbarPadding + this.theme.scrollbarPadding;
 				final int y = Math.max(
 						this.getY() + this.innerPadding(),
 						this.getY() + this.innerPadding() + (int)this.scrollAmount * (this.height - this.totalVerticalPadding() - scrollBarHeight) / this.getMaxScrollAmount());
 				RenderSystem.enableBlend();
-				gui.blitSprite(this.options.getScrollbarSprite(this.isActive(), this.isFocused()), x, y, 1, this.options.scrollbarWidth(), scrollBarHeight);
+				gui.blitSprite(this.theme.spritesScrollbar.get(this.isActive(), this.isFocused()), x, y, 1, this.theme.scrollbarWidth, scrollBarHeight);
 				RenderSystem.disableBlend();
 			}
 			if (this.hasMaxLength()) {
@@ -478,17 +478,17 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	}
 	
 	private void renderBackground(GuiGraphics gui) {
-		ResourceLocation background = this.options.getBackgroundSprite(this.isActive(), this.isFocused());
+		ResourceLocation background = this.theme.spritesBackground.get(this.isActive(), this.isFocused());
 		gui.blitSprite(background, this.getX(), this.getY(), this.getWidth(), this.getHeight());
-		final int borderThickness = this.options.borderThickness();
-		if (this.showLineNumbers) gui.fill(this.getX() + borderThickness, this.getY() + borderThickness, this.getX() + this.lineNumWidth + borderThickness, this.getY() + this.getHeight() - borderThickness, this.options.lineNumBackgroundColor());
+		final int borderThickness = this.theme.borderThickness;
+		if (this.showLineNumbers) gui.fill(this.getX() + borderThickness, this.getY() + borderThickness, this.getX() + this.lineNumWidth + borderThickness, this.getY() + this.getHeight() - borderThickness, this.theme.lineNumBackgroundColor);
 	}
 	
 	private void renderContents(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
 		String str = this.value;
 		if (!str.isEmpty() || this.isFocused()) {
 			final int cursor = this.cursor;
-			final int textColor = this.isActive() ? this.options.textColor() : this.options.disabledTextColor();
+			final int textColor = this.isActive() ? this.theme.textColor : this.theme.disabledTextColor;
 			final boolean blink = this.isFocused() && (Util.getMillis() - this.focusedTime) / 300L % 2L == 0L;
 			
 			int y = this.getY() + this.innerPadding();
@@ -508,7 +508,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 					if (lineVisible && this.showLineNumbers) {
 						final String lineNumStr = new StringBuilder().append(lineCounter).append("").toString();
 						final int strWidth = this.font.width(lineNumStr);
-						gui.drawString(this.font, lineNumStr, x - strWidth - 4, y, this.options.lineNumColor(), true);
+						gui.drawString(this.font, lineNumStr, x - strWidth - 4, y, this.theme.lineNumColor, true);
 					}
 				}
 				
@@ -527,7 +527,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 						
 						if (!cursorInserting && !this.hasSelection() && cursor >= line.beginIndex && cursor <= line.endIndex && line.endIndex == formatPos.endIndex) {
 							if (this.suggestion != null) {
-								gui.drawString(this.font, this.suggestion, x - 1, y, this.options.suggestionColor());
+								gui.drawString(this.font, this.suggestion, x - 1, y, this.theme.suggestionColor);
 							}
 							
 							if (blink) {
@@ -570,7 +570,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 			int y = this.getY() + this.innerPadding();
 			final String lineNumStr = "1";
 			final int strWidth = this.font.width(lineNumStr);
-			gui.drawString(this.font, lineNumStr, x - strWidth - 4, y, this.options.lineNumColor());
+			gui.drawString(this.font, lineNumStr, x - strWidth - 4, y, this.theme.lineNumColor);
 		}
 	}
 	
@@ -878,7 +878,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	}
 	
 	public int innerPadding() {
-		return this.options.innerPadding();
+		return this.theme.innerPadding;
 	}
 	
 	public int leftPadding() {
@@ -914,12 +914,12 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 			this.scrollbarPadding = 0;
 			this.rightPadding = this.innerPadding();
 		} else {
-			this.scrollbarPadding = this.options.scrollbarWidth() + this.options.scrollbarPadding() * 2;
-			if (this.options.scrollbarPadding() < this.options.borderThickness()) this.scrollbarPadding += this.options.borderThickness() - this.options.scrollbarPadding();
+			this.scrollbarPadding = this.theme.scrollbarWidth + this.theme.scrollbarPadding * 2;
+			if (this.theme.scrollbarPadding < this.theme.borderThickness) this.scrollbarPadding += this.theme.borderThickness - this.theme.scrollbarPadding;
 			this.rightPadding = this.scrollbarPadding;
 		}
-		final int scrollbarEdgeHeight = this.options.scrollbarEdgeHeight();
-		final int scrollbarScale = this.options.scrollbarScale();
+		final int scrollbarEdgeHeight = this.theme.scrollbarEdgeHeight;
+		final int scrollbarScale = this.theme.scrollbarScale;
 		final int innerViewHeight = this.height - this.totalVerticalPadding();
 		final int minScrollbarHeight = Math.max(Mth.positiveCeilDiv(innerViewHeight, 6), scrollbarEdgeHeight + scrollbarScale);
 		int scrollbarHeight = (int)((innerViewHeight * innerViewHeight) / (float)this.getInnerHeight());
@@ -939,7 +939,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	}
 	
 	public int scrollBarWidth() {
-		return this.options.scrollbarWidth() + this.options.scrollbarPadding() * 2;
+		return this.theme.scrollbarWidth + this.theme.scrollbarPadding * 2;
 	}
 	
 	public int getInnerWidth() {
