@@ -435,6 +435,10 @@ public class ExtendedInventoryIconScreen extends Screen {
 	public void openSizeSlider() {
 		if (this.sizeSlider != null) this.closeSizeSlider();
 		final int guiScale = (int) (this.minecraft.getWindow().getGuiScale() + 0.5);
+		if (guiScale < 2) {
+			this.updateButtons();
+			return;
+		}
 		this.sizeSlider = new StepSliderWidget(SliderWidgetTheme.CUBIC, this.leftPos + 24, this.topPos + 69, 300, 1 - guiScale, 0, -this.iconScaleDown, this.font,
 				val -> {
 					final double sizePercent = (guiScale + val) * 100.0 / (guiScale);
@@ -486,8 +490,10 @@ public class ExtendedInventoryIconScreen extends Screen {
 	public void resetPreview() {
 		this.iconPreviewOriginal = page.originalIcon;
 		this.iconPreview = page.icon.copy();
+		if (this.countSlider != null) this.countSlider.value = this.iconPreview.getCount();
 		this.dataActive = page.iconDataActive;
 		this.iconScaleDown = page.iconScaleDown;
+		if (this.sizeSlider != null) this.sizeSlider.value = -this.iconScaleDown;
 		this.hasChanged = false;
 		updateButtons();
 	}
@@ -495,8 +501,10 @@ public class ExtendedInventoryIconScreen extends Screen {
 	public void clearPreview() {
 		this.iconPreviewOriginal = ItemStack.EMPTY;
 		this.iconPreview = ItemStack.EMPTY;
+		this.closeCountSlider();
 		this.dataActive = false;
 		this.iconScaleDown = 0;
+		this.closeSizeSlider();
 		this.hasChanged = true;
 		updateButtons();
 	}
