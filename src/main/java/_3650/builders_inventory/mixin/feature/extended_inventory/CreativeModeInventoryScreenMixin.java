@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import _3650.builders_inventory.ModKeybinds;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButton;
+import _3650.builders_inventory.config.Config;
 import _3650.builders_inventory.feature.extended_inventory.ExtendedInventory;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen.ItemPickerMenu;
@@ -37,6 +38,7 @@ public abstract class CreativeModeInventoryScreenMixin extends EffectRenderingIn
 	
 	@Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/EffectRenderingInventoryScreen;init()V"))
 	private void builders_inventory_extendedinventory_addCreativeButton(CallbackInfo ci) {
+		if (!Config.instance().extended_inventory_open_button_enabled) return;
 		builders_inventory_extendedinventory_creativeButton = ExtendedInventory.createOpenButton(this.width / 2, this.height / 2);
 		builders_inventory_extendedinventory_creativeButton.visible = ExtendedInventory.isOpenButtonVisible(selectedTab);
 		this.addRenderableWidget(builders_inventory_extendedinventory_creativeButton);
