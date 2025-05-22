@@ -100,6 +100,13 @@ public class Config {
 	public boolean extended_inventory_enabled = true;
 	
 	@SerialEntry(
+			value = "extended_inventory.open_button_enabled",
+			comment = "Whether the creative inventory has a button to open the extended inventory")
+	@AutoGen(category = "extended_inventory")
+	@Boolean(colored = true, formatter = Formatter.ON_OFF)
+	public boolean extended_inventory_open_button_enabled = true;
+	
+	@SerialEntry(
 			value = "extended_inventory.clear_behavior",
 			comment = "How the clear items button should behave in the extended inventory when shift clicked.\n"
 					+ "(Note: Only applies to clear button in extended inventory, creative inventory is unchanged)"
