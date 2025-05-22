@@ -307,7 +307,6 @@ public class ExtendedInventoryPages {
 				deleted = 0;
 			}
 			
-			
 			// Create directory (doing this outside of thread to make sure it gets made before anything else)
 			if (!Files.isDirectory(root)) {
 				try {
@@ -319,43 +318,47 @@ public class ExtendedInventoryPages {
 				}
 			}
 			
-			// Make another thread save the stuff instead of the main one :troll:
-			Util.ioPool().execute(() -> {
-				int counter = 0;
-				int failCounter = 0;
-				
-				for (int i = 0; i < storeFiles.size(); i++) {
-					var pair = storeFiles.get(i);
-					try {
-						NbtIo.write(pair.getLeft(), pair.getRight());
-						++counter;
-					} catch (Exception e) {
-						++failCounter;
-						BuildersInventory.LOGGER.error("Error saving extended inventory page " + i + "!", e);
-						PLAYER_MESSAGE_QUEUE.add(Component.translatable("error.builders_inventory.extended_inventory.save_failed.page", i + 1).withStyle(ChatFormatting.RED));
+			if (storeFiles.size() > 0 || deleteFiles.size() > 0) {
+				// Make another thread save the stuff instead of the main one :troll:
+				Util.ioPool().execute(() -> {
+					int counter = 0;
+					int failCounter = 0;
+					
+					for (int i = 0; i < storeFiles.size(); i++) {
+						var pair = storeFiles.get(i);
+						try {
+							NbtIo.write(pair.getLeft(), pair.getRight());
+							++counter;
+						} catch (Exception e) {
+							++failCounter;
+							BuildersInventory.LOGGER.error("Error saving extended inventory page " + i + "!", e);
+							PLAYER_MESSAGE_QUEUE.add(Component.translatable("error.builders_inventory.extended_inventory.save_failed.page", i + 1).withStyle(ChatFormatting.RED));
+						}
 					}
-				}
-				
-				BuildersInventory.LOGGER.info("Saved {} modified pages!", counter);
-				if (failCounter > 0) BuildersInventory.LOGGER.error("Also failed to save {} modified pages...", counter);
-				
-				counter = 0;
-				failCounter = 0;
-				
-				for (int i = 0; i < deleteFiles.size(); i++) {
-					var path = deleteFiles.get(i);
-					try {
-						if (Files.deleteIfExists(path)) ++counter;
-					} catch (Exception e) {
-						++failCounter;
-						BuildersInventory.LOGGER.error("Error deleting extended inventory file " + path.toString() + "!", e);
-						PLAYER_MESSAGE_QUEUE.add(Component.translatable("error.builders_inventory.extended_inventory.delete_failed", i + 1).withStyle(ChatFormatting.RED));
+					
+					BuildersInventory.LOGGER.info("Saved {} modified pages!", counter);
+					if (failCounter > 0) BuildersInventory.LOGGER.error("Also failed to save {} modified pages...", counter);
+					
+					counter = 0;
+					failCounter = 0;
+					
+					for (int i = 0; i < deleteFiles.size(); i++) {
+						var path = deleteFiles.get(i);
+						try {
+							if (Files.deleteIfExists(path)) ++counter;
+						} catch (Exception e) {
+							++failCounter;
+							BuildersInventory.LOGGER.error("Error deleting extended inventory file " + path.toString() + "!", e);
+							PLAYER_MESSAGE_QUEUE.add(Component.translatable("error.builders_inventory.extended_inventory.delete_failed", i + 1).withStyle(ChatFormatting.RED));
+						}
 					}
-				}
-				
-				BuildersInventory.LOGGER.info("Deleted {} old pages!", counter);
-				if (failCounter > 0) BuildersInventory.LOGGER.error("Also failed to delete {} old pages...", counter);
-			});
+					
+					BuildersInventory.LOGGER.info("Deleted {} old pages!", counter);
+					if (failCounter > 0) BuildersInventory.LOGGER.error("Also failed to delete {} old pages...", counter);
+				});
+			} else {
+				BuildersInventory.LOGGER.info("No pages needed to be saved.");
+			}
 			
 			// While that goes on, save the things
 			if (ExtendedInventory.getPage() >= 0) {
