@@ -1,38 +1,26 @@
 package _3650.builders_inventory.api.widgets.editbox;
 
 import _3650.builders_inventory.BuildersInventory;
+import _3650.builders_inventory.api.util.ThemeUtil;
 import net.minecraft.client.gui.components.WidgetSprites;
-import net.minecraft.resources.ResourceLocation;
 
-public interface EditBoxTheme {
+public class EditBoxTheme {
 	
-	public ResourceLocation getBackgroundSprite(boolean enabled, boolean focused);
+	public final WidgetSprites spritesBackground;
+	public final WidgetSprites spritesScrollbar;
+	public final int textColor;
+	public final int disabledTextColor;
+	public final int suggestionColor;
+	public final int lineNumColor;
+	public final int lineNumBackgroundColor;
+	public final int innerPadding;
+	public final int borderThickness;
+	public final int scrollbarWidth;
+	public final int scrollbarPadding;
+	public final int scrollbarEdgeHeight;
+	public final int scrollbarScale;
 	
-	public ResourceLocation getScrollbarSprite(boolean enabled, boolean focused);
-	
-	public int textColor();
-	
-	public int disabledTextColor();
-	
-	public int suggestionColor();
-	
-	public int lineNumColor();
-	
-	public int lineNumBackgroundColor();
-	
-	public int innerPadding();
-	
-	public int borderThickness();
-	
-	public int scrollbarWidth();
-	
-	public int scrollbarPadding();
-	
-	public int scrollbarEdgeHeight();
-	
-	public int scrollbarScale();
-	
-	public static EditBoxTheme options(
+	public EditBoxTheme(
 			WidgetSprites spritesBackground,
 			WidgetSprites spritesScrollbar,
 			int textColor,
@@ -47,226 +35,68 @@ public interface EditBoxTheme {
 			int scrollbarEdgeHeight,
 			int scrollbarScale
 			) {
-		return new EditBoxTheme() {
-			
-			@Override
-			public ResourceLocation getBackgroundSprite(boolean enabled, boolean focused) {
-				return spritesBackground.get(enabled, focused);
-			}
-			
-			@Override
-			public ResourceLocation getScrollbarSprite(boolean enabled, boolean focused) {
-				return spritesScrollbar.get(enabled, focused);
-			}
-			
-			@Override
-			public int textColor() {
-				return textColor;
-			}
-			
-			@Override
-			public int disabledTextColor() {
-				return disabledTextColor;
-			}
-			
-			@Override
-			public int suggestionColor() {
-				return suggestionColor;
-			}
-			
-			@Override
-			public int lineNumColor() {
-				return lineNumColor;
-			}
-			
-			@Override
-			public int lineNumBackgroundColor() {
-				return lineNumBackgroundColor;
-			}
-			
-			@Override
-			public int innerPadding() {
-				return innerPadding;
-			}
-			
-			@Override
-			public int borderThickness() {
-				return borderThickness;
-			}
-			
-			@Override
-			public int scrollbarWidth() {
-				return scrollbarWidth;
-			}
-			
-			@Override
-			public int scrollbarPadding() {
-				return scrollbarPadding;
-			}
-			
-			@Override
-			public int scrollbarEdgeHeight() {
-				return scrollbarEdgeHeight;
-			}
-			
-			@Override
-			public int scrollbarScale() {
-				return scrollbarScale;
-			}
-		};
+		this.spritesBackground = spritesBackground;
+		this.spritesScrollbar = spritesScrollbar;
+		this.textColor = ThemeUtil.visibleColor(textColor);
+		this.disabledTextColor = ThemeUtil.visibleColor(disabledTextColor);
+		this.suggestionColor = ThemeUtil.visibleColor(suggestionColor);
+		this.lineNumColor = ThemeUtil.visibleColor(lineNumColor);
+		this.lineNumBackgroundColor = ThemeUtil.visibleColor(lineNumBackgroundColor);
+		this.innerPadding = innerPadding;
+		this.borderThickness = borderThickness;
+		this.scrollbarWidth = scrollbarWidth;
+		this.scrollbarPadding = scrollbarPadding;
+		this.scrollbarEdgeHeight = scrollbarEdgeHeight;
+		this.scrollbarScale = scrollbarScale;
 	}
 	
+	public static final EditBoxTheme CUBIC = buildCubic();
 	
-	public static final EditBoxTheme CUBIC = new EditBoxTheme() {
-		
-		private static final WidgetSprites SPRITES_BACKGROUND = new WidgetSprites(
-				BuildersInventory.modLoc("themes/cubic/text_field"),
-				BuildersInventory.modLoc("themes/cubic/text_field_disabled"),
-				BuildersInventory.modLoc("themes/cubic/text_field"));
-		private static final ResourceLocation SPRITE_SCROLLBAR =
-				BuildersInventory.modLoc("themes/cubic/scrollbar");
-		
-		@Override
-		public ResourceLocation getBackgroundSprite(boolean enabled, boolean focused) {
-			return SPRITES_BACKGROUND.get(enabled, focused);
-		}
-		
-		@Override
-		public ResourceLocation getScrollbarSprite(boolean enabled, boolean focused) {
-			return SPRITE_SCROLLBAR;
-		}
-		
-		@Override
-		public int textColor() {
-			return 0xFFFFFFFF;
-		}
-		
-		@Override
-		public int disabledTextColor() {
-			return 0xFF707070;
-		}
-		
-		@Override
-		public int suggestionColor() {
-			return 0xFF808080;
-		}
-		
-		@Override
-		public int lineNumColor() {
-			return 0xFFFFFFFF;
-		}
-		
-		@Override
-		public int lineNumBackgroundColor() {
-			return 0xFFB2A180;
-		}
-		
-		@Override
-		public int innerPadding() {
-			return 5;
-		}
-		
-		@Override
-		public int borderThickness() {
-			return 2;
-		}
-		
-		@Override
-		public int scrollbarWidth() {
-			return 6;
-		}
-		
-		@Override
-		public int scrollbarPadding() {
-			return 0;
-		}
-		
-		@Override
-		public int scrollbarEdgeHeight() {
-			return 3;
-		}
-		
-		@Override
-		public int scrollbarScale() {
-			return 2;
-		}
-		
-	};
+	@Deprecated
+	public static EditBoxTheme buildCubic() {
+		return new EditBoxTheme(
+				new WidgetSprites(
+						BuildersInventory.modLoc("themes/cubic/text_field/text_field"),
+						BuildersInventory.modLoc("themes/cubic/text_field/text_field_disabled"),
+						BuildersInventory.modLoc("themes/cubic/text_field/text_field")),
+				new WidgetSprites(
+						BuildersInventory.modLoc("themes/cubic/text_field/scrollbar"),
+						BuildersInventory.modLoc("themes/cubic/text_field/scrollbar_highlighted")),
+				0xFFFFFFFF,
+				0xFF707070,
+				0xFF808080,
+				0xFFFFFFFF,
+				0xFFB2A180,
+				5,
+				2,
+				6,
+				0,
+				3,
+				2);
+	}
 	
-	public static final EditBoxTheme COMMANDER = new EditBoxTheme() {
-		
-		private static final WidgetSprites SPRITES_BACKGROUND = new WidgetSprites(
-				BuildersInventory.modLoc("themes/commander/text_field"),
-				BuildersInventory.modLoc("themes/commander/text_field_highlighted"));
-		private static final WidgetSprites SPRITES_SCROLLBAR = new WidgetSprites(
-				BuildersInventory.modLoc("themes/commander/scrollbar"),
-				BuildersInventory.modLoc("themes/commander/scrollbar_highlighted"));
-		
-		@Override
-		public ResourceLocation getBackgroundSprite(boolean enabled, boolean focused) {
-			return SPRITES_BACKGROUND.get(enabled, focused);
-		}
-		
-		@Override
-		public ResourceLocation getScrollbarSprite(boolean enabled, boolean focused) {
-			return SPRITES_SCROLLBAR.get(enabled, focused);
-		}
-		
-		@Override
-		public int textColor() {
-			return 0xFFE0E0E0;
-		}
-		
-		@Override
-		public int disabledTextColor() {
-			return 0xFF707070;
-		}
-		
-		@Override
-		public int suggestionColor() {
-			return 0xFF808080;
-		}
-		
-		@Override
-		public int lineNumColor() {
-			return 0xFFB3B3B3;
-		}
-		
-		@Override
-		public int lineNumBackgroundColor() {
-			return 0xFF3D3D3D;
-		}
-		
-		@Override
-		public int innerPadding() {
-			return 4;
-		}
-		
-		@Override
-		public int borderThickness() {
-			return 1;
-		}
-		
-		@Override
-		public int scrollbarWidth() {
-			return 2;
-		}
-		
-		@Override
-		public int scrollbarPadding() {
-			return 2;
-		}
-		
-		@Override
-		public int scrollbarEdgeHeight() {
-			return 0;
-		}
-		
-		@Override
-		public int scrollbarScale() {
-			return 1;
-		}
-		
-	};
+	public static final EditBoxTheme COMMANDER = buildCommander();
+	
+	@Deprecated
+	public static EditBoxTheme buildCommander() {
+		return new EditBoxTheme(
+				new WidgetSprites(
+						BuildersInventory.modLoc("themes/commander/text_field/text_field"),
+						BuildersInventory.modLoc("themes/commander/text_field/text_field_highlighted")),
+				new WidgetSprites(
+						BuildersInventory.modLoc("themes/commander/text_field/scrollbar"),
+						BuildersInventory.modLoc("themes/commander/text_field/scrollbar_highlighted")),
+				0xFFE0E0E0,
+				0xFF707070,
+				0xFF808080,
+				0xFFB3B3B3,
+				0xFF3D3D3D,
+				4,
+				1,
+				2,
+				2,
+				0,
+				1);
+	}
 	
 }
