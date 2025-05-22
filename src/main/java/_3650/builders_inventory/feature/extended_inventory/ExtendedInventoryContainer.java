@@ -24,6 +24,7 @@ public class ExtendedInventoryContainer implements Container {
 		this.page = ExtendedInventoryPages.get(page);
 		this.pageId = page;
 		this.refresh();
+		ExtendedInventoryPages.setChanged();
 	}
 	
 	public void refresh() {
