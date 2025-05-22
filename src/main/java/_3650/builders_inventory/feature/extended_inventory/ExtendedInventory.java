@@ -97,7 +97,7 @@ public class ExtendedInventory {
 	
 	public static void switchLeft(ExtendedInventoryScreen screen) {
 		int page = getPage() - 1;
-		if (page > 0) setPage(page);
+		if (page >= 0) setPage(page);
 		refreshScreen(screen);
 	}
 	
