@@ -109,6 +109,7 @@ public class ExtendedInventoryPages {
 			
 			// Get possible filenames
 			String[] filenames = root.toFile().list((dir, name) -> name.startsWith(FILE_PREFIX) && name.endsWith(FILE_SUFFIX));
+			if (filenames == null) filenames = new String[0];
 			
 			// order and number validity NOT guaranteed, construct array of files and save max id to fill in blanks
 			int substrStart = FILE_PREFIX.length();
