@@ -47,7 +47,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 	
 	private static final double SCROLL_RATE = 4.5;
 	
-	private final EditBoxTheme options;
+	private final EditBoxTheme theme;
 	private final Font font;
 	private final ArrayList<StringPos> displayLines = new ArrayList<>();
 	private final MiniMessageInstance minimessage;
@@ -75,7 +75,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 	public SingleLineMMEditBox(MMWidgetConstructor mmConstructor, EditBoxTheme options, Font font, int x, int y, int width, int height, Component message) {
 		super(x, y, width, height, message);
 		this.minimessage = mmConstructor.construct(new LocalWTF(this));
-		this.options = options;
+		this.theme = options;
 		this.font = font;
 		this.setValue("");
 	}
@@ -190,7 +190,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
 		if (this.isActive() && this.isFocused() && this.scrolling) {
-			final int scrollSnapEdge = this.innerPadding() - this.options.borderThickness();
+			final int scrollSnapEdge = this.innerPadding() - this.theme.borderThickness;
 			if (mouseY < this.getY() + scrollSnapEdge) {
 				this.setScrollAmount(0);
 			} else if (mouseY > this.getY() + this.height - scrollSnapEdge) {
@@ -409,7 +409,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 	public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
 		if (this.visible) {
 			this.renderBackground(gui);
-			final int borderThickness = this.options.borderThickness();
+			final int borderThickness = this.theme.borderThickness;
 			gui.enableScissor(this.getX() + borderThickness, this.getY() + borderThickness, this.getX() + this.width - borderThickness, this.getY() + this.height - borderThickness);
 			gui.pose().pushPose();
 			gui.pose().translate(0, -this.scrollAmount, 0);
@@ -426,12 +426,12 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 			gui.disableScissor();
 			if (this.scrollBarVisible()) {
 				int scrollBarHeight = this.getScrollBarHeight();
-				final int x = this.getX() + this.width - this.scrollbarPadding + this.options.scrollbarPadding();
+				final int x = this.getX() + this.width - this.scrollbarPadding + this.theme.scrollbarPadding;
 				final int y = Math.max(
 						this.getY() + this.innerPadding(),
 						this.getY() + this.innerPadding() + (int)this.scrollAmount * (this.height - this.totalVerticalPadding() - scrollBarHeight) / this.getMaxScrollAmount());
 				RenderSystem.enableBlend();
-				gui.blitSprite(RenderType::guiTextured, this.options.getScrollbarSprite(this.isActive(), this.isFocused()), x, y, 1, this.options.scrollbarWidth(), scrollBarHeight);
+				gui.blitSprite(RenderType::guiTextured, this.theme.spritesScrollbar.get(this.isActive(), this.isFocused()), x, y, 1, this.theme.scrollbarWidth, scrollBarHeight);
 				RenderSystem.disableBlend();
 			}
 			if (this.hasMaxLength()) {
@@ -443,7 +443,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 	}
 	
 	private void renderBackground(GuiGraphics gui) {
-		ResourceLocation background = this.options.getBackgroundSprite(this.isActive(), this.isFocused());
+		ResourceLocation background = this.theme.spritesBackground.get(this.isActive(), this.isFocused());
 		gui.blitSprite(RenderType::guiTextured, background, this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 	
@@ -451,7 +451,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 		String str = this.value;
 		if (!str.isEmpty() || this.isFocused()) {
 			final int cursor = this.cursor;
-			final int textColor = this.isActive() ? this.options.textColor() : this.options.disabledTextColor();
+			final int textColor = this.isActive() ? this.theme.textColor : this.theme.disabledTextColor;
 			final boolean blink = this.isFocused() && (Util.getMillis() - this.focusedTime) / 300L % 2L == 0L;
 			
 			int y = this.getY() + this.innerPadding();
@@ -475,7 +475,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 						
 						if (!cursorInserting && !this.hasSelection() && cursor >= line.beginIndex && cursor <= line.endIndex && line.endIndex == this.value.length()) {
 							if (this.suggestion != null) {
-								gui.drawString(this.font, this.suggestion, x - 1, y, this.options.suggestionColor());
+								gui.drawString(this.font, this.suggestion, x - 1, y, this.theme.suggestionColor);
 							}
 							
 							if (blink) {
@@ -649,7 +649,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 	}
 	
 	public int innerPadding() {
-		return this.options.innerPadding();
+		return this.theme.innerPadding;
 	}
 	
 	public int leftPadding() {
@@ -685,12 +685,12 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 			this.scrollbarPadding = 0;
 			this.rightPadding = this.innerPadding();
 		} else {
-			this.scrollbarPadding = this.options.scrollbarWidth() + this.options.scrollbarPadding() * 2;
-			if (this.options.scrollbarPadding() < this.options.borderThickness()) this.scrollbarPadding += this.options.borderThickness() - this.options.scrollbarPadding();
+			this.scrollbarPadding = this.theme.scrollbarWidth + this.theme.scrollbarPadding * 2;
+			if (this.theme.scrollbarPadding < this.theme.borderThickness) this.scrollbarPadding += this.theme.borderThickness - this.theme.scrollbarPadding;
 			this.rightPadding = this.scrollbarPadding;
 		}
-		final int scrollbarEdgeHeight = this.options.scrollbarEdgeHeight();
-		final int scrollbarScale = this.options.scrollbarScale();
+		final int scrollbarEdgeHeight = this.theme.scrollbarEdgeHeight;
+		final int scrollbarScale = this.theme.scrollbarScale;
 		final int innerViewHeight = this.height - this.totalVerticalPadding();
 		final int minScrollbarHeight = Math.max(Mth.positiveCeilDiv(innerViewHeight, 6), scrollbarEdgeHeight + scrollbarScale);
 		int scrollbarHeight = (int)((innerViewHeight * innerViewHeight) / (float)this.getInnerHeight());
@@ -710,7 +710,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 	}
 	
 	public int scrollBarWidth() {
-		return this.options.scrollbarWidth() + this.options.scrollbarPadding() * 2;
+		return this.theme.scrollbarWidth + this.theme.scrollbarPadding * 2;
 	}
 	
 	public int getInnerWidth() {
