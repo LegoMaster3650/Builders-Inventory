@@ -11,6 +11,7 @@ import _3650.builders_inventory.BuildersInventory;
 import _3650.builders_inventory.ModKeybinds;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButton;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButtonGui;
+import _3650.builders_inventory.config.Config;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.gui.ComponentPath;
@@ -158,6 +159,13 @@ public class ExtendedInventoryDeleteScreen extends Screen {
 			ExtendedInventory.open(this.minecraft);
 			return true;
 		} else return super.keyPressed(keyCode, scanCode, modifiers);
+	}
+	
+	@Override
+	public void onClose() {
+		if (Config.instance().extended_inventory_close_to_main) {
+			ExtendedInventory.open(this.minecraft);
+		} else super.onClose();
 	}
 	
 	@Override
