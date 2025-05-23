@@ -1,7 +1,6 @@
 package _3650.builders_inventory.mixin.feature.minimessage.resource;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -10,7 +9,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import com.llamalad7.mixinextras.sugar.Local;
 
 import _3650.builders_inventory.api.minimessage.autocomplete.ReloadableResourceArg;
 import net.minecraft.client.resources.language.ClientLanguage;
@@ -26,8 +25,8 @@ public abstract class LanguageManagerMixin {
 	@Shadow
 	private String currentCode;
 	
-	@Inject(method = "onResourceManagerReload", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
-	private void builders_inventory_captureLanguages(ResourceManager resourceManager, CallbackInfo ci, List<String> filenames, boolean bidi, ClientLanguage lang) {
+	@Inject(method = "onResourceManagerReload", at = @At("TAIL"))
+	private void builders_inventory_captureLanguages(ResourceManager resourceManager, CallbackInfo ci, @Local(ordinal = 0) ClientLanguage lang) {
 		ArrayList<String> langKeys = ((ClientLanguageAccessor)lang).getStorage().keySet().stream()
 				.sorted()
 				.filter(tag -> !tag.startsWith("_")) // I consider _ to be a comment
