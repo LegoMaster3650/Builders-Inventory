@@ -11,6 +11,7 @@
 	
 	
 	"container.builders_inventory.extended_inventory": "Extended Inventory",
+	"container.builders_inventory.extended_inventory.button.open": "Open Extended Inventory",
 	"container.builders_inventory.extended_inventory.page": "Extended Inventory (Page %s)",
 	"container.builders_inventory.extended_inventory.page.custom": "%s (Page %s)",
 	"container.builders_inventory.extended_inventory.invalid": "Extended Inventory (Invalid Page)",
