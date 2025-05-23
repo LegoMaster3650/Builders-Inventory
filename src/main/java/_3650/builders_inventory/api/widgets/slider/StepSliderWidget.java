@@ -249,7 +249,8 @@ public class StepSliderWidget extends AbstractWidget {
 		gui.pose().pushPose();
 		gui.pose().translate(0, 0, this.z);
 		
-		gui.blitSprite(this.isFocused() && !this.focusDragging ? theme.spriteBackgroundHighlighted : theme.spriteBackground, this.getX(), this.getY(), this.width, this.height);
+		final ResourceLocation bgSprite = theme.spritesBackground.get(this.isActive(), this.isFocused() && !this.focusDragging);
+		gui.blitSprite(bgSprite, this.getX(), this.getY(), this.width, this.height);
 		
 		this.drawGuides(gui);
 		
@@ -258,13 +259,18 @@ public class StepSliderWidget extends AbstractWidget {
 			final int sby = this.getY() + this.centerY - this.halfBarHeight;
 			final int sbwidth = 5;
 			final int sbheight = theme.barHeight;
-			final ResourceLocation barSprite = (this.dragging || mouseXi >= sbx && mouseXi < sbx + sbwidth && mouseYi >= sby && mouseYi < sby + sbheight) ? theme.spriteBarHighlighted : theme.spriteBar;
+			final ResourceLocation barSprite = theme.spritesBar.get(this.isActive(), (this.dragging || mouseXi >= sbx && mouseXi < sbx + sbwidth && mouseYi >= sby && mouseYi < sby + sbheight));
 			gui.blitSprite(barSprite, sbx, sby, sbwidth, sbheight);
 		}
 		
 		final int x = mouseXi - this.getX();
 		final int y = mouseYi - this.getY();
-		if (x >= this.minX - Math.max(theme.horizontalPadding, 1) && x < this.maxX + Math.max(theme.horizontalPadding, 1) && y >= theme.border && y < this.height - theme.border) {
+		if (!this.active) {
+			if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
+				final List<Component> tooltip = this.tooltipFormat.apply(this.value);
+				if (!tooltip.isEmpty()) gui.renderComponentTooltip(this.font, tooltip, mouseXi, mouseYi);
+			}
+		} else if (x >= this.minX - Math.max(theme.horizontalPadding, 1) && x < this.maxX + Math.max(theme.horizontalPadding, 1) && y >= theme.border && y < this.height - theme.border) {
 			Minecraft mc = Minecraft.getInstance();
 			Window window = mc.getWindow();
 			double mouseX = (mc.mouseHandler.xpos() * ((double)window.getGuiScaledWidth() / window.getScreenWidth()));
@@ -280,7 +286,7 @@ public class StepSliderWidget extends AbstractWidget {
 		
 		if (this.canCancel) {
 			final int cancelX = this.width - theme.border - 12 - theme.cancelButtonPadding;
-			final boolean hoveringCancel = !this.dragging && x >= cancelX && x < cancelX + 12 && y >= theme.border && y < theme.border + 12;
+			final boolean hoveringCancel = this.active && !this.dragging && x >= cancelX && x < cancelX + 12 && y >= theme.border && y < theme.border + 12;
 			final ResourceLocation cancelSprite = theme.spritesCancelButton.get(this.isActive(), hoveringCancel);
 			gui.blitSprite(cancelSprite, this.getX() + cancelX, this.getY() + theme.border + theme.cancelButtonPadding, 12, 12);
 			if (hoveringCancel) {
@@ -303,7 +309,7 @@ public class StepSliderWidget extends AbstractWidget {
 		final int minX = this.getX() + this.minX;
 		final int maxX = this.getX() + this.maxX;
 		final int centerY = this.getY() + this.centerY;
-		final int guideColor = this.theme.guideColor;
+		final int guideColor = this.active ? (this.isFocused() && !this.focusDragging ? this.theme.guideColorBGHighlighted : this.theme.guideColor) : this.theme.guideColorDisabled;
 		gui.fill(minX, centerY, maxX, centerY + 1, guideColor);
 		gui.fill(minX + 1, centerY - 3, minX + 2, centerY + 4, guideColor);
 		gui.fill(maxX - 2, centerY - 3, maxX - 1, centerY + 4, guideColor);
@@ -316,6 +322,9 @@ public class StepSliderWidget extends AbstractWidget {
 	
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		if (!this.isActive()) return false;
+		if (!this.isValidClickButton(button)) return false;
+		
 		final var theme = this.theme;
 		final double x = mouseX - this.getX();
 		final double y = mouseY - this.getY();
@@ -349,6 +358,8 @@ public class StepSliderWidget extends AbstractWidget {
 	
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+		if (!this.isActive()) return false;
+		if (!this.isValidClickButton(button)) return false;
 		if (!this.dragging) return false;
 		
 		final int newVal = Mth.clamp((int)Math.round(this.min + (mouseX - this.getX() - this.minX - 1.5) / this.innerWidth * this.range), this.min, this.max);
@@ -362,6 +373,8 @@ public class StepSliderWidget extends AbstractWidget {
 	
 	@Override
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		if (!this.isActive()) return false;
+		if (!this.isValidClickButton(button)) return false;
 		this.dragging = false;
 		return true;
 	}
