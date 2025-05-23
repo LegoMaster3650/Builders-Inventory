@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import com.llamalad7.mixinextras.sugar.Local;
 
 import _3650.builders_inventory.api.minimessage.autocomplete.ReloadableResourceArg;
 import net.minecraft.client.multiplayer.ClientConfigurationPacketListenerImpl;
@@ -28,8 +28,8 @@ public abstract class ClientConfigurationPacketListenerImplMixin {
 	@Shadow
 	private FeatureFlagSet enabledFeatures;
 	
-	@Inject(method = "handleConfigurationFinished", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
-	private void builders_inventory_captureItemsAndEntities(ClientboundFinishConfigurationPacket packet, CallbackInfo ci, RegistryAccess.Frozen registryAccess) {
+	@Inject(method = "handleConfigurationFinished", at = @At("TAIL"))
+	private void builders_inventory_captureItemsAndEntities(ClientboundFinishConfigurationPacket packet, CallbackInfo ci, @Local(ordinal = 0) RegistryAccess.Frozen registryAccess) {
 		HolderLookup<Item> itemReg = registryAccess.lookupOrThrow(Registries.ITEM).filterFeatures(this.enabledFeatures);
 		ArrayList<String> items = itemReg.listElementIds()
 				.map(ResourceKey::location)
