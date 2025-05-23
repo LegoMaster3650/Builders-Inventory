@@ -5,6 +5,7 @@ import _3650.builders_inventory.ModKeybinds;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButton;
 import _3650.builders_inventory.config.Config;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -79,7 +80,8 @@ public class ExtendedInventory {
 	public static ExtendedImageButton createOpenButton(int midX, int midY) {
 		return new ExtendedImageButton(midX + 57, midY - 28, 12, 12,
 				OPEN_BUTTON_SPRITES,
-				ExtendedInventory::onPressOpenButton);
+				ExtendedInventory::onPressOpenButton,
+				Component.translatable("container.builders_inventory.extended_inventory.button.open").withStyle(ChatFormatting.WHITE));
 	}
 	
 	public static boolean isOpenButtonVisible(CreativeModeTab tab) {
