@@ -10,6 +10,7 @@ import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButtonGui;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageDualButton;
 import _3650.builders_inventory.api.widgets.slider.SliderWidgetTheme;
 import _3650.builders_inventory.api.widgets.slider.StepSliderWidget;
+import _3650.builders_inventory.config.Config;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
@@ -557,6 +558,13 @@ public class ExtendedInventoryIconScreen extends Screen {
 			ExtendedInventory.open(this.minecraft);
 			return true;
 		} else return super.keyPressed(keyCode, scanCode, modifiers);
+	}
+	
+	@Override
+	public void onClose() {
+		if (Config.instance().extended_inventory_close_to_main) {
+			ExtendedInventory.open(this.minecraft);
+		} else super.onClose();
 	}
 	
 	@Override
