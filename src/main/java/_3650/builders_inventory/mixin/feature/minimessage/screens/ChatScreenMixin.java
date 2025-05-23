@@ -40,7 +40,7 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.util.Mth;
 
 @Mixin(ChatScreen.class)
-public abstract class ChatScreenMixin extends Screen {
+public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 	
 	@Unique
 	private static final WidgetSprites SPRITES_BUTTON_FORCE = new WidgetSprites(
@@ -50,10 +50,6 @@ public abstract class ChatScreenMixin extends Screen {
 	private static final WidgetSprites SPRITES_BUTTON_FORCE_ACTIVE = new WidgetSprites(
 			BuildersInventory.modLoc("minimessage/button_force_active"),
 			BuildersInventory.modLoc("minimessage/button_force_active_highlighted"));
-	
-	protected ChatScreenMixin(Component title) {
-		super(title); // dummy initializer
-	}
 	
 	@Shadow
 	protected EditBox input;
@@ -77,7 +73,7 @@ public abstract class ChatScreenMixin extends Screen {
 		// load tagWidget
 		this.minimessage = new MiniMessageInstance(
 				this.minecraft,
-				this,
+				(Screen)(Object)this,
 				this.font,
 				WrappedTextField.editBox(this.input),
 				ChatMiniMessageContext::isValid,
@@ -210,8 +206,7 @@ public abstract class ChatScreenMixin extends Screen {
 	}
 	
 	@Override
-	public void tick() {
-		super.tick();
+	protected void tickInjectTail(CallbackInfo ci) {
 		if (!Config.instance().minimessage_enabledChat) return;
 		this.minimessage.tick();
 	}
@@ -221,8 +216,7 @@ public abstract class ChatScreenMixin extends Screen {
 	 */
 	
 	@Override
-	protected void clearWidgets() {
-		super.clearWidgets();
+	protected void clearWidgetsInjectTail(CallbackInfo ci) {
 		if (!Config.instance().minimessage_enabledChat) return;
 		this.exGui.clearWidgets();
 	}
