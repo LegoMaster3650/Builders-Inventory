@@ -19,8 +19,6 @@ import net.minecraft.util.Mth;
 
 public class StepSliderWidget extends AbstractWidget {
 	
-	private static final IntConsumer NO_CANCEL = x -> {};
-	
 	private final boolean canCancel;
 	private final SliderWidgetTheme theme;
 	private final int z;
@@ -44,13 +42,184 @@ public class StepSliderWidget extends AbstractWidget {
 	public int value;
 	private boolean dragging = false;
 	
-	public StepSliderWidget(SliderWidgetTheme theme, int x, int y, int z, int min, int max, int initialValue, Font font, Int2ObjectFunction<List<Component>> tooltipFormat, IntConsumer onChange) {
-		this(theme, x, y, z, min, max, initialValue, font, tooltipFormat, onChange, NO_CANCEL);
+	public static StepSliderWidget standard(
+			SliderWidgetTheme theme,
+			int x,
+			int y,
+			int z,
+			int min,
+			int max,
+			int initialValue,
+			Font font,
+			Int2ObjectFunction<List<Component>> tooltipFormat,
+			IntConsumer onChange
+			) {
+		return internalBuild(
+				theme,
+				x,y,z,
+				min,max,
+				initialValue,
+				0,
+				font,
+				tooltipFormat,
+				onChange,
+				noop -> {},
+				false
+				);
 	}
 	
-	public StepSliderWidget(SliderWidgetTheme theme, int x, int y, int z, int min, int max, int initialValue, Font font, Int2ObjectFunction<List<Component>> tooltipFormat, IntConsumer onChange, IntConsumer onCancel) {
-		super(x, y, calculateWidth(min, max, onCancel != NO_CANCEL, theme), theme.height, Component.empty());
-		this.canCancel = onCancel != NO_CANCEL;
+	public static StepSliderWidget standardMinSpacing(
+			SliderWidgetTheme theme,
+			int x,
+			int y,
+			int z,
+			int min,
+			int max,
+			int initialValue,
+			int minSegmentSpacing,
+			Font font,
+			Int2ObjectFunction<List<Component>> tooltipFormat,
+			IntConsumer onChange
+			) {
+		return internalBuild(
+				theme,
+				x,y,z,
+				min,max,
+				initialValue,
+				minSegmentSpacing,
+				font,
+				tooltipFormat,
+				onChange,
+				noop -> {},
+				false
+				);
+	}
+	
+	public static StepSliderWidget cancel(
+			SliderWidgetTheme theme,
+			int x,
+			int y,
+			int z,
+			int min,
+			int max,
+			int initialValue,
+			Font font,
+			Int2ObjectFunction<List<Component>> tooltipFormat,
+			IntConsumer onChange,
+			IntConsumer onCancel
+			) {
+		return internalBuild(
+				theme,
+				x,y,z,
+				min,max,
+				initialValue,
+				0,
+				font,
+				tooltipFormat,
+				onChange,
+				onCancel,
+				true
+				);
+	}
+	
+	public static StepSliderWidget cancelMinSpacing(
+			SliderWidgetTheme theme,
+			int x,
+			int y,
+			int z,
+			int min,
+			int max,
+			int initialValue,
+			int minSegmentSpacing,
+			Font font,
+			Int2ObjectFunction<List<Component>> tooltipFormat,
+			IntConsumer onChange,
+			IntConsumer onCancel
+			) {
+		return internalBuild(
+				theme,
+				x,y,z,
+				min,max,
+				initialValue,
+				minSegmentSpacing,
+				font,
+				tooltipFormat,
+				onChange,
+				onCancel,
+				true
+				);
+	}
+	
+	private static StepSliderWidget internalBuild(
+			SliderWidgetTheme theme,
+			int x,
+			int y,
+			int z,
+			int min,
+			int max,
+			int initialValue,
+			int minSegmentSpacing,
+			Font font,
+			Int2ObjectFunction<List<Component>> tooltipFormat,
+			IntConsumer onChange,
+			IntConsumer onCancel,
+			boolean canCancel
+			) {
+		if (min >= max) throw new IllegalArgumentException("Slider minimum value " + min + " must be less than maximum value " + max);
+		final int segments = max - min;
+		final int step = Math.max(switch(segments) {
+		case 1 -> 50; //  50 segment width
+		case 2 -> 30; //  60 segment width
+		case 3 -> 25; //  75 segment width
+		case 4 -> 22; //  88 segment width
+		case 5 -> 20; // 100 segment width
+		case 6 -> 18; // 108 segment width
+		case 7 -> 16; // 112 segment width
+		default -> segments > 48 ? 2 : Math.round(116f / segments);
+		}, minSegmentSpacing);
+		final int innerWidth = step * segments;
+		final int borderWidth = (theme.border + theme.horizontalPadding) * 2;
+		final int rightPadding = 3 + (canCancel ? 13 + 2 * theme.cancelButtonPadding : 0); // +3 for R notch, +13 for cancel extension
+		final int width = innerWidth + borderWidth + rightPadding;
+		
+		return new StepSliderWidget(
+				theme,
+				x,y,z,
+				min,max,
+				initialValue,
+				font,
+				tooltipFormat,
+				onChange,
+				onCancel,
+				width,
+				theme.height,
+				canCancel,
+				segments,
+				step,
+				innerWidth
+				);
+	}
+	
+	private StepSliderWidget(
+			SliderWidgetTheme theme,
+			int x,
+			int y,
+			int z,
+			int min,
+			int max,
+			int initialValue,
+			Font font,
+			Int2ObjectFunction<List<Component>> tooltipFormat,
+			IntConsumer onChange,
+			IntConsumer onCancel,
+			int width,
+			int height,
+			boolean canCancel,
+			int segments,
+			int step,
+			int innerWidth
+			) {
+		super(x, y, width, height, Component.empty());
 		this.theme = theme;
 		this.z = z;
 		this.min = min;
@@ -60,43 +229,17 @@ public class StepSliderWidget extends AbstractWidget {
 		this.font = font;
 		this.tooltipFormat = tooltipFormat;
 		this.onChange = onChange;
-		final int segments = max - min;
+		this.onCancel = onCancel;
+		
+		this.canCancel = canCancel;
 		this.range = segments;
+		this.notchStep = step;
 		this.innerNotch = segments - 1;
-		final int borderWidth = (theme.border + theme.horizontalPadding) * 2;
-		this.innerWidth = this.width - borderWidth - 3 - (this.canCancel ? 13 + 2 * theme.cancelButtonPadding : 0);
-		this.notchStep = this.innerWidth / segments;
+		this.innerWidth = innerWidth;
 		this.minX = theme.border + theme.horizontalPadding;
 		this.maxX = theme.border + theme.horizontalPadding + this.innerWidth + 3;
 		this.centerY = Math.floorDiv(this.height, 2);
 		this.halfBarHeight = Math.floorDiv(theme.barHeight, 2);
-		this.onCancel = onCancel;
-	}
-	
-	private static int calculateWidth(int min, int max, boolean canCancel, SliderWidgetTheme theme) {
-		if (min >= max) throw new IllegalArgumentException("Slider minimum value " + min + " must be less than maximum value " + max);
-		final int segments = max - min;
-		final int step = switch(segments) {
-		case 1 -> 50; //  50 segment width
-		case 2 -> 30; //  60 segment width
-		case 3 -> 25; //  75 segment width
-		case 4 -> 22; //  88 segment width
-		case 5 -> 20; // 100 segment width
-		case 6 -> 18; // 108 segment width
-		case 7 -> 16; // 112 segment width
-		default -> calculateVisualStep(segments);
-		};
-		
-		final int borderWidth = (theme.border + theme.horizontalPadding) * 2;
-		return step * segments + borderWidth + 3 + (canCancel ? 13 + 2 * theme.cancelButtonPadding : 0); // +3 for R notch, +13 for cancel extension
-	}
-	
-	private static int calculateVisualStep(int segments) {
-		if (segments > 48) {
-			return 2;
-		} else {
-			return Math.round(116f / segments);
-		}
 	}
 	
 	@Override
