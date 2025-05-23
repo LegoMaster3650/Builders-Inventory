@@ -1,4 +1,4 @@
-package _3650.builders_inventory.mixin.feature.minimessage.screens;
+package _3650.builders_inventory.mixin.feature.minimessage.screens.chat;
 
 import java.util.List;
 
