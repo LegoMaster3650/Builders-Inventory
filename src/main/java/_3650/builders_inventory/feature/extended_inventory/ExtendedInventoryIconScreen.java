@@ -408,7 +408,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 	
 	public void openCountSlider() {
 		if (this.countSlider != null) this.closeCountSlider();
-		this.countSlider = new StepSliderWidget(SliderWidgetTheme.CUBIC, this.leftPos + 24, this.topPos + 33, 300, 1, 64, this.iconPreview.getCount(), this.font,
+		this.countSlider = StepSliderWidget.cancel(SliderWidgetTheme.CUBIC, this.leftPos + 24, this.topPos + 33, 300, 1, 64, this.iconPreview.getCount(), this.font,
 				val -> {
 					return List.of(Component.literal(String.valueOf(val)));
 				},
@@ -439,7 +439,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 			this.updateButtons();
 			return;
 		}
-		this.sizeSlider = new StepSliderWidget(SliderWidgetTheme.CUBIC, this.leftPos + 24, this.topPos + 69, 300, 1 - guiScale, 0, -this.iconScaleDown, this.font,
+		this.sizeSlider = StepSliderWidget.cancel(SliderWidgetTheme.CUBIC, this.leftPos + 24, this.topPos + 69, 300, 1 - guiScale, 0, -this.iconScaleDown, this.font,
 				val -> {
 					final double sizePercent = (guiScale + val) * 100.0 / (guiScale);
 					return List.of(Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.slider.size",
