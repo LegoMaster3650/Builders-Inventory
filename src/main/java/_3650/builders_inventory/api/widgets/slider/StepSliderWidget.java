@@ -19,29 +19,6 @@ import net.minecraft.util.Mth;
 
 public class StepSliderWidget extends AbstractWidget {
 	
-	private final boolean canCancel;
-	private final SliderWidgetTheme theme;
-	private final int z;
-	private final int min;
-	private final int max;
-	public final int initialValue;
-	private final Font font;
-	private final Int2ObjectFunction<List<Component>> tooltipFormat;
-	private final IntConsumer onChange;
-	private final IntConsumer onCancel;
-	
-	private final int range;
-	private final int innerNotch;
-	private final int innerWidth;
-	private final int notchStep;
-	private final int minX;
-	private final int maxX;
-	private final int centerY;
-	private final int halfBarHeight;
-	
-	public int value;
-	private boolean dragging = false;
-	
 	public static StepSliderWidget standard(
 			SliderWidgetTheme theme,
 			int x,
@@ -200,6 +177,28 @@ public class StepSliderWidget extends AbstractWidget {
 				);
 	}
 	
+	private final SliderWidgetTheme theme;
+	private final int z;
+	private final int min;
+	private final int max;
+	public final int initialValue;
+	private final Font font;
+	private final Int2ObjectFunction<List<Component>> tooltipFormat;
+	private final IntConsumer onChange;
+	private final IntConsumer onCancel;
+	
+	private final boolean canCancel;
+	private final int range;
+	private final int notchStep;
+	private final int innerWidth;
+	private final int minX;
+	private final int maxX;
+	private final int centerY;
+	private final int halfBarHeight;
+	
+	public int value;
+	private boolean dragging = false;
+	
 	private StepSliderWidget(
 			SliderWidgetTheme theme,
 			int x,
@@ -234,7 +233,6 @@ public class StepSliderWidget extends AbstractWidget {
 		this.canCancel = canCancel;
 		this.range = segments;
 		this.notchStep = step;
-		this.innerNotch = segments - 1;
 		this.innerWidth = innerWidth;
 		this.minX = theme.border + theme.horizontalPadding;
 		this.maxX = theme.border + theme.horizontalPadding + this.innerWidth + 3;
@@ -301,7 +299,8 @@ public class StepSliderWidget extends AbstractWidget {
 		gui.fill(minX, centerY, maxX, centerY + 1, guideColor);
 		gui.fill(minX + 1, centerY - 3, minX + 2, centerY + 4, guideColor);
 		gui.fill(maxX - 2, centerY - 3, maxX - 1, centerY + 4, guideColor);
-		for (int i = 1; i <= this.innerNotch; i++) {
+		final int innerNotchCount = this.range - 1;
+		for (int i = 1; i <= innerNotchCount; i++) {
 			final int snx = minX + 1 + Math.round(i * this.notchStep);
 			gui.fill(snx, centerY - 2, snx + 1, centerY + 3, guideColor);
 		}
