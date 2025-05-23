@@ -52,7 +52,7 @@ public class SliderWidgetTheme {
 	public static SliderWidgetTheme buildCubic() {
 		return new SliderWidgetTheme(
 				BuildersInventory.modLoc("themes/cubic/slider/slider_background"),
-				BuildersInventory.modLoc("themes/cubic/slider/slider_background"),
+				BuildersInventory.modLoc("themes/cubic/slider/slider_background_highlighted"),
 				BuildersInventory.modLoc("themes/cubic/slider/slider_bar"),
 				BuildersInventory.modLoc("themes/cubic/slider/slider_bar_highlighted"),
 				13,
