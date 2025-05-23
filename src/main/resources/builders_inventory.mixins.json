@@ -20,6 +20,7 @@
 		"feature.minimessage.resource.KeyBindingRegistryImplMixin",
 		"feature.minimessage.resource.LanguageManagerMixin",
 		"feature.minimessage.screens.ChatScreenMixin",
+		"feature.minimessage.screens.ScreenMixinOverrides",
 		"feature.minimessage.ChatComponentInvoker",
 		"feature.minimessage.EditBoxAccessor",
 		"feature.minimessage.HoverEvent_ItemStackInfoInvoker",
