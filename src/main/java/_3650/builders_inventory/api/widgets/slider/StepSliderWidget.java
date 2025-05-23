@@ -3,6 +3,7 @@ package _3650.builders_inventory.api.widgets.slider;
 import java.util.List;
 import java.util.function.IntConsumer;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectFunction;
@@ -13,6 +14,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -198,6 +200,7 @@ public class StepSliderWidget extends AbstractWidget {
 	
 	public int value;
 	private boolean dragging = false;
+	private boolean focusDragging = false;
 	
 	private StepSliderWidget(
 			SliderWidgetTheme theme,
@@ -246,7 +249,7 @@ public class StepSliderWidget extends AbstractWidget {
 		gui.pose().pushPose();
 		gui.pose().translate(0, 0, this.z);
 		
-		gui.blitSprite(this.isFocused() ? theme.spriteBackgroundHighlighted : theme.spriteBackground, this.getX(), this.getY(), this.width, this.height);
+		gui.blitSprite(this.isFocused() && !this.focusDragging ? theme.spriteBackgroundHighlighted : theme.spriteBackground, this.getX(), this.getY(), this.width, this.height);
 		
 		this.drawGuides(gui);
 		
@@ -255,7 +258,7 @@ public class StepSliderWidget extends AbstractWidget {
 			final int sby = this.getY() + this.centerY - this.halfBarHeight;
 			final int sbwidth = 5;
 			final int sbheight = theme.barHeight;
-			final ResourceLocation barSprite = (dragging || mouseXi >= sbx && mouseXi < sbx + sbwidth && mouseYi >= sby && mouseYi < sby + sbheight) ? theme.spriteBarHighlighted : theme.spriteBar;
+			final ResourceLocation barSprite = (this.dragging || mouseXi >= sbx && mouseXi < sbx + sbwidth && mouseYi >= sby && mouseYi < sby + sbheight) ? theme.spriteBarHighlighted : theme.spriteBar;
 			gui.blitSprite(barSprite, sbx, sby, sbwidth, sbheight);
 		}
 		
@@ -268,11 +271,16 @@ public class StepSliderWidget extends AbstractWidget {
 			final int newVal = Mth.clamp((int)Math.round(this.min + (mouseX - this.getX() - this.minX - 1.5) / this.innerWidth * this.range), this.min, this.max);
 			final List<Component> tooltip = this.tooltipFormat.apply(newVal);
 			if (!tooltip.isEmpty()) gui.renderComponentTooltip(this.font, tooltip, mouseXi, mouseYi);
+		} else if (this.focusDragging && this.dragging) {
+			final int sbx = this.getX() + this.minX - 1 + Math.round((this.value - this.min) * this.notchStep);
+			final int sby = this.getY() + this.centerY - this.halfBarHeight;
+			final List<Component> tooltip = this.tooltipFormat.apply(this.value);
+			if (!tooltip.isEmpty()) gui.renderComponentTooltip(this.font, tooltip, sbx, sby);
 		}
 		
 		if (this.canCancel) {
 			final int cancelX = this.width - theme.border - 12 - theme.cancelButtonPadding;
-			final boolean hoveringCancel = !dragging && x >= cancelX && x < cancelX + 12 && y >= theme.border && y < theme.border + 12;
+			final boolean hoveringCancel = !this.dragging && x >= cancelX && x < cancelX + 12 && y >= theme.border && y < theme.border + 12;
 			final ResourceLocation cancelSprite = theme.spritesCancelButton.get(this.isActive(), hoveringCancel);
 			gui.blitSprite(cancelSprite, this.getX() + cancelX, this.getY() + theme.border + theme.cancelButtonPadding, 12, 12);
 			if (hoveringCancel) {
@@ -320,12 +328,15 @@ public class StepSliderWidget extends AbstractWidget {
 			
 			Minecraft mc = Minecraft.getInstance();
 			this.playDownSound(mc.getSoundManager());
-			dragging = true;
+			this.dragging = true;
 			return true;
+		} else {
+			this.dragging = false;
 		}
+		
 		if (this.canCancel) {
 			final int cancelX = this.width - theme.border - 12 - theme.cancelButtonPadding;
-			if (!dragging && x >= cancelX && x <= cancelX + 12 && y >= 4 && y < 16) {
+			if (!this.dragging && x >= cancelX && x <= cancelX + 12 && y >= 4 && y < 16) {
 				Minecraft mc = Minecraft.getInstance();
 				this.playDownSound(mc.getSoundManager());
 				
@@ -338,7 +349,7 @@ public class StepSliderWidget extends AbstractWidget {
 	
 	@Override
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-		if (!dragging) return false;
+		if (!this.dragging) return false;
 		
 		final int newVal = Mth.clamp((int)Math.round(this.min + (mouseX - this.getX() - this.minX - 1.5) / this.innerWidth * this.range), this.min, this.max);
 		if (this.value != newVal) {
@@ -351,14 +362,49 @@ public class StepSliderWidget extends AbstractWidget {
 	
 	@Override
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		dragging = false;
+		this.dragging = false;
 		return true;
 	}
 	
 	@Override
 	public void setFocused(boolean focused) {
-		Minecraft mc = Minecraft.getInstance();
-		super.setFocused(focused && mc.getLastInputType() != InputType.MOUSE);
+		super.setFocused(focused);
+		if (!focused) {
+			this.dragging = false;
+			this.focusDragging = false;
+		} else {
+			final var mc = Minecraft.getInstance();
+			final var lastInput = mc.getLastInputType();
+			if (lastInput == InputType.MOUSE || lastInput == InputType.KEYBOARD_TAB) {
+				this.dragging = true;
+				this.focusDragging = true;
+			}
+		}
+	}
+	
+	@Override
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		if (CommonInputs.selected(keyCode)) {
+			this.focusDragging = !this.focusDragging;
+			this.dragging = this.focusDragging;
+			return true;
+		} else {
+			if (this.focusDragging) {
+				final boolean left = keyCode == InputConstants.KEY_LEFT;
+				final boolean right = keyCode == InputConstants.KEY_RIGHT;
+				if (left || right) {
+					this.dragging = true;
+					final int diff = left ? -1 : 1;
+					final int newVal = Mth.clamp(this.value + diff, this.min, this.max);
+					if (newVal != this.value) {
+						this.value = newVal;
+						this.onChange.accept(newVal);
+					}
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	@Override
