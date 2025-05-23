@@ -107,6 +107,14 @@ public class Config {
 	public boolean extended_inventory_open_button_enabled = true;
 	
 	@SerialEntry(
+			value = "extended_inventory.close_to_main",
+			comment = "Whether closing an extended inventory submenu return to the extended inventory\n"
+					+ "(disable to just close it)")
+	@AutoGen(category = "extended_inventory")
+	@Boolean(colored = true, formatter = Formatter.ON_OFF)
+	public boolean extended_inventory_close_to_main = true;
+	
+	@SerialEntry(
 			value = "extended_inventory.clear_behavior",
 			comment = "How the clear items button should behave in the extended inventory when shift clicked.\n"
 					+ "(Note: Only applies to clear button in extended inventory, creative inventory is unchanged)"

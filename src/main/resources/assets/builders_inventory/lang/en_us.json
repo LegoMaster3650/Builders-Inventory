@@ -125,6 +125,8 @@
 	"yacl3.config.builders_inventory:config.extended_inventory_enabled.desc": "Whether to enable the extended inventory menu at all",
 	"yacl3.config.builders_inventory:config.extended_inventory_open_button_enabled": "Open Button Enabled",
 	"yacl3.config.builders_inventory:config.extended_inventory_open_button_enabled.desc": "Whether the creative inventory has a button to open the extended inventory",
+	"yacl3.config.builders_inventory:config.extended_inventory_close_to_main": "Close to Main",
+	"yacl3.config.builders_inventory:config.extended_inventory_close_to_main.desc": "Whether closing an extended inventory submenu return to the extended inventory\n(disable to just close it)",
 	"yacl3.config.builders_inventory:config.extended_inventory_clear_behavior": "Clear Behavior",
 	"yacl3.config.builders_inventory:config.extended_inventory_clear_behavior.desc": "How the clear items button should behave in the extended inventory when shift clicked.\n(Note: Only applies to clear button in extended inventory, creative inventory is unchanged)Values:\n- NONE - Does absolutely nothing\n- CLEAR_PLAYER - Clears just the player inventory, like vanilla minecraft (DEFAULT)\n- CLEAR_EXTENDED - Clears just the current extended inventory tab\n- CLEAR_ALL - Clears both the player inventory and current extended inventory tab",
 	"yacl3.config.builders_inventory:config.extended_inventory_save_delay": "Save Delay",
