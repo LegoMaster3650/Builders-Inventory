@@ -1,7 +1,5 @@
-package _3650.builders_inventory.api.minimessage.widgets;
+package _3650.builders_inventory.api.minimessage.instance;
 
-import _3650.builders_inventory.api.minimessage.instance.LastParseListener;
-import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance.PreviewOptions;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance.SuggestionOptions;
 import _3650.builders_inventory.api.minimessage.validator.MiniMessageValidator;
@@ -11,8 +9,8 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
 
 @FunctionalInterface
-public interface MMWidgetConstructor {
-	public static MMWidgetConstructor standardWidget(Minecraft minecraft, Screen screen, Font font) {
+public interface MMInstanceConstructor {
+	public static MMInstanceConstructor standardWidget(Minecraft minecraft, Screen screen, Font font) {
 		return (input, listener) -> new MiniMessageInstance(
 				minecraft,
 				screen,
