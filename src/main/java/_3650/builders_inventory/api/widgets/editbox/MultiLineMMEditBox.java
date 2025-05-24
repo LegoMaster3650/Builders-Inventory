@@ -96,9 +96,6 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 		this.theme = options;
 		this.font = font;
 		this.setValue("");
-//		this.textField = new SplitMultilineTextField(font, this.getInnerWidth());
-//		this.textField.setCursorListener(this::scrollToCursor);
-//		this.textField.setValueListener(this::onValueChange);
 	}
 	
 	public void setChangeListener(LinedMMEditBoxListener changeListener) {
