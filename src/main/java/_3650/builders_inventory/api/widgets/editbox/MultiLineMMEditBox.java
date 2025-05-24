@@ -1,6 +1,7 @@
 package _3650.builders_inventory.api.widgets.editbox;
 
 import java.util.ArrayList;
+import java.util.function.IntConsumer;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -8,6 +9,8 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import _3650.builders_inventory.BuildersInventory;
+import _3650.builders_inventory.api.minimessage.MiniMessageResult;
+import _3650.builders_inventory.api.minimessage.instance.LastParseListener;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance;
 import _3650.builders_inventory.api.minimessage.widgets.MMWidgetConstructor;
 import _3650.builders_inventory.api.minimessage.widgets.MiniMessageEventListener;
@@ -58,6 +61,16 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	
 	@Nullable
 	private String suggestion = null;
+	
+	private static final IntConsumer IGNORE_INT = x -> {};
+	private static final Runnable IGNORE_RUN = () -> {};
+	
+	private LinedMMEditBoxListener changeListener = LinedMMEditBoxListener.IGNORE;
+	private FormatLineConsumer lineEditListener = FormatLineConsumer.IGNORE;
+	private IntConsumer lineCreateListener = IGNORE_INT;
+	private IntConsumer lineDeleteListener = IGNORE_INT;
+	private Runnable linesResetListener = IGNORE_RUN;
+	
 	@Nullable
 	private MiniMessageInstance activeWidget = null;
 	
@@ -88,6 +101,21 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 //		this.textField = new SplitMultilineTextField(font, this.getInnerWidth());
 //		this.textField.setCursorListener(this::scrollToCursor);
 //		this.textField.setValueListener(this::onValueChange);
+	}
+	
+	public void setChangeListener(LinedMMEditBoxListener changeListener) {
+		this.changeListener = changeListener;
+	}
+	
+	public void setMiniMessageListener(
+			FormatLineConsumer lineEditListener,
+			IntConsumer lineCreateListener,
+			IntConsumer lineDeleteListener,
+			Runnable linesResetListener) {
+		this.lineEditListener = lineEditListener;
+		this.lineCreateListener = lineCreateListener;
+		this.lineDeleteListener = lineDeleteListener;
+		this.linesResetListener = linesResetListener;
 	}
 	
 	public void setMaxLength(int limit) {
@@ -131,27 +159,48 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	
 	public void insertText(String text) {
 		if (!text.isEmpty() || this.hasSelection()) {
-			String string = StringUtil.truncateStringIfNecessary(
-					StringUtil.filterText(text, true),
-					this.maxLength - this.value.length(),
-					false);
-			var selection = this.getSelected();
-			this.value = new StringBuilder(this.value).replace(selection.beginIndex, selection.endIndex, string).toString();
-			this.cursor = selection.beginIndex + string.length();
-			this.selectCursor = this.cursor;
-			var initLines = this.refreshFormatRange(selection.beginIndex, selection.endIndex, this.cursor);
-			this.reflowDisplayLines();
-			this.scrollToCursor();
-			for (var line : initLines) line.initUpdate();
+			StringPos selection = this.getSelected();
+			this.insertTextCommon(text, selection);
 		}
 	}
 	
+	protected void insertTextInternal(String text) {
+		if (!text.isEmpty() || this.hasSelection()) {
+			StringPos selection = this.getSelected();
+			String string = this.insertTextCommon(text, selection);
+			this.changeListener.onInsert(string, selection.beginIndex, selection.endIndex);
+		}
+	}
+	
+	private String insertTextCommon(String text, StringPos selection) {
+		String string = StringUtil.truncateStringIfNecessary(
+				StringUtil.filterText(text, true),
+				this.maxLength - this.value.length(),
+				false);
+		this.value = new StringBuilder(this.value).replace(selection.beginIndex, selection.endIndex, string).toString();
+		this.cursor = selection.beginIndex + string.length();
+		this.selectCursor = this.cursor;
+		var initLines = this.refreshFormatRange(selection.beginIndex, selection.endIndex, this.cursor);
+		this.reflowDisplayLines();
+		this.scrollToCursor();
+		for (var line : initLines) line.initUpdate();
+		return string;
+	}
+	
 	public void deleteText(int length) {
+		this.deleteTextCommon(length);
+		this.insertText("");
+	}
+	
+	protected void deleteTextInternal(int length) {
+		this.deleteTextCommon(length);
+		this.insertTextInternal("");
+	}
+	
+	private void deleteTextCommon(int length) {
 		if (!this.hasSelection()) {
 			this.selectCursor = Mth.clamp(this.cursor + length, 0, this.value.length());
 		}
-		
-		this.insertText("");
 	}
 	
 	public int getCursorPos() {
@@ -261,32 +310,32 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 		} else if (Screen.isCut(keyCode)) {
 			Minecraft mc = Minecraft.getInstance();
 			mc.keyboardHandler.setClipboard(this.getSelectedText());
-			this.insertText("");
+			this.insertTextInternal("");
 			return true;
 		} else if (Screen.isPaste(keyCode)) {
 			Minecraft mc = Minecraft.getInstance();
-			this.insertText(mc.keyboardHandler.getClipboard());
+			this.insertTextInternal(mc.keyboardHandler.getClipboard());
 			return true;
 		} else {
 			switch (keyCode) {
 			case InputConstants.KEY_RETURN:
 			case InputConstants.KEY_NUMPADENTER:
-				this.insertText("\n");
+				this.insertTextInternal("\n");
 				return true;
 			case InputConstants.KEY_BACKSPACE:
 				if (Screen.hasControlDown()) {
 					var pos = this.getPreviousWord();
-					this.deleteText(pos.beginIndex - this.cursor);
+					this.deleteTextInternal(pos.beginIndex - this.cursor);
 				} else {
-					this.deleteText(-1);
+					this.deleteTextInternal(-1);
 				}
 				return true;
 			case InputConstants.KEY_DELETE:
 				if (Screen.hasControlDown()) {
 					var pos = this.getNextWord();
-					this.deleteText(pos.beginIndex - this.cursor);
+					this.deleteTextInternal(pos.beginIndex - this.cursor);
 				} else {
-					this.deleteText(1);
+					this.deleteTextInternal(1);
 				}
 				return true;
 			case InputConstants.KEY_RIGHT:
@@ -344,7 +393,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	@Override
 	public boolean charTyped(char codePoint, int modifiers) {
 		if (this.isActive() && this.isFocused() && StringUtil.isAllowedChatCharacter(codePoint)) {
-			this.insertText(Character.toString(codePoint));
+			this.insertTextInternal(Character.toString(codePoint));
 			return true;
 		}
 		return false;
@@ -669,10 +718,11 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	private ArrayList<FormatLine> refreshFormatLines() {
 		final var initLines = new ArrayList<FormatLine>();
 		
+		this.linesResetListener.run();
 		this.formatLines.clear();
 		final String value = this.value;
 		if (value.isEmpty()) {
-			var line = formatLine(StringPos.EMPTY);
+			var line = formatLine(StringPos.EMPTY, initLines.size());
 			this.formatLines.add(line);
 			initLines.add(line);
 		} else {
@@ -681,7 +731,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 			boolean endsOnNewline = false;
 			while (i < value.length()) {
 				if (value.charAt(i) == '\n') {
-					var line = formatLine(new StringPos(start, i));
+					var line = formatLine(new StringPos(start, i), initLines.size());
 					this.formatLines.add(line);
 					initLines.add(line);
 					start = ++i;
@@ -692,7 +742,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 				i++;
 			}
 			if (endsOnNewline || start < i) {
-				var line = formatLine(new StringPos(start, i));
+				var line = formatLine(new StringPos(start, i), initLines.size());
 				this.formatLines.add(line);
 				initLines.add(line);
 			}
@@ -760,14 +810,17 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 			// delete excess targets
 			int i = targets;
 			while (i > newLines.size()) { // while loop works better than for loop here
-				this.formatLines.remove(lineNum + (--i));
+				final int deleteIndex = lineNum + --i;
+				this.lineDeleteListener.accept(deleteIndex);
+				this.formatLines.remove(deleteIndex);
 			}
 			targets = newLines.size();
 		} else { // newLines.size() >= targets
 			// add excess new lines
 			for (int i = targets; i < newLines.size(); i++) {
-				var line = formatLine(newLines.get(i));
-				this.formatLines.add(lineNum + i, line);
+				final int createIndex = lineNum + i;
+				var line = formatLine(newLines.get(i), createIndex);
+				this.formatLines.add(createIndex, line);
 				initLines.add(line);
 			}
 		}
@@ -780,10 +833,12 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 		}
 		
 		// shift all lines after
-		final var lineShift = endIndexNew - endIndexOld;
+		final int lineShift = endIndexNew - endIndexOld;
+		final int lineIndexShift = newLines.size() - targets;
 		for (int i = lineNum + newLines.size(); i < this.formatLines.size(); i++) {
 			var line = this.formatLines.get(i);
 			line.line = line.line.shift(lineShift);
+			line.lineIndex += lineIndexShift;
 		}
 		
 		// refresh line number offset
@@ -950,21 +1005,35 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 		return 9 * this.getLineCount();
 	}
 	
-	private FormatLine formatLine(StringPos line) {
-		return new FormatLine(this, line);
+	@FunctionalInterface
+	public static interface FormatLineConsumer {
+		public static final FormatLineConsumer IGNORE = (line, lastParse) -> {};
+		public void onParseChange(int line, @Nullable MiniMessageResult lastParse);
 	}
 	
-	private static class FormatLine implements WrappedTextField {
+	private FormatLine formatLine(StringPos line, int lineIndex) {
+		this.lineCreateListener.accept(lineIndex);
+		return new FormatLine(this, line, lineIndex);
+	}
+	
+	private static class FormatLine implements WrappedTextField, LastParseListener {
 		
 		private final MultiLineMMEditBox input;
 		private final MiniMessageInstance minimessage;
 		
 		private StringPos line;
+		private int lineIndex;
 		
-		public FormatLine(MultiLineMMEditBox input, StringPos line) {
+		public FormatLine(MultiLineMMEditBox input, StringPos line, int lineIndex) {
 			this.input = input;
 			this.line = line;
-			this.minimessage = input.mmConstructor.construct(this);
+			this.lineIndex = lineIndex;
+			this.minimessage = input.mmConstructor.construct(this, this);
+		}
+		
+		@Override
+		public void onParseChange(@Nullable MiniMessageResult lastParse) {
+			this.input.lineEditListener.onParseChange(this.lineIndex, lastParse);
 		}
 		
 		public boolean isActive() {
@@ -1026,7 +1095,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 		@Override
 		public void setValue(String str) {
 			this.input.setSelected(line.beginIndex, line.endIndex);
-			this.input.insertText(str);
+			this.input.insertTextInternal(str);
 		}
 		
 		@Override

@@ -1,5 +1,6 @@
 package _3650.builders_inventory.api.minimessage.widgets;
 
+import _3650.builders_inventory.api.minimessage.instance.LastParseListener;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance.PreviewOptions;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance.SuggestionOptions;
@@ -12,15 +13,16 @@ import net.minecraft.client.gui.screens.Screen;
 @FunctionalInterface
 public interface MMWidgetConstructor {
 	public static MMWidgetConstructor standardWidget(Minecraft minecraft, Screen screen, Font font) {
-		return input -> new MiniMessageInstance(
+		return (input, listener) -> new MiniMessageInstance(
 				minecraft,
 				screen,
 				font,
 				input,
 				MiniMessageValidator.ALWAYS,
+				listener,
 				PreviewOptions.standard(false),
 				SuggestionOptions.standard(7));
 	}
 	
-	public MiniMessageInstance construct(WrappedTextField input);
+	public MiniMessageInstance construct(WrappedTextField input, LastParseListener listener);
 }
