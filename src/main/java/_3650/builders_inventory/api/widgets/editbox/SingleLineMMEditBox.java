@@ -7,8 +7,8 @@ import com.mojang.blaze3d.platform.InputConstants;
 import _3650.builders_inventory.BuildersInventory;
 import _3650.builders_inventory.api.minimessage.MiniMessageResult;
 import _3650.builders_inventory.api.minimessage.instance.LastParseListener;
+import _3650.builders_inventory.api.minimessage.instance.MMInstanceConstructor;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance;
-import _3650.builders_inventory.api.minimessage.widgets.MMWidgetConstructor;
 import _3650.builders_inventory.api.minimessage.widgets.MiniMessageEventListener;
 import _3650.builders_inventory.api.minimessage.widgets.wrapper.WrappedTextField;
 import _3650.builders_inventory.api.util.StringPos;
@@ -74,7 +74,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 	private boolean scrolling;
 	private long focusedTime = Util.getMillis();
 	
-	public SingleLineMMEditBox(MMWidgetConstructor mmConstructor, EditBoxTheme options, Font font, int x, int y, int width, int height, Component message) {
+	public SingleLineMMEditBox(MMInstanceConstructor mmConstructor, EditBoxTheme options, Font font, int x, int y, int width, int height, Component message) {
 		super(x, y, width, height, message);
 		this.minimessage = mmConstructor.construct(new LocalWTF(this), this);
 		this.theme = options;
