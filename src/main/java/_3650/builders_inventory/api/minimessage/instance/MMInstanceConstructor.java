@@ -10,7 +10,7 @@ import net.minecraft.client.gui.screens.Screen;
 
 @FunctionalInterface
 public interface MMInstanceConstructor {
-	public static MMInstanceConstructor standardWidget(Minecraft minecraft, Screen screen, Font font) {
+	public static MMInstanceConstructor standard(Minecraft minecraft, Screen screen, Font font) {
 		return (input, listener) -> new MiniMessageInstance(
 				minecraft,
 				screen,
