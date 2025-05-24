@@ -17,6 +17,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 import _3650.builders_inventory.BuildersInventory;
 import _3650.builders_inventory.api.minimessage.MiniMessageUtil;
+import _3650.builders_inventory.api.minimessage.instance.LastParseListener;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance.PreviewOptions;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance.SuggestionOptions;
@@ -77,6 +78,7 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 				this.font,
 				WrappedTextField.editBox(this.input),
 				ChatMiniMessageContext::isValid,
+				LastParseListener.IGNORE,
 				PreviewOptions.chat(),
 				SuggestionOptions.chat(() -> this.commandSuggestions)
 				);

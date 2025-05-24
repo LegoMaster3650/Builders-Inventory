@@ -64,6 +64,7 @@ public class MiniMessageInstance {
 	private final Font font;
 	public final WrappedTextField input;
 	private final MiniMessageValidator context;
+	private final LastParseListener listener;
 	private final PreviewOptions previewOptions;
 	private final SuggestionsDisplay display;
 	
@@ -74,6 +75,7 @@ public class MiniMessageInstance {
 			Font font,
 			WrappedTextField input,
 			MiniMessageValidator context,
+			LastParseListener listener,
 			PreviewOptions previewOptions,
 			SuggestionOptions suggestionOptions) {
 		this.minecraft = minecraft;
@@ -81,6 +83,7 @@ public class MiniMessageInstance {
 		this.font = font;
 		this.input = input;
 		this.context = context;
+		this.listener = listener;
 		this.previewOptions = previewOptions;
 		this.display = new SuggestionsDisplay(suggestionOptions);
 		this.reposition();
@@ -205,7 +208,7 @@ public class MiniMessageInstance {
 		
 		// parse message
 		final var mini = MiniMessageParser.parse(value, registryAccess(this.minecraft), ChatMiniMessageContext.currentServerIP);
-		this.lastParse = mini;
+		this.setLastParse(mini);
 		
 		// find any text lost
 		final var missing = StringDiff.missing(originalValue, value);
@@ -305,7 +308,7 @@ public class MiniMessageInstance {
 			} else if (this.previewOptions.doStandardPreview(this.minecraft, this.screen, this)) previewComponent = mini.getFormatted();
 			if (Config.instance().minimessage_syntaxHighlighting) this.inputOverride = formattedInput;
 			else this.inputOverride = null;
-			this.update(this.lastParse);
+			this.update(mini);
 		}
 		
 		this.previewLines = List.of();
@@ -320,11 +323,16 @@ public class MiniMessageInstance {
 	}
 	
 	public void clearParse() {
-		this.lastParse = null;
+		this.setLastParse(null);
 		this.inputOverride = null;
 		this.previewLines = List.of();
 		this.lastValue = null;
 		this.clear();
+	}
+	
+	private void setLastParse(@Nullable MiniMessageResult lastParse) {
+		this.lastParse = lastParse;
+		this.listener.onParseChange(lastParse);
 	}
 	
 	private static Optional<HolderLookup.Provider> registryAccess(Minecraft mc) {
