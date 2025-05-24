@@ -11,8 +11,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import _3650.builders_inventory.BuildersInventory;
 import _3650.builders_inventory.api.minimessage.MiniMessageResult;
 import _3650.builders_inventory.api.minimessage.instance.LastParseListener;
+import _3650.builders_inventory.api.minimessage.instance.MMInstanceConstructor;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance;
-import _3650.builders_inventory.api.minimessage.widgets.MMWidgetConstructor;
 import _3650.builders_inventory.api.minimessage.widgets.MiniMessageEventListener;
 import _3650.builders_inventory.api.minimessage.widgets.wrapper.WrappedTextField;
 import _3650.builders_inventory.api.util.StringPos;
@@ -50,7 +50,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	
 	private static final double SCROLL_RATE = 4.5;
 	
-	private final MMWidgetConstructor mmConstructor;
+	private final MMInstanceConstructor mmConstructor;
 	private final EditBoxTheme theme;
 	private final Font font;
 	private final ArrayList<StringPos> displayLines = new ArrayList<>();
@@ -92,7 +92,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	private boolean scrolling;
 	private long focusedTime = Util.getMillis();
 	
-	public MultiLineMMEditBox(MMWidgetConstructor mmConstructor, EditBoxTheme options, Font font, int x, int y, int width, int height, Component message) {
+	public MultiLineMMEditBox(MMInstanceConstructor mmConstructor, EditBoxTheme options, Font font, int x, int y, int width, int height, Component message) {
 		super(x, y, width, height, message);
 		this.mmConstructor = mmConstructor;
 		this.theme = options;
