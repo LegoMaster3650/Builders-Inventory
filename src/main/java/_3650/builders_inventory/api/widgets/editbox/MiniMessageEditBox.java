@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import org.jetbrains.annotations.Nullable;
 
 import _3650.builders_inventory.api.minimessage.MiniMessageUtil;
+import _3650.builders_inventory.api.minimessage.instance.LastParseListener;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance;
 import _3650.builders_inventory.api.minimessage.widgets.MMWidgetConstructor;
 import _3650.builders_inventory.api.minimessage.widgets.MiniMessageEventListener;
@@ -16,6 +17,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
 /**
+ * @deprecated This widget is not currently used or maintained and may be removed without warning or may be fixed and un-deprecated without warning<br>
  * An {@link EditBox} with a {@link MiniMessageInstance} mostly handled within<br>
  * You still need to handle calling the following:<br>
  * {@link #miniMessageTick()}<br>
@@ -23,6 +25,7 @@ import net.minecraft.network.chat.Component;
  * {@link #miniMessageMouseClicked(double, double, int)}<br>
  * These are either not possible in a widget or occur outside the widget's area and need full-screen coverage
  */
+@Deprecated
 public class MiniMessageEditBox extends EditBox implements MiniMessageEventListener {
 	
 	private Consumer<String> newResponder;
@@ -31,13 +34,13 @@ public class MiniMessageEditBox extends EditBox implements MiniMessageEventListe
 	
 	public MiniMessageEditBox(MMWidgetConstructor widget, Font font, int x, int y, int width, int height, Component message) {
 		super(font, x, y, width, height, message);
-		this.minimessage = widget.construct(WrappedTextField.editBox(this));
+		this.minimessage = widget.construct(WrappedTextField.editBox(this), LastParseListener.IGNORE);
 		this.initMiniMessage();
 	}
 	
 	public MiniMessageEditBox(MMWidgetConstructor widget, Font font, int x, int y, int width, int height, @Nullable EditBox editBox, Component message) {
 		super(font, x, y, width, height, editBox, message);
-		this.minimessage = widget.construct(WrappedTextField.editBox(this));
+		this.minimessage = widget.construct(WrappedTextField.editBox(this), LastParseListener.IGNORE);
 		this.initMiniMessage();
 	}
 	

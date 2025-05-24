@@ -1,11 +1,12 @@
 package _3650.builders_inventory.api.widgets.editbox;
 
 import java.util.ArrayList;
-
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import _3650.builders_inventory.BuildersInventory;
+import _3650.builders_inventory.api.minimessage.MiniMessageResult;
+import _3650.builders_inventory.api.minimessage.instance.LastParseListener;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance;
 import _3650.builders_inventory.api.minimessage.widgets.MMWidgetConstructor;
 import _3650.builders_inventory.api.minimessage.widgets.MiniMessageEventListener;
@@ -39,7 +40,7 @@ import net.minecraft.util.StringUtil;
  * {@link #miniMessageMouseClicked(double, double, int)}<br>
  * These are either not possible in a widget or occur outside the widget's area and need full-screen coverage
  */
-public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEventListener {
+public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEventListener, LastParseListener {
 	
 	private static final int CURSOR_COLOR = 0xFFD0D0D0;
 	
@@ -54,6 +55,9 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 	
 	@Nullable
 	private String suggestion = null;
+	
+	private LinedMMEditBoxListener changeListener = LinedMMEditBoxListener.IGNORE;
+	private LastParseListener miniMessageListener = LastParseListener.IGNORE;
 	
 	private boolean externalScrollbar = false;
 	private int scrollbarPadding = 0;
@@ -72,10 +76,18 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 	
 	public SingleLineMMEditBox(MMWidgetConstructor mmConstructor, EditBoxTheme options, Font font, int x, int y, int width, int height, Component message) {
 		super(x, y, width, height, message);
-		this.minimessage = mmConstructor.construct(new LocalWTF(this));
+		this.minimessage = mmConstructor.construct(new LocalWTF(this), this);
 		this.theme = options;
 		this.font = font;
 		this.setValue("");
+	}
+	
+	public void setChangeListener(LinedMMEditBoxListener changeListener) {
+		this.changeListener = changeListener;
+	}
+	
+	public void setMiniMessageListener(LastParseListener miniMessageListener) {
+		this.miniMessageListener = miniMessageListener;
 	}
 	
 	public void setMaxLength(int limit) {
@@ -113,26 +125,52 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 	
 	public void insertText(String text) {
 		if (!text.isEmpty() || this.hasSelection()) {
-			String string = StringUtil.truncateStringIfNecessary(
-					StringUtil.filterText(text, false),
-					this.maxLength - this.value.length(),
-					false);
-			var selection = this.getSelected();
-			this.value = new StringBuilder(this.value).replace(selection.beginIndex, selection.endIndex, string).toString();
-			this.cursor = selection.beginIndex + string.length();
-			this.selectCursor = this.cursor;
-			this.minimessage.inputEdited();
-			this.reflowDisplayLines();
-			this.scrollToCursor();
+			StringPos selection = this.getSelected();
+			this.insertTextCommon(text, selection);
 		}
 	}
 	
+	protected void insertTextInternal(String text) {
+		if (!text.isEmpty() || this.hasSelection()) {
+			StringPos selection = this.getSelected();
+			String string = this.insertTextCommon(text, selection);
+			this.changeListener.onInsert(string, selection.beginIndex, selection.endIndex);
+		}
+	}
+	
+	private String insertTextCommon(String text, StringPos selection) {
+		String string = StringUtil.truncateStringIfNecessary(
+				StringUtil.filterText(text, false),
+				this.maxLength - this.value.length(),
+				false);
+		this.value = new StringBuilder(this.value).replace(selection.beginIndex, selection.endIndex, string).toString();
+		this.cursor = selection.beginIndex + string.length();
+		this.selectCursor = this.cursor;
+		this.reflowDisplayLines();
+		this.scrollToCursor();
+		this.minimessage.inputEdited();
+		return string;
+	}
+	
 	public void deleteText(int length) {
+		this.deleteTextCommon(length);
+		this.insertText("");
+	}
+	
+	protected void deleteTextInternal(int length) {
+		this.deleteTextCommon(length);
+		this.insertTextInternal("");
+	}
+	
+	private void deleteTextCommon(int length) {
 		if (!this.hasSelection()) {
 			this.selectCursor = Mth.clamp(this.cursor + length, 0, this.value.length());
 		}
-		
-		this.insertText("");
+	}
+	
+	@Override
+	public void onParseChange(@Nullable MiniMessageResult lastParse) {
+		this.miniMessageListener.onParseChange(lastParse);
 	}
 	
 	public int getCursorPos() {
@@ -240,11 +278,11 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 		} else if (Screen.isCut(keyCode)) {
 			Minecraft mc = Minecraft.getInstance();
 			mc.keyboardHandler.setClipboard(this.getSelectedText());
-			this.insertText("");
+			this.insertTextInternal("");
 			return true;
 		} else if (Screen.isPaste(keyCode)) {
 			Minecraft mc = Minecraft.getInstance();
-			this.insertText(mc.keyboardHandler.getClipboard());
+			this.insertTextInternal(mc.keyboardHandler.getClipboard());
 			return true;
 		} else {
 			switch (keyCode) {
@@ -255,17 +293,17 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 			case InputConstants.KEY_BACKSPACE:
 				if (Screen.hasControlDown()) {
 					var pos = this.getPreviousWord();
-					this.deleteText(pos.beginIndex - this.cursor);
+					this.deleteTextInternal(pos.beginIndex - this.cursor);
 				} else {
-					this.deleteText(-1);
+					this.deleteTextInternal(-1);
 				}
 				return true;
 			case InputConstants.KEY_DELETE:
 				if (Screen.hasControlDown()) {
 					var pos = this.getNextWord();
-					this.deleteText(pos.beginIndex - this.cursor);
+					this.deleteTextInternal(pos.beginIndex - this.cursor);
 				} else {
-					this.deleteText(1);
+					this.deleteTextInternal(1);
 				}
 				return true;
 			case InputConstants.KEY_RIGHT:
@@ -323,7 +361,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 	@Override
 	public boolean charTyped(char codePoint, int modifiers) {
 		if (this.isActive() && this.isFocused() && StringUtil.isAllowedChatCharacter(codePoint)) {
-			this.insertText(Character.toString(codePoint));
+			this.insertTextInternal(Character.toString(codePoint));
 			return true;
 		}
 		return false;
