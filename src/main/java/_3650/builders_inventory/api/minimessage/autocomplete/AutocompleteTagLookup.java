@@ -61,22 +61,22 @@ public class AutocompleteTagLookup {
 		private ACBuilder() {}
 		
 		public EBStage entry(String name) {
-			return new EBStage(this, List.of(name));
+			return new EBStage(List.of(name));
 		}
 		
 		public EBStage entry(String... names) {
-			return new EBStage(this, List.of(names));
+			return new EBStage(List.of(names));
 		}
 		
 		public EBStage entry(Collection<String> names) {
-			return new EBStage(this, names);
+			return new EBStage(names);
 		}
 		
 		public class EBStage {
 			
 			private final Collection<String> names;
 			
-			private EBStage(ACBuilder parent, Collection<String> names) {
+			private EBStage(Collection<String> names) {
 				this.names = names;
 			}
 			
