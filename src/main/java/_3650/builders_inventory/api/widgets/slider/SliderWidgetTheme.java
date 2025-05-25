@@ -74,7 +74,6 @@ public class SliderWidgetTheme {
 	
 	public static final SliderWidgetTheme COMMANDER = buildCommander();
 	
-	//TODO make commander theme good
 	@Deprecated
 	public static SliderWidgetTheme buildCommander() {
 		return new SliderWidgetTheme(
