@@ -1,4 +1,4 @@
-package _3650.builders_inventory.util;
+package _3650.builders_inventory.api.util;
 
 import java.util.ArrayList;
 
