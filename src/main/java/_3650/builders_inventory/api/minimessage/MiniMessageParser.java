@@ -20,7 +20,7 @@ import _3650.builders_inventory.api.minimessage.tags.Branch;
 import _3650.builders_inventory.api.minimessage.tags.HiddenLiteral;
 import _3650.builders_inventory.api.minimessage.tags.Literal;
 import _3650.builders_inventory.api.minimessage.tags.Node;
-import _3650.builders_inventory.util.ArrayStack;
+import _3650.builders_inventory.api.util.ArrayStack;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
