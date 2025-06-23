@@ -25,7 +25,7 @@ public class ExtendedImageDualButton extends AbstractExtendedImageButton {
 			WidgetSprites sprites2, OnPress onPress2
 			) {
 		this(x, y, width, height,
-				() -> List.of(),
+				List::of,
 				null, sprites1, onPress1, List.of(),
 				null, sprites2, onPress2, List.of());
 	}
@@ -35,7 +35,7 @@ public class ExtendedImageDualButton extends AbstractExtendedImageButton {
 			SoundEvent clickSound2, WidgetSprites sprites2, OnPress onPress2
 			) {
 		this(x, y, width, height,
-				() -> List.of(),
+				List::of,
 				clickSound1, sprites1, onPress1, List.of(),
 				clickSound2, sprites2, onPress2, List.of());
 	}
@@ -45,7 +45,7 @@ public class ExtendedImageDualButton extends AbstractExtendedImageButton {
 			WidgetSprites sprites2, OnPress onPress2, List<Component> tooltip2
 			) {
 		this(x, y, width, height,
-				() -> List.of(),
+				List::of,
 				null, sprites1, onPress1, tooltip1,
 				null, sprites2, onPress2, tooltip2);
 	}
@@ -55,7 +55,7 @@ public class ExtendedImageDualButton extends AbstractExtendedImageButton {
 			SoundEvent clickSound2, WidgetSprites sprites2, OnPress onPress2, List<Component> tooltip2
 			) {
 		this(x, y, width, height,
-				() -> List.of(),
+				List::of,
 				clickSound1, sprites1, onPress1, tooltip1,
 				clickSound2, sprites2, onPress2, tooltip2);
 	}

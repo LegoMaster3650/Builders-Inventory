@@ -18,7 +18,7 @@ public class ExtendedImageButton extends AbstractExtendedImageButton {
 			WidgetSprites sprites, OnPress onPress
 			) {
 		this(x, y, width, height,
-				() -> List.of(),
+				List::of,
 				null, sprites, onPress, List.of());
 	}
 	
@@ -26,7 +26,7 @@ public class ExtendedImageButton extends AbstractExtendedImageButton {
 			SoundEvent clickSound, WidgetSprites sprites, OnPress onPress
 			) {
 		this(x, y, width, height,
-				() -> List.of(),
+				List::of,
 				clickSound, sprites, onPress, List.of());
 	}
 	
@@ -34,7 +34,7 @@ public class ExtendedImageButton extends AbstractExtendedImageButton {
 			WidgetSprites sprites, OnPress onPress, Component... tooltip
 			) {
 		this(x, y, width, height,
-				() -> List.of(),
+				List::of,
 				null, sprites, onPress, List.of(tooltip));
 	}
 	
@@ -42,7 +42,7 @@ public class ExtendedImageButton extends AbstractExtendedImageButton {
 			SoundEvent clickSound, WidgetSprites sprites, OnPress onPress, Component... tooltip
 			) {
 		this(x, y, width, height,
-				() -> List.of(),
+				List::of,
 				clickSound, sprites, onPress, List.of(tooltip));
 	}
 	
@@ -59,7 +59,7 @@ public class ExtendedImageButton extends AbstractExtendedImageButton {
 			WidgetSprites sprites, OnPress onPress, List<Component> tooltip
 			) {
 		this(x, y, width, height,
-				() -> List.of(),
+				List::of,
 				null, sprites, onPress, tooltip);
 	}
 	
@@ -67,7 +67,7 @@ public class ExtendedImageButton extends AbstractExtendedImageButton {
 			SoundEvent clickSound, WidgetSprites sprites, OnPress onPress, List<Component> tooltip
 			) {
 		this(x, y, width, height,
-				() -> List.of(),
+				List::of,
 				clickSound, sprites, onPress, tooltip);
 	}
 	
