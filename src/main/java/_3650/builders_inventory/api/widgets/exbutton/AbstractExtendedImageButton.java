@@ -21,6 +21,10 @@ public abstract class AbstractExtendedImageButton extends AbstractButton {
 	private int centerX;
 	private int centerY;
 	
+	public AbstractExtendedImageButton(int x, int y, int width, int height) {
+		this(x, y, width, height, List::of);
+	}
+	
 	public AbstractExtendedImageButton(int x, int y, int width, int height, Supplier<List<Component>> disabledTooltip) {
 		super(x, y, width, height, CommonComponents.EMPTY);
 		this.disabledTooltip = disabledTooltip;
