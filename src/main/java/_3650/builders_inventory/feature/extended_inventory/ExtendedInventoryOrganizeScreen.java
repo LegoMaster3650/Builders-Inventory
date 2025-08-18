@@ -29,7 +29,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.CommonComponents;
@@ -190,7 +190,6 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 			var tile = this.tiles.get(i); // index already transformed by scroll
 			int row = newInd / 10;
 			tile.slowMove(this.leftPos + tileX(newInd % 10), this.topPos + tileY(row - this.scrollRow));
-			if (tile.slowMoveZ < PageTileWidget.TILE_Z_3) tile.slowMoveZ = (row != i / 10) ? PageTileWidget.TILE_Z_2 : PageTileWidget.TILE_Z_1; // do not transform row for this operation, it's just checking if the tile row changed
 		}
 	}
 	
@@ -267,73 +266,71 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 	
 	@Override
 	public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
-		super.render(gui, mouseX, mouseY, partialTick);
 		gui.drawString(this.font, this.title, this.leftPos + 8, this.topPos + 6, 0x404040, false);
 		
 		if (this.dragTile != null) {
 			int col = this.lastHoveredIndex % 10;
 			int row = (this.lastHoveredIndex / 10) - this.scrollRow;
-			gui.blitSprite(RenderType::guiTextured, SPRITE_TILE_SHADOW, this.leftPos + tileX(col) + 1, this.topPos + tileY(row) + 1, 16, 16);
-//			gui.fill(this.leftPos + tileX(col) + 1, this.topPos + tileY(row) + 1, this.leftPos + tileX(col) + 1 + 16, this.topPos + tileY(row) + 1 + 16, 1, 0xBB77BB77); //DEBUG THING
-			gui.blitSprite(RenderType::guiTextured, this.dragTileIndex == ExtendedInventory.getPage() ? SPRITE_TILE_ACTIVE_SELECTED : SPRITE_TILE_SELECTED, mouseX - this.dragOffsetX, mouseY - this.dragOffsetY, PageTileWidget.TILE_Z_4, 16, 16);
+			gui.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE_TILE_SHADOW, this.leftPos + tileX(col) + 1, this.topPos + tileY(row) + 1, 16, 16);
+			super.render(gui, mouseX, mouseY, partialTick);
+//			gui.fill(this.leftPos + tileX(col) + 1, this.topPos + tileY(row) + 1, this.leftPos + tileX(col) + 1 + 16, this.topPos + tileY(row) + 1 + 16, 0xBB77BB77); //DEBUG THING
+			gui.blitSprite(RenderPipelines.GUI_TEXTURED, this.dragTileIndex == ExtendedInventory.getPage() ? SPRITE_TILE_ACTIVE_SELECTED : SPRITE_TILE_SELECTED, mouseX - this.dragOffsetX, mouseY - this.dragOffsetY, 16, 16);
 			if (this.dragTile.page.icon.isEmpty()) {
-				this.renderTileText(gui, this.dragTileIndex + 1, mouseX - this.dragOffsetX + 8, mouseY - this.dragOffsetY + 4, PageTileWidget.TILE_Z_4);
+				this.renderTileText(gui, this.dragTileIndex + 1, mouseX - this.dragOffsetX + 8, mouseY - this.dragOffsetY + 4); //Z_4
 			} else {
-				this.renderTileIcon(gui, this.dragTile.page.icon, this.dragTile.page.iconScaleDown, mouseX - this.dragOffsetX, mouseY - this.dragOffsetY, PageTileWidget.TILE_Z_4);
+				this.renderTileIcon(gui, this.dragTile.page.icon, this.dragTile.page.iconScaleDown, mouseX - this.dragOffsetX, mouseY - this.dragOffsetY); //Z_4
 			}
-			if (!this.dragPickup) this.renderTileTooltip(this.dragTile, this.dragTileIndex, gui, mouseX, mouseY, PageTileWidget.TILE_Z_4);
+			if (!this.dragPickup) this.renderTileTooltip(this.dragTile, this.dragTileIndex, gui, mouseX, mouseY); //Z_4
 		} else {
-			this.renderTooltip(gui, mouseX, mouseY, PageTileWidget.TILE_Z_4);
+			super.render(gui, mouseX, mouseY, partialTick);
+			this.renderTooltip(gui, mouseX, mouseY); //Z_4
 		}
 	}
 	
-	protected void renderTooltip(GuiGraphics gui, int mouseX, int mouseY, int z) {
+	protected void renderTooltip(GuiGraphics gui, int mouseX, int mouseY) {
 		for (int i = (this.scrollRow * 10); i < this.tiles.size(); i++) {
 			var tile = this.tiles.get(i);
 			if (tile.isActive() && tile.isHovered()) {
-				renderTileTooltip(tile, i, gui, mouseX, mouseY, z);
+				renderTileTooltip(tile, i, gui, mouseX, mouseY);
 				return;
 			}
 		}
 		this.exGui.renderTooltip(this.font, gui, mouseX, mouseY);
 	}
 	
-	void renderTileText(GuiGraphics gui, int number, int x, int y, int z) {
+	void renderTileText(GuiGraphics gui, int number, int x, int y) {
 		String text = String.valueOf(number);
-		gui.pose().pushPose();
-		gui.pose().translate(x, y, z);
+		gui.pose().pushMatrix();
+		gui.pose().translate(x, y);
 		if (text.length() > 2) {
 			float scale = 2f / text.length();
-			gui.pose().translate(0, 4 * (1f - scale), 0); // (8*scale - 8) / 2
-			gui.pose().scale(scale, scale, 1f);
+			gui.pose().translate(0, 4 * (1f - scale)); // (8*scale - 8) / 2
+			gui.pose().scale(scale, scale);
 		}
-		gui.drawCenteredString(this.font, text, 0, 0, 0xFFFFFF);
-		gui.pose().popPose();
+		gui.drawCenteredString(this.font, text, 0, 0, 0xFFFFFFFF);
+		gui.pose().popMatrix();
 	}
 	
-	void renderTileIcon(GuiGraphics gui, ItemStack icon, int iconScaleDown, int x, int y, int z) {
-		gui.pose().pushPose();
-		gui.pose().translate(x, y, z);
+	void renderTileIcon(GuiGraphics gui, ItemStack icon, int iconScaleDown, int x, int y) {
+		gui.pose().pushMatrix();
+		gui.pose().translate(x, y);
 		if (iconScaleDown > 0) {
 			final int guiScale = (int) (this.minecraft.getWindow().getGuiScale() + 0.5);
 			final float iconScale = iconScaleDown >= guiScale ? (1f / guiScale) : (1f - (iconScaleDown / (float)guiScale));
-			gui.pose().translate((8 * (1f - iconScale)), (8 * (1f - iconScale)), 0);
-			gui.pose().scale(iconScale, iconScale, 1);
+			gui.pose().translate((8 * (1f - iconScale)), (8 * (1f - iconScale)));
+			gui.pose().scale(iconScale, iconScale);
 		}
 		gui.renderItem(icon, 0, 0);
 		gui.renderItemDecorations(this.font, icon, 0, 0);
-		gui.pose().popPose();
+		gui.pose().popMatrix();
 	}
 	
-	private void renderTileTooltip(PageTileWidget tile, int index, GuiGraphics gui, int mouseX, int mouseY, int z) {
-		gui.pose().pushPose();
-		gui.pose().translate(0, 0, z);
-		gui.renderTooltip(this.font,
+	private void renderTileTooltip(PageTileWidget tile, int index, GuiGraphics gui, int mouseX, int mouseY) {
+		gui.setTooltipForNextFrame(this.font,
 				List.of(ExtendedInventory.pageTitle(index)),
 				Optional.of(new PageTooltipImage(tile.page)),
 				mouseX,
 				mouseY);
-		gui.pose().popPose();
 	}
 	
 	private boolean isMouseInScrollbar(int mouseX, int mouseY) {
@@ -441,7 +438,6 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 	private void endDrag(int mouseX, int mouseY, int targetX, int targetY) {
 		this.dragTile.visible = true;
 		this.dragTile.slowMoveFrom(mouseX - this.dragOffsetX, mouseY - this.dragOffsetY, targetX, targetY);
-		this.dragTile.slowMoveZ = PageTileWidget.TILE_Z_3;
 		this.dragTile.slowMoveShadow = true;
 		this.dragTile = null;
 	}
@@ -452,7 +448,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 		GuiUtil.blitScreenBackground(gui, BACKGROUND, this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
 		
 		ResourceLocation scrollSprite = this.canScroll() ? SPRITE_CREATIVE_SCROLLER : SPRITE_CREATIVE_SCROLLER_DISABLED;
-		gui.blitSprite(RenderType::guiTextured, scrollSprite, this.leftPos + 193, this.topPos + 18 + (int)((178 - 15) * this.scrollAmount), 12, 15);
+		gui.blitSprite(RenderPipelines.GUI_TEXTURED, scrollSprite, this.leftPos + 193, this.topPos + 18 + (int)((178 - 15) * this.scrollAmount), 12, 15);
 	}
 	
 	@Override
@@ -493,11 +489,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 	}
 	
 	private static class PageTileWidget extends AbstractWidget {
-		
-		public static final int TILE_Z_1 = 200;
-		public static final int TILE_Z_2 = 400;
-		public static final int TILE_Z_3 = 600;
-		public static final int TILE_Z_4 = 800;
+//		public static final int TILE_Z_4 = 800;
 		
 		public final ExtendedInventoryOrganizeScreen screen;
 		public final ExtendedInventoryPage page;
@@ -506,7 +498,6 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 		private int slowMoveStartX = 0;
 		private int slowMoveStartY = 0;
 		private float slowMoveLength = 200f;
-		public int slowMoveZ = 0;
 		public boolean slowMoveShadow = false;
 		private boolean forceVisible = false;
 		
@@ -534,7 +525,6 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 			int distY = originY - targetY;
 			int distSqr = distX * distX + distY * distY;
 			this.slowMoveLength = Math.min((distSqr / 3f) + 50f, 200f);
-			this.slowMoveZ = 0;
 			this.slowMoveShadow = false;
 			this.forceVisible = false;
 			this.setPosition(targetX, targetY);
@@ -566,6 +556,11 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 		@Override
 		public ComponentPath nextFocusPath(FocusNavigationEvent event) {
 			return null;
+		}
+		
+		@Override
+		public boolean isMouseOver(double mouseX, double mouseY) {
+			return false;
 		}
 		
 		@Override
@@ -602,20 +597,19 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 				}
 				int mx = this.slowMoveStartX + (int)((x - this.slowMoveStartX) * progress);
 				int my = this.slowMoveStartY + (int)((y - this.slowMoveStartY) * progress);
-				if (this.slowMoveShadow) gui.blitSprite(RenderType::guiTextured, SPRITE_TILE_SHADOW, x, y, 16, 16);
-				gui.blitSprite(RenderType::guiTextured, sprite, mx, my, this.slowMoveZ, 16, 16);
-				if (this.page.icon.isEmpty()) {
-					this.screen.renderTileText(gui, this.index + 1, mx + 8, my + 4, this.slowMoveZ);
-				} else {
-					this.screen.renderTileIcon(gui, this.page.icon, this.page.iconScaleDown, mx, my, this.slowMoveZ);
-				}
+				if (this.slowMoveShadow) gui.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE_TILE_SHADOW, x, y, 16, 16);
+				this.renderTile(gui, mx, my, sprite);
 			} else {
-				gui.blitSprite(RenderType::guiTextured, sprite, x, y, 16, 16);
-				if (this.page.icon.isEmpty()) {
-					this.screen.renderTileText(gui, this.index + 1, x + 8, y + 4, 0);
-				} else {
-					this.screen.renderTileIcon(gui, this.page.icon, this.page.iconScaleDown, x, y, 0);
-				}
+				this.renderTile(gui, x, y, sprite);
+			}
+		}
+		
+		private void renderTile(GuiGraphics gui, int x, int y, ResourceLocation sprite) {
+			gui.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x, y, 16, 16);
+			if (this.page.icon.isEmpty()) {
+				this.screen.renderTileText(gui, this.index + 1, x + 8, y + 4);
+			} else {
+				this.screen.renderTileIcon(gui, this.page.icon, this.page.iconScaleDown, x, y);
 			}
 		}
 		
@@ -642,7 +636,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 		@Override
 		public void renderImage(Font font, int x, int y, int width, int height, GuiGraphics gui) {
 			ResourceLocation background = this.page.valid ? this.page.isLocked() ? SPRITE_BACKGROUND_LOCKED : SPRITE_BACKGROUND : SPRITE_BACKGROUND_INVALID;
-			gui.blitSprite(RenderType::guiTextured, background, x, y, this.getWidth(font), this.getHeight(font));
+			gui.blitSprite(RenderPipelines.GUI_TEXTURED, background, x, y, this.getWidth(font), this.getHeight(font));
 			if (!this.page.valid) return;
 			int slot = 0;
 			for (int row = 0; row < 6; row++) {

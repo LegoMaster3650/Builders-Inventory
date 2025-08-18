@@ -10,7 +10,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -62,15 +62,15 @@ public class HotbarSwapper {
 				for (int i = 1; i < max; i++) {
 					int y = gui.guiHeight() - 22 - (i * 22);
 					if (i > 3) y -= extendedOffset;
-					gui.blitSprite(RenderType::guiTextured, SPRITE_HOTBAR, 182, 22, 0, 0, width - 91 + offset, y, 1, 22);
-					gui.blitSprite(RenderType::guiTextured, SPRITE_HOTBAR, 182, 22, 1 + offset, 0, width - 91 + offset + 1, y, 20, 22);
-					gui.blitSprite(RenderType::guiTextured, SPRITE_HOTBAR, 181, 22, 180, 0, width - 91 + offset + 21, y, 1, 22);
+					gui.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE_HOTBAR, 182, 22, 0, 0, width - 91 + offset, y, 1, 22);
+					gui.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE_HOTBAR, 182, 22, 1 + offset, 0, width - 91 + offset + 1, y, 20, 22);
+					gui.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE_HOTBAR, 181, 22, 180, 0, width - 91 + offset + 21, y, 1, 22);
 				}
 			} else {
 				for (int i = 1; i < max; i++) {
 					int y = gui.guiHeight() - 22 - (i * 22);
 					if (i > 3) y -= extendedOffset;
-					gui.blitSprite(RenderType::guiTextured, SPRITE_HOTBAR, width - 91, y, 182, 22);
+					gui.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE_HOTBAR, width - 91, y, 182, 22);
 				}
 			}
 		}
@@ -87,11 +87,11 @@ public class HotbarSwapper {
 				int offset = mc.player.getInventory().getSelectedSlot() * 20;
 				int y = gui.guiHeight() - 22 - 1 - (row * 22);
 				if (row > 3) y -= extendedOffset;
-				gui.blitSprite(RenderType::guiTextured, selectorSprite, width - 91 - 1 + offset, y, spriteWidth, spriteHeight);
+				gui.blitSprite(RenderPipelines.GUI_TEXTURED, selectorSprite, width - 91 - 1 + offset, y, spriteWidth, spriteHeight);
 			} else {
 				int y = gui.guiHeight() - 22 - 1 - (row * 22);
 				if (row > 3) y -= extendedOffset;
-				gui.blitSprite(RenderType::guiTextured, SPRITE_HOTBAR_SELECTION_WIDE, width - 91 - 1, y, 184, 24);
+				gui.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE_HOTBAR_SELECTION_WIDE, width - 91 - 1, y, 184, 24);
 			}
 			
 			return true;
@@ -148,14 +148,14 @@ public class HotbarSwapper {
 	
 	public static void shiftHud(GuiGraphics gui) {
 		if (selecting) {
-			gui.pose().pushPose();
-			gui.pose().translate(0, hudShift, 0);
+			gui.pose().pushMatrix();
+			gui.pose().translate(0, hudShift);
 		}
 	}
 	
 	public static void shiftHudReset(GuiGraphics gui) {
 		if (selecting) {
-			gui.pose().popPose();
+			gui.pose().popMatrix();
 		}
 	}
 	

@@ -24,7 +24,7 @@ public class ModDataFixer {
 	}
 	
 	public static int currentVersion() {
-		return SharedConstants.getCurrentVersion().getDataVersion().getVersion();
+		return SharedConstants.getCurrentVersion().dataVersion().version();
 	}
 	
 	public static CompoundTag updateToCurrentVersion(DataFixer fixer, CompoundTag tag, int version, TypeReference type) {

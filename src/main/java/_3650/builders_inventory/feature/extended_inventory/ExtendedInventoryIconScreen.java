@@ -18,7 +18,6 @@ import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -325,6 +324,11 @@ public class ExtendedInventoryIconScreen extends Screen {
 		}
 		
 		Inventory playerInv = this.minecraft.player.getInventory();
+		ItemFindResult hover = findSlot(mouseX - this.leftPos, mouseY - this.topPos);
+		
+		if (hover != null) {
+			GuiUtil.renderSlotHighlightBack(gui, hover.x, hover.y);
+		}
 		
 		y += 108;
 		slot = 9;
@@ -347,20 +351,17 @@ public class ExtendedInventoryIconScreen extends Screen {
 			gui.renderItemDecorations(this.font, stack, slotX, y);
 		}
 		
-		ItemFindResult hover = findSlot(mouseX - this.leftPos, mouseY - this.topPos);
 		if (hover != null) {
-			int gx = this.leftPos + 26 + (hover.col * 18);
-			int gy = this.topPos + 18 + (hover.row * 18);
-			gui.fillGradient(RenderType.guiOverlay(), gx, gy, gx + 16, gy + 16, 0x80FFFFFF, 0x80FFFFFF, 2);
+			GuiUtil.renderSlotHighlightFront(gui, hover.x, hover.y);
 		}
 		
 		if (this.countSlider != null) this.countSlider.render(gui, mouseX, mouseY, partialTick);
 		if (this.sizeSlider != null) this.sizeSlider.render(gui, mouseX, mouseY, partialTick);
 		
 		if (this.iconPreview.isEmpty()) {
-			this.renderTileText(this.pageIndex + 1, gui, this.leftPos + 6 + 8, this.topPos + 17 + 4, 100);
+			this.renderTileText(this.pageIndex + 1, gui, this.leftPos + 6 + 8, this.topPos + 17 + 4);
 		} else {
-			this.renderTileIcon(this.iconPreview, this.iconScaleDown, gui, this.leftPos + 6, this.topPos + 17, 300);
+			this.renderTileIcon(this.iconPreview, this.iconScaleDown, gui, this.leftPos + 6, this.topPos + 17);
 		}
 		
 		this.renderTooltip(gui, mouseX, mouseY, hover);
@@ -368,37 +369,37 @@ public class ExtendedInventoryIconScreen extends Screen {
 	
 	private void renderTooltip(GuiGraphics gui, int x, int y, ItemFindResult hover) {
 		if (hover != null && !hover.item.isEmpty()) {
-			gui.renderTooltip(this.font, getTooltipFromItem(this.minecraft, hover.item), hover.item.getTooltipImage(), x, y);
+			gui.setTooltipForNextFrame(this.font, getTooltipFromItem(this.minecraft, hover.item), hover.item.getTooltipImage(), x, y);
 		} else {
 			this.exGui.renderTooltip(this.font, gui, x, y);
 		}
 	}
 	
-	void renderTileText(int number, GuiGraphics gui, int x, int y, int z) {
+	void renderTileText(int number, GuiGraphics gui, int x, int y) {
 		String text = String.valueOf(number);
-		gui.pose().pushPose();
-		gui.pose().translate(x, y, z);
+		gui.pose().pushMatrix();
+		gui.pose().translate(x, y);
 		if (text.length() > 2) {
 			float scale = 2f / text.length();
-			gui.pose().translate(0, 4 * (1f - scale), 0); // (8*scale - 8) / 2
-			gui.pose().scale(scale, scale, 1f);
+			gui.pose().translate(0, 4 * (1f - scale)); // (8*scale - 8) / 2
+			gui.pose().scale(scale, scale);
 		}
-		gui.drawCenteredString(this.font, Component.literal(text), 0, 0, 0xFFFFFF);
-		gui.pose().popPose();
+		gui.drawCenteredString(this.font, Component.literal(text), 0, 0, 0xFFFFFFFF);
+		gui.pose().popMatrix();
 	}
 	
-	void renderTileIcon(ItemStack icon, int iconScaleDown, GuiGraphics gui, int x, int y, int z) {
-		gui.pose().pushPose();
-		gui.pose().translate(x, y, z);
+	void renderTileIcon(ItemStack icon, int iconScaleDown, GuiGraphics gui, int x, int y) {
+		gui.pose().pushMatrix();
+		gui.pose().translate(x, y);
 		if (iconScaleDown > 0) {
 			final int guiScale = (int) (this.minecraft.getWindow().getGuiScale() + 0.5);
 			final float iconScale = iconScaleDown >= guiScale ? (1f / guiScale) : (1f - (iconScaleDown / (float)guiScale));
-			gui.pose().translate((8 * (1f - iconScale)), (8 * (1f - iconScale)), 0);
-			gui.pose().scale(iconScale, iconScale, 1);
+			gui.pose().translate((8 * (1f - iconScale)), (8 * (1f - iconScale)));
+			gui.pose().scale(iconScale, iconScale);
 		}
 		gui.renderItem(icon, 0, 0);
 		gui.renderItemDecorations(this.font, icon, 0, 0);
-		gui.pose().popPose();
+		gui.pose().popMatrix();
 	}
 	
 	@Override
@@ -409,7 +410,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 	
 	public void openCountSlider() {
 		if (this.countSlider != null) this.closeCountSlider();
-		this.countSlider = StepSliderWidget.cancel(SliderWidgetTheme.CUBIC, this.leftPos + 24, this.topPos + 33, 300, 1, 64, this.iconPreview.getCount(), this.font,
+		this.countSlider = StepSliderWidget.cancel(SliderWidgetTheme.CUBIC, this.leftPos + 24, this.topPos + 33, 1, 64, this.iconPreview.getCount(), this.font,
 				val -> {
 					return List.of(Component.literal(String.valueOf(val)));
 				},
@@ -440,7 +441,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 			this.updateButtons();
 			return;
 		}
-		this.sizeSlider = StepSliderWidget.cancel(SliderWidgetTheme.CUBIC, this.leftPos + 24, this.topPos + 69, 300, 1 - guiScale, 0, -this.iconScaleDown, this.font,
+		this.sizeSlider = StepSliderWidget.cancel(SliderWidgetTheme.CUBIC, this.leftPos + 24, this.topPos + 69, 1 - guiScale, 0, -this.iconScaleDown, this.font,
 				val -> {
 					final double sizePercent = (guiScale + val) * 100.0 / (guiScale);
 					return List.of(Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.slider.size",
@@ -527,9 +528,11 @@ public class ExtendedInventoryIconScreen extends Screen {
 			if (x >= 0 && x < 162 && y >= 0 && y < 180) {
 				int col = x / 18;
 				int row = y / 18;
-				if (row < 6) return new ItemFindResult(page.get(col + (row * 9)), row, col);
-				else if (row < 9) return new ItemFindResult(this.minecraft.player.getInventory().getItem(col + ((row - 6) * 9) + 9), row, col);
-				else if (row < 10) return new ItemFindResult(this.minecraft.player.getInventory().getItem(col + ((row - 9) * 9)), row, col);
+				int hx = this.leftPos + 26 + (col * 18);
+				int hy = this.topPos + 18 + (row * 18);
+				if (row < 6) return new ItemFindResult(page.get(col + (row * 9)), hx, hy);
+				else if (row < 9) return new ItemFindResult(this.minecraft.player.getInventory().getItem(col + ((row - 6) * 9) + 9), hx, hy);
+				else if (row < 10) return new ItemFindResult(this.minecraft.player.getInventory().getItem(col + ((row - 9) * 9)), hx, hy);
 			}
 		}
 		return null;
@@ -574,13 +577,13 @@ public class ExtendedInventoryIconScreen extends Screen {
 	
 	private static class ItemFindResult {
 		public final ItemStack item;
-		public final int row;
-		public final int col;
+		public final int x;
+		public final int y;
 		
-		public ItemFindResult(ItemStack item, int row, int col) {
+		public ItemFindResult(ItemStack item, int x, int y) {
 			this.item = item;
-			this.row = row;
-			this.col = col;
+			this.x = x;
+			this.y = y;
 		}
 	}
 	

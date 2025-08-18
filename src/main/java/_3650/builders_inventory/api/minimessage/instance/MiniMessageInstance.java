@@ -510,20 +510,17 @@ public class MiniMessageInstance {
 	public void renderPreviewOrError(GuiGraphics gui) {
 		if (!active) return;
 		if (!previewLines.isEmpty()) {
-			gui.pose().pushPose();
-			gui.pose().translate(_previewXMin, _previewYMin, 0);
-			gui.pose().scale(_previewScale, _previewScale, 1f);
+			gui.pose().pushMatrix();
+			gui.pose().translate(_previewXMin, _previewYMin);
+			gui.pose().scale(_previewScale, _previewScale);
 			gui.fill(0, 0, Mth.ceil(_previewWidth / _previewScale) + 4 + 4 + 4, - (_previewLineHeight * previewLines.size()), _previewBGColor);
 			int y = _previewLineTextOffset;
 			for (int i = previewLines.size() - 1; i >= 0; --i) {
 				FormattedCharSequence line = previewLines.get(i);
-				gui.pose().pushPose();
-				gui.pose().translate(0f, 0f, 50f);
-				gui.drawString(font, line, 4, y, 0xFFFFFF);
-				gui.pose().popPose();
+				gui.drawString(font, line, 4, y, 0xFFFFFFFF);
 				y -= _previewLineHeight;
 			}
-			gui.pose().popPose();
+			gui.pose().popMatrix();
 		}
 	}
 	
@@ -830,10 +827,7 @@ public class MiniMessageInstance {
 	
 	public boolean renderSuggestions(GuiGraphics gui, int mouseX, int mouseY) {
 		if (!active) return false;
-		gui.pose().pushPose();
-		gui.pose().translate(0, 0, 200f);
 		final boolean result = this.display.render(gui, mouseX, mouseY);
-		gui.pose().popPose();
 		return result;
 	}
 	

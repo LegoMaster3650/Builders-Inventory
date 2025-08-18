@@ -15,7 +15,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.CommonInputs;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -26,7 +26,6 @@ public class StepSliderWidget extends AbstractWidget {
 			SliderWidgetTheme theme,
 			int x,
 			int y,
-			int z,
 			int min,
 			int max,
 			int initialValue,
@@ -36,7 +35,7 @@ public class StepSliderWidget extends AbstractWidget {
 			) {
 		return internalBuild(
 				theme,
-				x,y,z,
+				x,y,
 				min,max,
 				initialValue,
 				0,
@@ -52,7 +51,6 @@ public class StepSliderWidget extends AbstractWidget {
 			SliderWidgetTheme theme,
 			int x,
 			int y,
-			int z,
 			int min,
 			int max,
 			int initialValue,
@@ -63,7 +61,7 @@ public class StepSliderWidget extends AbstractWidget {
 			) {
 		return internalBuild(
 				theme,
-				x,y,z,
+				x,y,
 				min,max,
 				initialValue,
 				minSegmentSpacing,
@@ -79,7 +77,6 @@ public class StepSliderWidget extends AbstractWidget {
 			SliderWidgetTheme theme,
 			int x,
 			int y,
-			int z,
 			int min,
 			int max,
 			int initialValue,
@@ -90,7 +87,7 @@ public class StepSliderWidget extends AbstractWidget {
 			) {
 		return internalBuild(
 				theme,
-				x,y,z,
+				x,y,
 				min,max,
 				initialValue,
 				0,
@@ -106,7 +103,6 @@ public class StepSliderWidget extends AbstractWidget {
 			SliderWidgetTheme theme,
 			int x,
 			int y,
-			int z,
 			int min,
 			int max,
 			int initialValue,
@@ -118,7 +114,7 @@ public class StepSliderWidget extends AbstractWidget {
 			) {
 		return internalBuild(
 				theme,
-				x,y,z,
+				x,y,
 				min,max,
 				initialValue,
 				minSegmentSpacing,
@@ -134,7 +130,6 @@ public class StepSliderWidget extends AbstractWidget {
 			SliderWidgetTheme theme,
 			int x,
 			int y,
-			int z,
 			int min,
 			int max,
 			int initialValue,
@@ -164,7 +159,7 @@ public class StepSliderWidget extends AbstractWidget {
 		
 		return new StepSliderWidget(
 				theme,
-				x,y,z,
+				x,y,
 				min,max,
 				initialValue,
 				font,
@@ -181,7 +176,6 @@ public class StepSliderWidget extends AbstractWidget {
 	}
 	
 	private final SliderWidgetTheme theme;
-	private final int z;
 	private final int min;
 	private final int max;
 	public final int initialValue;
@@ -207,7 +201,6 @@ public class StepSliderWidget extends AbstractWidget {
 			SliderWidgetTheme theme,
 			int x,
 			int y,
-			int z,
 			int min,
 			int max,
 			int initialValue,
@@ -224,7 +217,6 @@ public class StepSliderWidget extends AbstractWidget {
 			) {
 		super(x, y, width, height, Component.empty());
 		this.theme = theme;
-		this.z = z;
 		this.min = min;
 		this.max = max;
 		this.value = initialValue;
@@ -247,11 +239,10 @@ public class StepSliderWidget extends AbstractWidget {
 	@Override
 	protected void renderWidget(GuiGraphics gui, int mouseXi, int mouseYi, float partialTick) {
 		final var theme = this.theme;
-		gui.pose().pushPose();
-		gui.pose().translate(0, 0, this.z);
+		gui.pose().pushMatrix();
 		
 		final ResourceLocation bgSprite = theme.spritesBackground.get(this.isActive(), this.isFocused() && !this.focusDragging);
-		gui.blitSprite(RenderType::guiTextured, bgSprite, this.getX(), this.getY(), this.width, this.height);
+		gui.blitSprite(RenderPipelines.GUI_TEXTURED, bgSprite, this.getX(), this.getY(), this.width, this.height);
 		
 		this.drawGuides(gui);
 		
@@ -261,7 +252,7 @@ public class StepSliderWidget extends AbstractWidget {
 			final int sbwidth = 5;
 			final int sbheight = theme.barHeight;
 			final ResourceLocation barSprite = theme.spritesBar.get(this.isActive(), (this.dragging || mouseXi >= sbx && mouseXi < sbx + sbwidth && mouseYi >= sby && mouseYi < sby + sbheight));
-			gui.blitSprite(RenderType::guiTextured, barSprite, sbx, sby, sbwidth, sbheight);
+			gui.blitSprite(RenderPipelines.GUI_TEXTURED, barSprite, sbx, sby, sbwidth, sbheight);
 		}
 		
 		final int x = mouseXi - this.getX();
@@ -269,7 +260,7 @@ public class StepSliderWidget extends AbstractWidget {
 		if (!this.active) {
 			if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
 				final List<Component> tooltip = this.tooltipFormat.apply(this.value);
-				if (!tooltip.isEmpty()) gui.renderComponentTooltip(this.font, tooltip, mouseXi, mouseYi);
+				if (!tooltip.isEmpty()) gui.setComponentTooltipForNextFrame(this.font, tooltip, mouseXi, mouseYi);
 			}
 		} else if (x >= this.minX - Math.max(theme.horizontalPadding, 1) && x < this.maxX + Math.max(theme.horizontalPadding, 1) && y >= theme.border && y < this.height - theme.border) {
 			Minecraft mc = Minecraft.getInstance();
@@ -277,31 +268,30 @@ public class StepSliderWidget extends AbstractWidget {
 			double mouseX = (mc.mouseHandler.xpos() * ((double)window.getGuiScaledWidth() / window.getScreenWidth()));
 			final int newVal = Mth.clamp((int)Math.round(this.min + (mouseX - this.getX() - this.minX - 1.5) / this.innerWidth * this.range), this.min, this.max);
 			final List<Component> tooltip = this.tooltipFormat.apply(newVal);
-			if (!tooltip.isEmpty()) gui.renderComponentTooltip(this.font, tooltip, mouseXi, mouseYi);
+			if (!tooltip.isEmpty()) gui.setComponentTooltipForNextFrame(this.font, tooltip, mouseXi, mouseYi);
 		} else if (this.focusDragging && this.dragging) {
 			final int sbx = this.getX() + this.minX - 1 + Math.round((this.value - this.min) * this.notchStep);
 			final int sby = this.getY() + this.centerY - this.halfBarHeight;
 			final List<Component> tooltip = this.tooltipFormat.apply(this.value);
-			if (!tooltip.isEmpty()) gui.renderComponentTooltip(this.font, tooltip, sbx, sby);
+			if (!tooltip.isEmpty()) gui.setComponentTooltipForNextFrame(this.font, tooltip, sbx, sby);
 		}
 		
 		if (this.canCancel) {
 			final int cancelX = this.width - theme.border - 12 - theme.cancelButtonPadding;
 			final boolean hoveringCancel = this.active && !this.dragging && x >= cancelX && x < cancelX + 12 && y >= theme.border && y < theme.border + 12;
 			final ResourceLocation cancelSprite = theme.spritesCancelButton.get(this.isActive(), hoveringCancel);
-			gui.blitSprite(RenderType::guiTextured, cancelSprite, this.getX() + cancelX, this.getY() + theme.border + theme.cancelButtonPadding, 12, 12);
+			gui.blitSprite(RenderPipelines.GUI_TEXTURED, cancelSprite, this.getX() + cancelX, this.getY() + theme.border + theme.cancelButtonPadding, 12, 12);
 			if (hoveringCancel) {
-				gui.renderComponentTooltip(this.font, List.of(
+				gui.setComponentTooltipForNextFrame(this.font, List.of(
 						Component.translatable("container.builders_inventory.util.tooltip.button.cancel").withStyle(ChatFormatting.WHITE),
 						Component.translatable("container.builders_inventory.util.tooltip.button.cancel.desc").withStyle(ChatFormatting.GRAY)
 						), mouseXi, mouseYi);
 			}
 		}
 		
-		gui.pose().popPose();
+		gui.pose().popMatrix();
 	}
 	
-	@SuppressWarnings("deprecation")
 	private void drawGuides(GuiGraphics gui) {
 		final int minX = this.getX() + this.minX;
 		final int maxX = this.getX() + this.maxX;

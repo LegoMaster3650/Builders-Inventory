@@ -28,7 +28,7 @@ public class ExtendedImageButtonGui {
 		for (var button : this.exButtons) {
 			final var tooltip = button.tooltip();
 			if (button.isActive() && button.isHoveredOrFocused() && !tooltip.isEmpty()) {
-				gui.renderComponentTooltip(font,
+				gui.setComponentTooltipForNextFrame(font,
 						tooltip,
 						button.isHovered() ? mouseX : button.getCenterX(),
 						button.isHovered() ? mouseY : button.getCenterY());
@@ -36,7 +36,7 @@ public class ExtendedImageButtonGui {
 			} else {
 				final var disabledTooltip = button.disabledTooltip.get();
 				if (button.visible && !button.active && button.isHoveredOrFocused() && !disabledTooltip.isEmpty()) {
-					gui.renderComponentTooltip(font,
+					gui.setComponentTooltipForNextFrame(font,
 							disabledTooltip,
 							button.isHovered() ? mouseX : button.getCenterX(),
 							button.isHovered() ? mouseY : button.getCenterY());

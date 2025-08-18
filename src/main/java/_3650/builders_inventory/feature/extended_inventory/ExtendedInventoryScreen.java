@@ -280,7 +280,7 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 	protected void renderTooltip(GuiGraphics gui, int mouseX, int mouseY) {
 		if (this.hoveredSlot instanceof ExtendedInventoryMenu.ExtendedInventorySlot slot) {
 			if (!ExtendedInventoryPages.isValid()) {
-				gui.renderComponentTooltip(this.font, List.of(
+				gui.setComponentTooltipForNextFrame(this.font, List.of(
 						Component.translatable("container.builders_inventory.extended_inventory.tooltip.failed_load.title").withStyle(ChatFormatting.RED),
 						Component.translatable("container.builders_inventory.extended_inventory.tooltip.failed_load.desc.1").withStyle(ChatFormatting.WHITE),
 						Component.translatable("container.builders_inventory.extended_inventory.tooltip.failed_load.desc.2").withStyle(ChatFormatting.WHITE)
@@ -289,7 +289,7 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 			}
 			
 			if (!slot.exContainer.isValid()) {
-				gui.renderComponentTooltip(this.font, List.of(
+				gui.setComponentTooltipForNextFrame(this.font, List.of(
 						Component.translatable("container.builders_inventory.extended_inventory.tooltip.invalid_page.title").withStyle(ChatFormatting.RED),
 						Component.translatable("container.builders_inventory.extended_inventory.tooltip.invalid_page.desc.1").withStyle(ChatFormatting.WHITE),
 						Component.translatable("container.builders_inventory.extended_inventory.tooltip.invalid_page.desc.2").withStyle(ChatFormatting.WHITE),

@@ -252,10 +252,10 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 		final Config config = Config.instance();
 		final int offsetThreshold = config.minimessage_previewOffsetIgnored;
 		if (config.minimessage_enabledChat && config.minimessage_previewOffsetsChat && this.minimessage.previewLines.size() > offsetThreshold) {
-			gui.pose().pushPose();
-			gui.pose().translate(0, -Mth.ceil(this.minimessage.getScaledLineHeight(offsetThreshold)), 0);
+			gui.pose().pushMatrix();
+			gui.pose().translate(0, -Mth.ceil(this.minimessage.getScaledLineHeight(offsetThreshold)));
 			operation.call(chat, gui, tickCount, mouseX, mouseY, focused);
-			gui.pose().popPose();
+			gui.pose().popMatrix();
 		} else {
 			operation.call(chat, gui, tickCount, mouseX, mouseY, focused);
 		}

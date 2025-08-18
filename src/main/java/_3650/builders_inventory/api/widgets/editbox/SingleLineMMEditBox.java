@@ -21,7 +21,7 @@ import net.minecraft.client.gui.components.Whence;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -447,8 +447,8 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 			this.renderBackground(gui);
 			final int borderThickness = this.theme.borderThickness;
 			gui.enableScissor(this.getX() + borderThickness, this.getY() + borderThickness, this.getX() + this.width - borderThickness, this.getY() + this.height - borderThickness);
-			gui.pose().pushPose();
-			gui.pose().translate(0, -this.scrollAmount, 0);
+			gui.pose().pushMatrix();
+			gui.pose().translate(0, (float)(-this.scrollAmount));
 			// wrapping this in a try catch to gather more info when it crashes because I don't trust this code
 			try {
 				this.renderContents(gui, mouseX, mouseY, partialTick);
@@ -458,7 +458,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 				BuildersInventory.LOGGER.error("value=" + this.value);
 				throw e;
 			}
-			gui.pose().popPose();
+			gui.pose().popMatrix();
 			gui.disableScissor();
 			if (this.scrollBarVisible()) {
 				int scrollBarHeight = this.getScrollBarHeight();
@@ -466,7 +466,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 				final int y = Math.max(
 						this.getY() + this.innerPadding(),
 						this.getY() + this.innerPadding() + (int)this.scrollAmount * (this.height - this.totalVerticalPadding() - scrollBarHeight) / this.getMaxScrollAmount());
-				gui.blitSprite(RenderType::guiTextured, this.theme.spritesScrollbar.get(this.isActive(), this.isFocused()), x, y, 1, this.theme.scrollbarWidth, scrollBarHeight);
+				gui.blitSprite(RenderPipelines.GUI_TEXTURED, this.theme.spritesScrollbar.get(this.isActive(), this.isFocused()), x, y, 1, this.theme.scrollbarWidth, scrollBarHeight);
 			}
 			if (this.hasMaxLength()) {
 				int charLimit = this.maxLength;
@@ -478,7 +478,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 	
 	private void renderBackground(GuiGraphics gui) {
 		ResourceLocation background = this.theme.spritesBackground.get(this.isActive(), this.isFocused());
-		gui.blitSprite(RenderType::guiTextured, background, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+		gui.blitSprite(RenderPipelines.GUI_TEXTURED, background, this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 	
 	private void renderContents(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
@@ -499,13 +499,18 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 					final boolean cursorInserting = cursor < line.endIndex;
 					
 					if (blink && cursorInserting && cursor >= line.beginIndex && cursor <= line.endIndex) {
-						x = gui.drawString(this.font, this.format(str, line.beginIndex, cursor), x, y, textColor) - 1;
+						final var formatStr1 = this.format(str, line.beginIndex, cursor);
+						final var formatStr2 = this.format(str, cursor, line.endIndex);
+						gui.drawString(this.font, formatStr1, x, y, textColor);
+						x += font.width(formatStr1) - 1;
 						
-						gui.drawString(this.font, this.format(str, cursor, line.endIndex), x, y, textColor);
+						gui.drawString(this.font, formatStr2, x, y, textColor);
 						
-						gui.fill(RenderType.guiOverlay(), x, y, x + 1, y + 9, CURSOR_COLOR);
+						gui.fill(x, y, x + 1, y + 9, CURSOR_COLOR);
 					} else {
-						x = gui.drawString(this.font, this.format(str, line.beginIndex, line.endIndex), x, y, textColor);
+						final var formatStr = this.format(str, line.beginIndex, line.endIndex);
+						gui.drawString(this.font, formatStr, x, y, textColor);
+						x += font.width(formatStr);
 						
 						if (!cursorInserting && !this.hasSelection() && cursor >= line.beginIndex && cursor <= line.endIndex && line.endIndex == this.value.length()) {
 							if (this.suggestion != null) {
@@ -514,7 +519,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 							
 							if (blink) {
 								if (this.cursor == line.beginIndex) x -= 1;
-								gui.drawString(this.font, "_", x, y, textColor);
+								gui.drawString(this.font, "_", x, y, CURSOR_COLOR);
 							}
 						}
 					}
@@ -541,7 +546,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 								xEnd = this.font.width(str.substring(line.beginIndex, selection.endIndex));
 							}
 							
-							gui.fill(RenderType.guiTextHighlight(), xMin + xStart, y, xMin + xEnd, y + 9, 0xFF0000FF);
+							gui.fill(RenderPipelines.GUI_TEXT_HIGHLIGHT, xMin + xStart, y, xMin + xEnd, y + 9, 0xFF0000FF);
 						}
 						y += 9;
 					}
