@@ -151,12 +151,11 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 	
 	@WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/CommandSuggestions;render(Lnet/minecraft/client/gui/GuiGraphics;II)V"))
 	private void builders_inventory_renderSuggestions(CommandSuggestions commandSuggestions, GuiGraphics gui, int mouseX, int mouseY, Operation<Void> operation) {
-		if (!Config.instance().minimessage_enabledChat) {
+		if (!Config.instance().minimessage_enabledChat || this.minimessage.previewLines.isEmpty()) {
 			operation.call(commandSuggestions, gui, mouseX, mouseY);
-			return;
+		} else {
+			this.minimessage.renderSuggestions(gui, mouseX, mouseY);
 		}
-		if (this.minimessage.previewLines.isEmpty()) operation.call(commandSuggestions, gui, mouseX, mouseY);
-		else this.minimessage.renderSuggestions(gui, mouseX, mouseY);
 	}
 	
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;getMessageTagAt(DD)Lnet/minecraft/client/GuiMessageTag;"), cancellable = true)
@@ -198,13 +197,13 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 	
 	@WrapOperation(method = "moveInHistory", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/EditBox;setValue(Ljava/lang/String;)V"))
 	private void builders_inventory_historyMove(EditBox input, String value, Operation<Void> operation) {
-		if (!Config.instance().minimessage_enabledChat) {
+		if (Config.instance().minimessage_enabledChat) {
+			this.minimessage.suppressSuggestionUpdate = true;
 			operation.call(input, value);
-			return;
+			this.minimessage.suppressSuggestionUpdate = false;
+		} else {
+			operation.call(input, value);
 		}
-		this.minimessage.suppressSuggestionUpdate = true;
-		operation.call(input, value);
-		this.minimessage.suppressSuggestionUpdate = false;
 	}
 	
 	@Override
