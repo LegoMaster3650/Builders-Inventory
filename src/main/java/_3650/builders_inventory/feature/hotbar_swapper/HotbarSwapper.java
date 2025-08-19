@@ -132,7 +132,7 @@ public class HotbarSwapper {
 			for (int i = 1; i < max; i++) {
 				int y = gui.guiHeight() - 22 + 7 - (i * 22);
 				if (i > 3) y -= extendedOffset;
-				gui.drawString(mc.font, String.valueOf(i), x, y, 0xFFFFFF, true);
+				gui.drawString(mc.font, String.valueOf(i), x, y, 0xFFFFFFFF, true);
 			}
 		}
 	}

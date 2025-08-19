@@ -519,7 +519,7 @@ public class MiniMessageInstance {
 				FormattedCharSequence line = previewLines.get(i);
 				gui.pose().pushPose();
 				gui.pose().translate(0f, 0f, 50f);
-				gui.drawString(font, line, 4, y, 0xFFFFFF);
+				gui.drawString(font, line, 4, y, 0xFFFFFFFF);
 				gui.pose().popPose();
 				y -= _previewLineHeight;
 			}

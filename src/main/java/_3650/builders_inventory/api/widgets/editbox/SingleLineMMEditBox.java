@@ -471,7 +471,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 			if (this.hasMaxLength()) {
 				int charLimit = this.maxLength;
 				Component error = Component.translatable("gui.multiLineEditBox.character_limit", this.value.length(), charLimit);
-				gui.drawString(this.font, error, this.getX() + this.width - this.font.width(error), this.getY() + this.height + 4, 0xA0A0A0);
+				gui.drawString(this.font, error, this.getX() + this.width - this.font.width(error), this.getY() + this.height + 4, 0xFFA0A0A0);
 			}
 		}
 	}
