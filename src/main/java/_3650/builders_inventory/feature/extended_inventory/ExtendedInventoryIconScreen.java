@@ -308,7 +308,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 	@Override
 	public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
 		super.render(gui, mouseX, mouseY, partialTick);
-		gui.drawString(this.font, this.title, this.leftPos + 8, this.topPos + 6, 0x404040, false);
+		gui.drawString(this.font, this.title, this.leftPos + 8, this.topPos + 6, 0xFF404040, false);
 		
 		int x = this.leftPos + 26;
 		int y = this.topPos + 18;

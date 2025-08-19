@@ -266,7 +266,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 	
 	@Override
 	public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
-		gui.drawString(this.font, this.title, this.leftPos + 8, this.topPos + 6, 0x404040, false);
+		gui.drawString(this.font, this.title, this.leftPos + 8, this.topPos + 6, 0xFF404040, false);
 		
 		if (this.dragTile != null) {
 			int col = this.lastHoveredIndex % 10;
