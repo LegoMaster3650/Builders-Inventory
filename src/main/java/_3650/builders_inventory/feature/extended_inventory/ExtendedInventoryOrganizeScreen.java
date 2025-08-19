@@ -582,7 +582,10 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 				int mx = this.slowMoveStartX + (int)((x - this.slowMoveStartX) * progress);
 				int my = this.slowMoveStartY + (int)((y - this.slowMoveStartY) * progress);
 				if (this.slowMoveShadow) gui.blitSprite(RenderType::guiTextured, SPRITE_TILE_SHADOW, x, y, 16, 16);
-				gui.blitSprite(RenderType::guiTextured, sprite, mx, my, this.slowMoveZ, 16, 16);
+				gui.pose().pushPose();
+				gui.pose().translate(0, 0, this.slowMoveZ);
+				gui.blitSprite(RenderType::guiTextured, sprite, mx, my, 16, 16);
+				gui.pose().popPose();
 				if (this.page.icon.isEmpty()) {
 					this.screen.renderTileText(gui, this.index + 1, mx + 8, my + 4, this.slowMoveZ);
 				} else {
