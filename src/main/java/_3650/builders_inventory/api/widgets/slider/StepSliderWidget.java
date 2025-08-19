@@ -301,7 +301,6 @@ public class StepSliderWidget extends AbstractWidget {
 		gui.pose().popPose();
 	}
 	
-	@SuppressWarnings("deprecation")
 	private void drawGuides(GuiGraphics gui) {
 		final int minX = this.getX() + this.minX;
 		final int maxX = this.getX() + this.maxX;
