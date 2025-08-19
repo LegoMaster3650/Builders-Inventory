@@ -308,7 +308,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 	@Override
 	public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
 		super.render(gui, mouseX, mouseY, partialTick);
-		gui.drawString(this.font, this.title, this.leftPos + 8, this.topPos + 6, 0x404040, false);
+		gui.drawString(this.font, this.title, this.leftPos + 8, this.topPos + 6, 0xFF404040, false);
 		
 		int x = this.leftPos + 26;
 		int y = this.topPos + 18;
@@ -382,7 +382,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 			gui.pose().translate(0, 4 * (1f - scale), 0); // (8*scale - 8) / 2
 			gui.pose().scale(scale, scale, 1f);
 		}
-		gui.drawCenteredString(this.font, Component.literal(text), 0, 0, 0xFFFFFF);
+		gui.drawCenteredString(this.font, Component.literal(text), 0, 0, 0xFFFFFFFF);
 		gui.pose().popPose();
 	}
 	

@@ -267,7 +267,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 	public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
 		this.tileTexts.clear();
 		super.render(gui, mouseX, mouseY, partialTick);
-		gui.drawString(this.font, this.title, this.leftPos + 8, this.topPos + 6, 0x404040, false);
+		gui.drawString(this.font, this.title, this.leftPos + 8, this.topPos + 6, 0xFF404040, false);
 		
 		if (this.dragTile != null) {
 			int col = this.lastHoveredIndex % 10;
@@ -300,7 +300,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 					gui.pose().translate(0, 4 * (1f - scale), 0); // (8*scale - 8) / 2
 					gui.pose().scale(scale, scale, 1f);
 				}
-				gui.drawString(this.font, text, -font.width(text) / 2, 0, 0xFFFFFF, true);
+				gui.drawString(this.font, text, -font.width(text) / 2, 0, 0xFFFFFFFF, true);
 				gui.pose().popPose();
 			}
 		});

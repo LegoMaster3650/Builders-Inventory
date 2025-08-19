@@ -306,8 +306,8 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 	
 	@Override
 	protected void renderLabels(GuiGraphics gui, int mouseX, int mouseY) {
-		gui.drawString(this.font, this.pageTitle, this.titleLabelX, this.titleLabelY, 0x404040, false);
-		gui.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 0x404040, false);
+		gui.drawString(this.font, this.pageTitle, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
+		gui.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 0xFF404040, false);
 	}
 	
 	@Override
