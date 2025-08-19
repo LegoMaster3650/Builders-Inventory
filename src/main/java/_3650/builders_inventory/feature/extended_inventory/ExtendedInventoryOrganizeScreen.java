@@ -69,6 +69,9 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 	private static final ResourceLocation SPRITE_BACKGROUND_LOCKED = BuildersInventory.modLoc("extended_inventory/organize/hover_background_locked");
 	private static final ResourceLocation SPRITE_BACKGROUND_INVALID = BuildersInventory.modLoc("extended_inventory/organize/hover_background_invalid");
 	
+	private static final int TILE_MIN_X = 8;
+	private static final int TILE_MIN_Y = 17;
+	
 	private final ExtendedImageButtonGui exGui = new ExtendedImageButtonGui();
 	private final int imageWidth;
 	private final int imageHeight;
@@ -130,34 +133,46 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 	}
 	
 	private static int tileX(int column) {
-		return 8 + (column * 18);
+		return TILE_MIN_X + (column * 18);
 	}
 	
 	private static int tileY(int row) {
-		return 17 + (row * 18);
+		return TILE_MIN_Y + (row * 18);
 	}
 	
-	private void scrolledToPos(double mouseY) {
+	private void scrolledToPos(double mouseX, double mouseY) {
 		double scroll = (mouseY - this.topPos - 17 - 7.5) / (180 - 15);
-		this.scrolledTo(Mth.clamp(scroll, 0.0, 1.0));
+		this.scrolledTo(Mth.clamp(scroll, 0.0, 1.0), mouseX, mouseY);
 	}
 	
-	private void scrolledTo(double scroll) {
+	private void scrolledTo(double scroll, double mouseX, double mouseY) {
 		this.scrollAmount = scroll;
 		int row = (int)((scroll * getScrollRows()) + 0.5);
-		if (row != this.scrollRow) this.setScrollRow(row);
+		if (row != this.scrollRow) this.setScrollRow(row, mouseX, mouseY);
 	}
 	
-	private void setScrollRow(int scrollRow) {
+	private void setScrollRow(int scrollRow, double mouseX, double mouseY) {
+		int oldRow = this.scrollRow;
 		this.scrollRow = scrollRow;
-		int scrollRowMax = scrollRow + 10;
 		for (int i = 0; i < this.tiles.size(); i++) {
-			int column = i % 10;
-			int row = i / 10;
-			var tile = this.tiles.get(i);
-			boolean continueSlowMove = tile.visible;
-			tile.visible = row >= scrollRow && row < scrollRowMax;
-			tile.snapPosition(this.leftPos + tileX(column), this.topPos + tileY(row - scrollRow), continueSlowMove);
+			final var tile = this.tiles.get(i);
+			final int sy = tile.y - ((scrollRow - oldRow) * 18);
+			final boolean continueSlowMove = tile.visible;
+			final var relY = sy - TILE_MIN_Y - this.topPos;
+			tile.visible = relY >= 0 && relY < 180 && tile != this.dragTile;
+			if (continueSlowMove && tile.visible && tile.slowMoveTime > 0L) {
+				tile.slowMove(tile.x, sy);
+			} else {
+				tile.slowMoveTime = 0L;
+				tile.y = sy;
+			}
+		}
+		if (this.dragTile != null) {
+			var hovered = this.findNearestTile((int)mouseX, (int)mouseY);
+			if (hovered.index != this.dragHoveredIndex) {
+				this.shiftTiles(this.dragHoveredIndex, hovered.index);
+				this.dragHoveredIndex = hovered.index;
+			}
 		}
 	}
 	
@@ -184,7 +199,9 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 			if (newInd == end) continue;
 			var tile = this.tiles.get(i); // index already transformed by scroll
 			int row = newInd / 10;
-			tile.slowMove(this.leftPos + tileX(newInd % 10), this.topPos + tileY(row - this.scrollRow));
+			int relRow = row - this.scrollRow;
+			if (relRow < 0 || relRow >= 10) tile.visible = false;
+			tile.slowMove(this.leftPos + tileX(newInd % 10), this.topPos + tileY(relRow));
 			if (tile.slowMoveZ < PageTile.TILE_Z_3) tile.slowMoveZ = (row != i / 10) ? PageTile.TILE_Z_2 : PageTile.TILE_Z_1; // do not transform row for this operation, it's just checking if the tile row changed
 		}
 	}
@@ -210,7 +227,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 	private TileFindResult findTile(int x, int y) {
 		x -= 8 + this.leftPos;
 		y -= 17 + this.topPos;
-		if (x >= 0 && x <= 180 && y >= 0 && y <= 180) {
+		if (x >= 0 && x < 180 && y >= 0 && y < 180) {
 			int col = x / 18;
 			int rx = x % 18;
 			int row = y / 18;
@@ -227,19 +244,14 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 		x -= 8 + this.leftPos;
 		y -= 17 + this.topPos;
 		if (x < 0) x = 0;
-		else if (x > 180) x = 180;
+		else if (x >= 180) x = 179;
 		if (y < 0) y = 0;
-		else if (y > 180) y = 180;
+		else if (y >= 180) y = 179;
 		
 		int col = x / 18;
 		int rx = x % 18;
 		int row = y / 18;
 		int ry = y % 18;
-		
-		if (row > tiles.size() / 10) {
-			row = (tiles.size() / 10);
-			if (col > tiles.size() % 10) col = (tiles.size() % 10);
-		}
 		
 		int index = col + (row * 10);
 		index += (this.scrollRow * 10);
@@ -348,7 +360,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 			return true;
 		} else if (this.canScroll() && this.isMouseInScrollbar((int)mouseX - this.leftPos, (int)mouseY - this.topPos)) {
 			this.scrolling = true;
-			this.scrolledToPos(mouseY);
+			this.scrolledToPos(mouseX, mouseY);
 			return true;
 		} else {
 			boolean consume = false;
@@ -374,7 +386,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 		if (super.mouseDragged(mouseX, mouseY, button, dragX, dragY)) {
 			return true;
 		} else if (this.scrolling) {
-			this.scrolledToPos(mouseY);
+			this.scrolledToPos(mouseX, mouseY);
 			return true;
 		} else {
 			if (this.dragTile != null) {
@@ -462,7 +474,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 		if (!this.canScroll() || this.scrolling) {
 			return false;
 		} else {
-			this.scrolledTo(Mth.clamp(this.scrollAmount - (scrollY / this.getScrollRows()), 0.0, 1.0));
+			this.scrolledTo(Mth.clamp(this.scrollAmount - (scrollY / this.getScrollRows()), 0.0, 1.0), mouseX, mouseY);
 			return true;
 		}
 	}
@@ -515,7 +527,6 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 		private float slowMoveLength = 200f;
 		public int slowMoveZ = 0;
 		public boolean slowMoveShadow = false;
-		private boolean forceVisible = false;
 		
 		public PageTile(int x, int y, ExtendedInventoryOrganizeScreen screen, ExtendedInventoryPage page, int index) {
 			this.x = x;
@@ -523,15 +534,6 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 			this.screen = screen;
 			this.page = page;
 			this.index = index;
-		}
-		
-		public void snapPosition(int x, int y, boolean continueSlowMove) {
-			if (continueSlowMove && this.visible && this.slowMoveTime > 0L) {
-				this.slowMove(x, y);
-			} else {
-				this.slowMoveTime = 0L;
-				this.setPosition(x, y);
-			}
 		}
 		
 		public void slowMoveFrom(int originX, int originY, int targetX, int targetY) {
@@ -544,7 +546,6 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 			this.slowMoveLength = Math.min((distSqr / 3f) + 50f, 200f);
 			this.slowMoveZ = 0;
 			this.slowMoveShadow = false;
-			this.forceVisible = false;
 			this.setPosition(targetX, targetY);
 		}
 		
@@ -574,10 +575,6 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 				if (progress >= 1.0f) {
 					progress = 1.0f;
 					this.slowMoveTime = 0L;
-					if (this.forceVisible) {
-						this.forceVisible = false;
-						this.visible = false;
-					}
 				}
 				int mx = this.slowMoveStartX + (int)((x - this.slowMoveStartX) * progress);
 				int my = this.slowMoveStartY + (int)((y - this.slowMoveStartY) * progress);
