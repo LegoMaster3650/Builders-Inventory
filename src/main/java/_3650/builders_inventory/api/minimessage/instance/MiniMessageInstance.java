@@ -31,6 +31,8 @@ import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.ComponentRenderUtils;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -831,10 +833,10 @@ public class MiniMessageInstance {
 		return result;
 	}
 	
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+	public boolean keyPressed(KeyEvent event) {
 		if (!active) return false;
-		if (this.display.visible) return this.display.keyPressed(keyCode, scanCode, modifiers);
-		else if (keyCode == GLFW.GLFW_KEY_TAB && this.unclosedTags != null) {
+		if (this.display.visible) return this.display.keyPressed(event);
+		else if (event.key() == GLFW.GLFW_KEY_TAB && this.unclosedTags != null) {
 			this.cursorMoved(this.input.getValue(), this.input.getCursorPosition());
 			return true;
 		} else return false;
@@ -848,9 +850,9 @@ public class MiniMessageInstance {
 				Mth.clamp(scrollY, -1.0, 1.0));
 	}
 	
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked(MouseButtonEvent event) {
 		if (!active || !this.display.visible) return false;
-		return this.display.mouseClicked((int)mouseX, (int)mouseY, button);
+		return this.display.mouseClicked(event);
 	}
 	
 	private class SuggestionsDisplay {
@@ -968,25 +970,28 @@ public class MiniMessageInstance {
 			return true;
 		}
 		
-		public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-			if (keyCode == GLFW.GLFW_KEY_UP) {
+		public boolean keyPressed(KeyEvent event) {
+			switch (event.key()) {
+			case GLFW.GLFW_KEY_UP:
 				cycle(-1);
 				tabCycles = false;
 				return true;
-			} else if (keyCode == GLFW.GLFW_KEY_DOWN) {
+			case GLFW.GLFW_KEY_DOWN:
 				cycle(1);
 				tabCycles = false;
 				return true;
-			} else if (keyCode == GLFW.GLFW_KEY_TAB) {
+			case GLFW.GLFW_KEY_TAB:
 				if (tabCycles) {
-					cycle(Screen.hasShiftDown() ? -1 : 1);
+					cycle(event.hasShiftDown() ? -1 : 1);
 				}
 				useSuggestion();
 				return true;
-			} else if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+			case GLFW.GLFW_KEY_ESCAPE:
 				hide();
 				return true;
-			} else return false;
+			default:
+				return false;
+			}
 		}
 		
 		public boolean mouseScrolled(int mouseX, int mouseY, double delta) {
@@ -996,7 +1001,9 @@ public class MiniMessageInstance {
 			} else return false;
 		}
 		
-		public boolean mouseClicked(int mouseX, int mouseY, int button) {
+		public boolean mouseClicked(MouseButtonEvent event) {
+			final int mouseX = (int)event.x();
+			final int mouseY = (int)event.y();
 			if (mouseX > x && mouseX < x + width && mouseY > y && mouseY < y + height) {
 				int ind = (mouseY - y) / 12 + offset;
 				if (ind >= 0 && ind < suggestion.size()) {

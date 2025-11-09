@@ -36,6 +36,8 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.Mth;
@@ -83,8 +85,8 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 				SuggestionOptions.chat(() -> this.commandSuggestions)
 				);
 		
-		// override formatter
-		MiniMessageUtil.wrapFormatter(this.input, this.minimessage);
+		// add formatter
+		MiniMessageUtil.addFormatter(this.input, this.minimessage);
 		
 		// exGui for button
 		this.exGui.init();
@@ -104,8 +106,8 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 			// make buttons
 			this.buttonForce = new ExtendedImageDualButton(buttonX, this.height - 13, 10, 10,
 					SPRITES_BUTTON_FORCE,
-					button -> {
-						if (Screen.hasShiftDown() && Screen.hasControlDown()) ChatMiniMessageContext.loadServerCommandMap();
+					(button, input) -> {
+						if (input.hasShiftDown() && input.hasControlDown()) ChatMiniMessageContext.loadServerCommandMap();
 						else this.updateForce(true);
 						this.resetFocus = true;
 					},
@@ -113,8 +115,8 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 							Component.translatable("container.builders_inventory.minimessage.tooltip.button.chat_force").withStyle(ChatFormatting.WHITE),
 							Component.translatable("container.builders_inventory.minimessage.tooltip.button.chat_force.desc.enable").withStyle(ChatFormatting.GRAY)),
 					SPRITES_BUTTON_FORCE_ACTIVE,
-					button -> {
-						if (Screen.hasShiftDown() && Screen.hasControlDown()) ChatMiniMessageContext.loadServerCommandMap();
+					(button, input) -> {
+						if (input.hasShiftDown() && input.hasControlDown()) ChatMiniMessageContext.loadServerCommandMap();
 						else this.updateForce(false);
 						this.resetFocus = true;
 					},
@@ -167,10 +169,10 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 	}
 	
 	@Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
-	private void builders_inventory_keyPressed(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
+	private void builders_inventory_keyPressed(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
 		if (!Config.instance().minimessage_enabledChat) return;
-		if (this.minimessage.keyPressed(keyCode, scanCode, modifiers)) cir.setReturnValue(true);
-		else if (keyCode == GLFW.GLFW_KEY_TAB && !this.minimessage.previewLines.isEmpty()) cir.setReturnValue(true);
+		if (this.minimessage.keyPressed(event)) cir.setReturnValue(true);
+		else if (event.key() == GLFW.GLFW_KEY_TAB && !this.minimessage.previewLines.isEmpty()) cir.setReturnValue(true);
 	}
 	
 	@Inject(method = "mouseScrolled", at = @At("HEAD"), cancellable = true)
@@ -180,9 +182,9 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 	}
 	
 	@Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-	private void builders_inventory_mouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
+	private void builders_inventory_mouseClicked(MouseButtonEvent event, boolean isDoubleClick, CallbackInfoReturnable<Boolean> cir) {
 		if (!Config.instance().minimessage_enabledChat) return;
-		if (this.minimessage.mouseClicked(mouseX, mouseY, button)) cir.setReturnValue(true);
+		if (this.minimessage.mouseClicked(event)) cir.setReturnValue(true);
 	}
 	
 	@WrapOperation(method = "mouseClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/ChatScreen;getComponentStyleAt(DD)Lnet/minecraft/network/chat/Style;"))

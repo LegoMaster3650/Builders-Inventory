@@ -17,6 +17,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeInventoryListener;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
@@ -146,7 +147,7 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 		// Top Buttons
 		this.buttonRepair = new ExtendedImageButton(this.leftPos + 192, this.topPos + 4, 12, 12,
 				SPRITES_BUTTON_REPAIR,
-				btn -> {
+				(button, input) -> {
 					int page = ExtendedInventory.getPage();
 					ExtendedInventoryPages.reset(page);
 					ExtendedInventory.setPage(page);
@@ -158,33 +159,33 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 		// Toolbar Buttons
 		this.buttonOrganize = new ExtendedImageButton(this.leftPos + 172, this.topPos + 126, 12, 12,
 				SPRITES_BUTTON_ORGANIZE,
-				btn -> ExtendedInventory.openOrganizeScreen(this.minecraft),
+				(button, input) -> ExtendedInventory.openOrganizeScreen(this.minecraft),
 				Component.translatable("container.builders_inventory.extended_inventory.tooltip.button.organize").withStyle(ChatFormatting.WHITE));
 		this.buttonDelete = new ExtendedImageButton(this.leftPos + 154, this.topPos + 126, 12, 12,
 				SPRITES_BUTTON_DELETE,
-				btn -> ExtendedInventory.openDeleteScreen(this.minecraft),
+				(button, input) -> ExtendedInventory.openDeleteScreen(this.minecraft),
 				Component.translatable("container.builders_inventory.extended_inventory.tooltip.button.delete").withStyle(ChatFormatting.WHITE),
 				Component.translatable("container.builders_inventory.extended_inventory.tooltip.button.delete.desc").withStyle(ChatFormatting.GRAY));
 		this.buttonIcon = new ExtendedImageButton(this.leftPos + 136, this.topPos + 126, 12, 12,
 				SPRITES_BUTTON_ICON,
-				btn -> ExtendedInventory.openIconSelectScreen(this.minecraft),
+				(button, input) -> ExtendedInventory.openIconSelectScreen(this.minecraft),
 				Component.translatable("container.builders_inventory.extended_inventory.tooltip.button.icon").withStyle(ChatFormatting.WHITE),
 				Component.translatable("container.builders_inventory.extended_inventory.tooltip.button.icon.desc").withStyle(ChatFormatting.GRAY));
 		this.buttonRename = new ExtendedImageButton(this.leftPos + 118, this.topPos + 126, 12, 12,
 				SPRITES_BUTTON_RENAME,
-				btn -> ExtendedInventory.openRenameScreen(this.minecraft),
+				(button, input) -> ExtendedInventory.openRenameScreen(this.minecraft),
 				Component.translatable("container.builders_inventory.extended_inventory.tooltip.button.rename").withStyle(ChatFormatting.WHITE));
 		this.buttonLock = new ExtendedImageDualButton(this.leftPos + 100, this.topPos + 126, 12, 12,
 				SoundEvents.LODESTONE_COMPASS_LOCK,
 				SPRITES_BUTTON_UNLOCKED,
-				btn -> ExtendedInventory.lock(this),
+				(button, input) -> ExtendedInventory.lock(this),
 				List.of(
 						Component.translatable("container.builders_inventory.extended_inventory.tooltip.button.lock").withStyle(ChatFormatting.WHITE),
 						Component.translatable("container.builders_inventory.extended_inventory.tooltip.button.lock.desc.1").withStyle(ChatFormatting.GRAY),
 						Component.translatable("container.builders_inventory.extended_inventory.tooltip.button.lock.desc.2").withStyle(ChatFormatting.GRAY)),
 				SoundEvents.IRON_TRAPDOOR_OPEN,
 				SPRITES_BUTTON_LOCKED,
-				btn -> ExtendedInventory.unlock(this),
+				(button, input) -> ExtendedInventory.unlock(this),
 				List.of(
 						Component.translatable("container.builders_inventory.extended_inventory.tooltip.button.unlock").withStyle(ChatFormatting.WHITE),
 						Component.translatable("container.builders_inventory.extended_inventory.tooltip.button.unlock.desc").withStyle(ChatFormatting.GRAY))
@@ -193,21 +194,21 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 		// Switch Buttons
 		this.buttonLeft = new ExtendedImageButton(this.leftPos + 6, this.topPos + 17, 16, 108,
 				SPRITES_BUTTON_LEFT,
-				btn -> {
+				(button, input) -> {
 					ExtendedInventory.switchLeft(this);
 					this.updatePageTitle();
 				},
 				Component.translatable("container.builders_inventory.extended_inventory.tooltip.button.left").withStyle(ChatFormatting.WHITE));
 		this.buttonRight = new ExtendedImageDualButton(this.leftPos + 190, this.topPos + 17, 16, 108,
 				SPRITES_BUTTON_RIGHT,
-				btn -> {
+				(button, input) -> {
 					ExtendedInventory.switchRight(this);
 					this.updatePageTitle();
 				},
 				List.of(
 						Component.translatable("container.builders_inventory.extended_inventory.tooltip.button.right").withStyle(ChatFormatting.WHITE)),
 				SPRITES_BUTTON_RIGHT_NEW,
-				btn -> {
+				(button, input) -> {
 					ExtendedInventory.createPageAndSwitch(this);
 					this.updatePageTitle();
 					this.clearFocus();
@@ -430,11 +431,11 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 	}
 	
 	@Override
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-		if (ModKeybinds.OPEN_EXTENDED_INVENTORY.matches(keyCode, scanCode)) {
+	public boolean keyPressed(KeyEvent event) {
+		if (ModKeybinds.OPEN_EXTENDED_INVENTORY.matches(event)) {
 			ExtendedInventory.close(this.minecraft);
 			return true;
-		} else return super.keyPressed(keyCode, scanCode, modifiers);
+		} else return super.keyPressed(event);
 	}
 	
 	@Override

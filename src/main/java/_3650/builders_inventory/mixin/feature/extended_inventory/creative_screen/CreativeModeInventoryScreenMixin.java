@@ -18,6 +18,7 @@ import _3650.builders_inventory.config.Config;
 import _3650.builders_inventory.feature.extended_inventory.ExtendedInventory;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.world.item.CreativeModeTab;
 
 @Debug(export = true)
@@ -55,9 +56,9 @@ public abstract class CreativeModeInventoryScreenMixin extends AbstractContainer
 			this.creativeButton.visible = ExtendedInventory.isOpenButtonVisible(tab);
 	}
 	
-	@Inject(method = "keyPressed", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;keyPressed(III)Z", ordinal = 0), cancellable = true)
-	private void builders_inventory_extendedinventory_keybind(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
-		if (ModKeybinds.OPEN_EXTENDED_INVENTORY.matches(keyCode, scanCode)) {
+	@Inject(method = "keyPressed", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;keyPressed(Lnet/minecraft/client/input/KeyEvent;)Z", ordinal = 0), cancellable = true)
+	private void builders_inventory_extendedinventory_keybind(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
+		if (ModKeybinds.OPEN_EXTENDED_INVENTORY.matches(event)) {
 			ExtendedInventory.open(minecraft);
 			cir.setReturnValue(true);
 		}

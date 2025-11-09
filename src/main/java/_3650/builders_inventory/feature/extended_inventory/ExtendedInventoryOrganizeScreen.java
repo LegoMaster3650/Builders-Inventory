@@ -25,6 +25,8 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
@@ -116,7 +118,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 		
 		this.addRenderableWidget(new ExtendedImageButton(this.leftPos + 193, this.topPos + 4, 12, 12,
 				SPRITES_BUTTON_BACK,
-				button -> {
+				(button, input) -> {
 					ExtendedInventory.open(this.minecraft);
 				},
 				Component.translatable("container.builders_inventory.extended_inventory.organize.tooltip.button.back").withStyle(ChatFormatting.WHITE)));
@@ -350,9 +352,12 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 		return mouseX >= 192 && mouseX < 192 + 14 && mouseY >= 17 && mouseY < 17 + 180;
 	}
 	
+	// Using my own double click logic so renamed vanilla version to avoid confusion here only
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if (super.mouseClicked(mouseX, mouseY, button)) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean isDoubleClickVanilla) {
+		final double mouseX = event.x();
+		final double mouseY = event.y();
+		if (super.mouseClicked(event, isDoubleClickVanilla)) {
 			return true;
 		} else if (this.canScroll() && this.isMouseInScrollbar((int)mouseX - this.leftPos, (int)mouseY - this.topPos)) {
 			this.scrolling = true;
@@ -369,20 +374,20 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 				consume = true;
 			}
 			
-			this.doubleClick = tile != null && tile.index == this.lastClickIndex && time - this.lastClickTime < 300L && this.lastClickButton == button;
+			this.doubleClick = tile != null && tile.index == this.lastClickIndex && time - this.lastClickTime < 300L && this.lastClickButton == event.button();
 			this.lastClickTime = time;
-			this.lastClickButton = button;
+			this.lastClickButton = event.button();
 			this.lastClickIndex = tile == null ? -1 : tile.index;
 			return consume;
 		}
 	}
 	
 	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-		if (super.mouseDragged(mouseX, mouseY, button, dragX, dragY)) {
+	public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+		if (super.mouseDragged(event, dragX, dragY)) {
 			return true;
 		} else if (this.scrolling) {
-			this.scrolledToPos(mouseX, mouseY);
+			this.scrolledToPos(event.x(), event.y());
 			return true;
 		} else {
 			if (this.dragTile != null) {
@@ -392,7 +397,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 					if (Math.abs(this.dragDeltaX) < 1.5f && Math.abs(this.dragDeltaY) < 1.5f) return true;
 					else this.dragPickup = true;
 				}
-				var hovered = this.findNearestTile((int)mouseX, (int)mouseY);
+				var hovered = this.findNearestTile((int)event.x(), (int)event.y());
 				if (hovered.index != this.dragHoveredIndex) {
 					this.shiftTiles(this.dragHoveredIndex, hovered.index);
 					this.dragHoveredIndex = hovered.index;
@@ -405,9 +410,9 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 	}
 	
 	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+	public boolean mouseReleased(MouseButtonEvent event) {
 		this.scrolling = false;
-		if (super.mouseReleased(mouseX, mouseY, button)) {
+		if (super.mouseReleased(event)) {
 			return true;
 		} else {
 			boolean consume = false;
@@ -415,7 +420,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 			if (this.dragTile != null) {
 				int col = this.dragHoveredIndex % 10;
 				int row = (this.dragHoveredIndex / 10) - this.scrollRow;
-				this.endDrag((int)mouseX, (int)mouseY, this.leftPos + tileX(col), this.topPos + tileY(row));
+				this.endDrag((int)event.x(), (int)event.y(), this.leftPos + tileX(col), this.topPos + tileY(row));
 				if (this.dragTileIndex != this.dragHoveredIndex) {
 					this.reorderTiles(this.dragTileIndex, this.dragHoveredIndex);
 				}
@@ -479,14 +484,14 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 	}
 	
 	@Override
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-		if (this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {
+	public boolean keyPressed(KeyEvent event) {
+		if (this.minecraft.options.keyInventory.matches(event)) {
 			this.onClose();
 			return true;
-		} else if (ModKeybinds.OPEN_EXTENDED_INVENTORY.matches(keyCode, scanCode)) {
+		} else if (ModKeybinds.OPEN_EXTENDED_INVENTORY.matches(event)) {
 			ExtendedInventory.open(this.minecraft);
 			return true;
-		} else return super.keyPressed(keyCode, scanCode, modifiers);
+		} else return super.keyPressed(event);
 	}
 	
 	@Override

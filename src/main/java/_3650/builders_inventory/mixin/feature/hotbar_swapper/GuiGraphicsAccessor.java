@@ -4,12 +4,12 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.GuiSpriteManager;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 
 @Mixin(GuiGraphics.class)
 public interface GuiGraphicsAccessor {
 	
-	@Accessor("sprites")
-	public GuiSpriteManager getSprites();
+	@Accessor("guiSprites")
+	public TextureAtlas getGuiSprites();
 	
 }

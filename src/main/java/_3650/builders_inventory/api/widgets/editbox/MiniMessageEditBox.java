@@ -14,6 +14,8 @@ import _3650.builders_inventory.mixin.feature.minimessage.EditBoxAccessor;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
 /**
@@ -46,7 +48,7 @@ public class MiniMessageEditBox extends EditBox implements MiniMessageEventListe
 	
 	private void initMiniMessage() {
 		super.setResponder(this::responder);
-		MiniMessageUtil.wrapFormatter(this, this.minimessage);
+		MiniMessageUtil.addFormatter(this, this.minimessage);
 	}
 	
 	@Override
@@ -72,9 +74,9 @@ public class MiniMessageEditBox extends EditBox implements MiniMessageEventListe
 	}
 	
 	@Override
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-		if (this.minimessage.keyPressed(keyCode, scanCode, modifiers)) return true;
-		return super.keyPressed(keyCode, scanCode, modifiers);
+	public boolean keyPressed(KeyEvent event) {
+		if (this.minimessage.keyPressed(event)) return true;
+		return super.keyPressed(event);
 	}
 	
 	@Override
@@ -88,8 +90,8 @@ public class MiniMessageEditBox extends EditBox implements MiniMessageEventListe
 	}
 	
 	@Override
-	public boolean miniMessageMouseClicked(double mouseX, double mouseY, int button) {
-		return this.minimessage.mouseClicked(mouseX, mouseY, button);
+	public boolean miniMessageMouseClicked(MouseButtonEvent event) {
+		return this.minimessage.mouseClicked(event);
 	}
 	
 	@Override

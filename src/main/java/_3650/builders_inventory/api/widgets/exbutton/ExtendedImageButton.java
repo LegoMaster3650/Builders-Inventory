@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import net.minecraft.client.gui.components.WidgetSprites;
+import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 
@@ -107,14 +108,14 @@ public class ExtendedImageButton extends AbstractExtendedImageButton {
 	}
 	
 	@Override
-	public void onPress() {
-		super.onPress();
-		this.onPress.onPress(this);
+	public void onPress(InputWithModifiers input) {
+		super.onPress(input);
+		this.onPress.onPress(this, input);
 	}
 	
 	@FunctionalInterface
 	public static interface OnPress {
-		public void onPress(ExtendedImageButton button);
+		public void onPress(ExtendedImageButton button, InputWithModifiers input);
 	}
 	
 }

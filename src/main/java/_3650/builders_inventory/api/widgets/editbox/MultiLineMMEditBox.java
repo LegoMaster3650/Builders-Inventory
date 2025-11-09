@@ -6,6 +6,8 @@ import java.util.function.IntConsumer;
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
+
 import _3650.builders_inventory.BuildersInventory;
 import _3650.builders_inventory.api.minimessage.MiniMessageResult;
 import _3650.builders_inventory.api.minimessage.instance.LastParseListener;
@@ -22,7 +24,9 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Whence;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -229,19 +233,17 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	}
 	
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean isDoubleClick) {
+		final double mouseX = event.x();
+		final double mouseY = event.y();
 		boolean inBounds = this.inBounds(mouseX, mouseY);
-		if (inBounds && button == InputConstants.MOUSE_BUTTON_LEFT) {
-			this.selecting = Screen.hasShiftDown();
+		if (inBounds && event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
+			this.selecting = event.hasShiftDown();
 			this.seekCursorScreen(mouseX, mouseY);
 			return true;
 		} else {
-			final int xMin = this.getX() + this.width - this.scrollbarPadding;
-			final int xMax = xMin + Math.max(this.scrollBarWidth(), this.scrollbarPadding);
-			final int yMin = this.getY();
-			final int yMax = this.getY() + this.height;
-			boolean clickedScrollbar = this.scrollBarVisible() && mouseX >= xMin && mouseX <= xMax && mouseY >= yMin && mouseY < yMax;
-			if (clickedScrollbar && button == InputConstants.MOUSE_BUTTON_LEFT) {
+			boolean clickedScrollbar = this.scrollBarVisible() && this.isOverScrollArea(mouseX, mouseY);
+			if (clickedScrollbar && event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
 				this.scrolling = true;
 				return true;
 			} else return inBounds || clickedScrollbar;
@@ -249,7 +251,9 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	}
 	
 	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+	public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+		final double mouseX = event.x();
+		final double mouseY = event.y();
 		if (this.isActive() && this.isFocused() && this.scrolling) {
 			final int scrollSnapEdge = this.innerPadding() - this.theme.borderThickness;
 			if (mouseY < this.getY() + scrollSnapEdge) {
@@ -261,21 +265,21 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 				this.setScrollAmount(this.scrollAmount + dragY * scrollMod);
 			}
 			return true;
-		} else if (this.inBounds(mouseX, mouseY) && button == InputConstants.MOUSE_BUTTON_LEFT) {
+		} else if (this.inBounds(mouseX, mouseY) && event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
 			this.selecting = true;
 			this.seekCursorScreen(mouseX, mouseY);
-			this.selecting = Screen.hasShiftDown();
+			this.selecting = event.hasShiftDown();
 			return true;
 		}
 		return false;
 	}
 	
 	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		if (button == InputConstants.MOUSE_BUTTON_LEFT) {
+	public boolean mouseReleased(MouseButtonEvent event) {
+		if (event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
 			this.scrolling = false;
 		}
-		return super.mouseReleased(mouseX, mouseY, button);
+		return super.mouseReleased(event);
 	}
 	
 	@Override
@@ -286,28 +290,29 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	}
 	
 	@Override
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+	public boolean keyPressed(KeyEvent event) {
 		if (!this.isActive()) return false;
-		this.selecting = Screen.hasShiftDown();
+		this.selecting = event.hasShiftDown();
+		final int keyCode = event.key();
 		if (keyCode != InputConstants.KEY_UP && keyCode != InputConstants.KEY_DOWN) {
 			if (this.activeWidget != null) {
-				if (this.activeWidget.keyPressed(keyCode, scanCode, modifiers)) return true;
+				if (this.activeWidget.keyPressed(event)) return true;
 			}
 		}
-		if (Screen.isSelectAll(keyCode)) {
+		if (event.isSelectAll()) {
 			this.cursor = this.value.length();
 			this.selectCursor = 0;
 			return true;
-		} else if (Screen.isCopy(keyCode)) {
+		} else if (event.isCopy()) {
 			Minecraft mc = Minecraft.getInstance();
 			mc.keyboardHandler.setClipboard(this.getSelectedText());
 			return true;
-		} else if (Screen.isCut(keyCode)) {
+		} else if (event.isCut()) {
 			Minecraft mc = Minecraft.getInstance();
 			mc.keyboardHandler.setClipboard(this.getSelectedText());
 			this.insertTextInternal("");
 			return true;
-		} else if (Screen.isPaste(keyCode)) {
+		} else if (event.isPaste()) {
 			Minecraft mc = Minecraft.getInstance();
 			this.insertTextInternal(mc.keyboardHandler.getClipboard());
 			return true;
@@ -318,7 +323,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 				this.insertTextInternal("\n");
 				return true;
 			case InputConstants.KEY_BACKSPACE:
-				if (Screen.hasControlDown()) {
+				if (event.hasControlDown()) {
 					var pos = this.getPreviousWord();
 					this.deleteTextInternal(pos.beginIndex - this.cursor);
 				} else {
@@ -326,7 +331,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 				}
 				return true;
 			case InputConstants.KEY_DELETE:
-				if (Screen.hasControlDown()) {
+				if (event.hasControlDown()) {
 					var pos = this.getNextWord();
 					this.deleteTextInternal(pos.beginIndex - this.cursor);
 				} else {
@@ -334,7 +339,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 				}
 				return true;
 			case InputConstants.KEY_RIGHT:
-				if (Screen.hasControlDown()) {
+				if (event.hasControlDown()) {
 					var pos = this.getNextWord();
 					this.seekCursor(Whence.ABSOLUTE, pos.beginIndex);
 				} else {
@@ -342,7 +347,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 				}
 				return true;
 			case InputConstants.KEY_LEFT:
-				if (Screen.hasControlDown()) {
+				if (event.hasControlDown()) {
 					var pos = this.getPreviousWord();
 					this.seekCursor(Whence.ABSOLUTE, pos.beginIndex);
 				} else {
@@ -350,12 +355,12 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 				}
 				return true;
 			case InputConstants.KEY_DOWN:
-				if (!Screen.hasControlDown()) {
+				if (!event.hasControlDown()) {
 					this.seekCursorLine(1);
 				}
 				return true;
 			case InputConstants.KEY_UP:
-				if (!Screen.hasControlDown()) {
+				if (!event.hasControlDown()) {
 					this.seekCursorLine(-1);
 				}
 				return true;
@@ -366,14 +371,14 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 				this.seekCursor(Whence.END, 0);
 				return true;
 			case InputConstants.KEY_HOME:
-				if (Screen.hasControlDown()) {
+				if (event.hasControlDown()) {
 					this.seekCursor(Whence.ABSOLUTE, 0);
 				} else {
 					this.seekCursor(Whence.ABSOLUTE, this.getDisplayLineAt(this.cursor).beginIndex);
 				}
 				return true;
 			case InputConstants.KEY_END:
-				if (Screen.hasControlDown()) {
+				if (event.hasControlDown()) {
 					this.seekCursor(Whence.END, 0);
 				} else {
 					this.seekCursor(Whence.ABSOLUTE, this.getDisplayLineAt(this.cursor).endIndex);
@@ -386,9 +391,9 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	}
 	
 	@Override
-	public boolean charTyped(char codePoint, int modifiers) {
-		if (this.isActive() && this.isFocused() && StringUtil.isAllowedChatCharacter(codePoint)) {
-			this.insertTextInternal(Character.toString(codePoint));
+	public boolean charTyped(CharacterEvent event) {
+		if (this.isActive() && this.isFocused() && event.isAllowedChatCharacter()) {
+			this.insertTextInternal(event.codepointAsString());
 			return true;
 		}
 		return false;
@@ -412,10 +417,10 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	}
 	
 	@Override
-	public boolean miniMessageMouseClicked(double mouseX, double mouseY, int button) {
+	public boolean miniMessageMouseClicked(MouseButtonEvent event) {
 		if (!this.isActive() || !this.isFocused()) return false;
 		if (this.activeWidget != null) {
-			if (this.activeWidget.mouseClicked(mouseX, mouseY, button)) return true;
+			if (this.activeWidget.mouseClicked(event)) return true;
 		}
 		return false;
 	}
@@ -503,6 +508,9 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 			}
 			gui.pose().popMatrix();
 			gui.disableScissor();
+			if (this.isHovered()) {
+				gui.requestCursor(this.isActive() ? CursorTypes.IBEAM : CursorTypes.NOT_ALLOWED);
+			}
 			if (this.scrollBarVisible()) {
 				int scrollBarHeight = this.getScrollBarHeight();
 				final int x = this.getX() + this.width - this.scrollbarPadding + this.theme.scrollbarPadding;
@@ -510,6 +518,9 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 						this.getY() + this.innerPadding(),
 						this.getY() + this.innerPadding() + (int)this.scrollAmount * (this.height - this.totalVerticalPadding() - scrollBarHeight) / this.getMaxScrollAmount());
 				gui.blitSprite(RenderPipelines.GUI_TEXTURED, this.theme.spritesScrollbar.get(this.isActive(), this.isFocused()), x, y, 1, this.theme.scrollbarWidth, scrollBarHeight);
+				if (this.isOverScrollArea(mouseX, mouseY)) {
+					gui.requestCursor(this.scrolling ? CursorTypes.RESIZE_NS : CursorTypes.POINTING_HAND);
+				}
 			}
 			if (this.hasMaxLength()) {
 				int charLimit = this.maxLength;
@@ -993,6 +1004,14 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	
 	public int scrollBarWidth() {
 		return this.theme.scrollbarWidth + this.theme.scrollbarPadding * 2;
+	}
+	
+	public boolean isOverScrollArea(double mouseX, double mouseY) {
+		final int xMin = this.getX() + this.width - this.scrollbarPadding;
+		final int xMax = xMin + Math.max(this.scrollBarWidth(), this.scrollbarPadding);
+		final int yMin = this.getY();
+		final int yMax = this.getY() + this.height;
+		return mouseX >= xMin && mouseX <= xMax && mouseY >= yMin && mouseY < yMax;
 	}
 	
 	public int getInnerWidth() {

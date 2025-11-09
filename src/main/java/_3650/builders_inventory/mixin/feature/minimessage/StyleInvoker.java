@@ -5,10 +5,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
-import net.minecraft.resources.ResourceLocation;
 
 @Mixin(Style.class)
 public interface StyleInvoker {
@@ -25,7 +25,7 @@ public interface StyleInvoker {
 			@Nullable ClickEvent clickEvent,
 			@Nullable HoverEvent hoverEvent,
 			@Nullable String insertion,
-			@Nullable ResourceLocation font
+			@Nullable FontDescription font
 	) {
 		// dummy method body
 		return null;

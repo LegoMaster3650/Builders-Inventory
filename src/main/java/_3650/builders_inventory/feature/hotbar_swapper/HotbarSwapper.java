@@ -80,7 +80,7 @@ public class HotbarSwapper {
 		if (selecting) {
 			int width = gui.guiWidth() / 2;
 			if (singleColumn) {
-				var sprite = ((GuiGraphicsAccessor) gui).getSprites().getSprite(selectorSprite).contents();
+				var sprite = ((GuiGraphicsAccessor) gui).getGuiSprites().getSprite(selectorSprite).contents();
 				var spriteWidth = sprite.width();
 				var spriteHeight = sprite.height();
 				

@@ -2,10 +2,10 @@ package _3650.builders_inventory.api.minimessage.color;
 
 import _3650.builders_inventory.mixin.feature.minimessage.StyleInvoker;
 import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
-import net.minecraft.resources.ResourceLocation;
 
 public class UnsetColorStyle {
 	
@@ -18,7 +18,7 @@ public class UnsetColorStyle {
 	private final ClickEvent clickEvent;
 	private final HoverEvent hoverEvent;
 	private final String insertion;
-	private final ResourceLocation font;
+	private final FontDescription font;
 	
 	public UnsetColorStyle(Style style) {
 		this.shadowColor = style.getShadowColor();

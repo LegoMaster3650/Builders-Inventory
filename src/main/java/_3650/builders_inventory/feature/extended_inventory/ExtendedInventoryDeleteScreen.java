@@ -23,6 +23,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -86,7 +87,7 @@ public class ExtendedInventoryDeleteScreen extends Screen {
 						Component.translatable("container.builders_inventory.extended_inventory.delete.tooltip.button.delete.desc.disabled",
 								TIMER_FORMAT.format(Math.max(0L, this.enableTimer - Util.getMillis()) / 1000.0)).withStyle(ChatFormatting.GRAY)),
 				SPRITES_BUTTON_DELETE,
-				button -> {
+				(button, input) -> {
 					ExtendedInventoryPages.delete(this.pageIndex);
 					ExtendedInventory.setPage(Math.min(ExtendedInventoryPages.size() - 1, this.pageIndex));
 					ExtendedInventory.open(this.minecraft);
@@ -103,7 +104,7 @@ public class ExtendedInventoryDeleteScreen extends Screen {
 		this.deleteButton.active = false;
 		this.cancelButton = new ExtendedImageButton(this.leftPos + 110, this.topPos + 135, 14, 14,
 				SPRITES_BUTTON_CANCEL,
-				button -> {
+				(button, input) -> {
 					ExtendedInventory.open(this.minecraft);
 				},
 				Component.translatable("container.builders_inventory.extended_inventory.delete.tooltip.button.cancel").withStyle(ChatFormatting.WHITE),
@@ -152,14 +153,14 @@ public class ExtendedInventoryDeleteScreen extends Screen {
 	}
 	
 	@Override
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-		if (this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {
+	public boolean keyPressed(KeyEvent event) {
+		if (this.minecraft.options.keyInventory.matches(event)) {
 			this.onClose();
 			return true;
-		} else if (ModKeybinds.OPEN_EXTENDED_INVENTORY.matches(keyCode, scanCode)) {
+		} else if (ModKeybinds.OPEN_EXTENDED_INVENTORY.matches(event)) {
 			ExtendedInventory.open(this.minecraft);
 			return true;
-		} else return super.keyPressed(keyCode, scanCode, modifiers);
+		} else return super.keyPressed(event);
 	}
 	
 	@Override

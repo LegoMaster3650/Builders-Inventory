@@ -18,6 +18,8 @@ import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -149,12 +151,12 @@ public class ExtendedInventoryIconScreen extends Screen {
 		// Preview Tile
 		this.tilePreview = new ExtendedImageDualButton(this.leftPos + 6, this.topPos + 17, 16, 16,
 				SPRITES_TILE,
-				button -> {
+				(button, input) -> {
 					this.tileActive = true;
 					updateButtons();
 				},
 				SPRITES_TILE_ACTIVE,
-				button -> {
+				(button, input) -> {
 					this.tileActive = false;
 					updateButtons();
 				}
@@ -162,7 +164,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 		// Toolbar Top
 		this.buttonCount = new ExtendedImageDualButton(this.leftPos + 7, this.topPos + 37, 14, 14,
 				SPRITES_BUTTON_COUNT,
-				button -> {
+				(button, input) -> {
 					openCountSlider();
 				},
 				List.of(
@@ -170,7 +172,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.count.desc").withStyle(ChatFormatting.GRAY),
 						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.count.desc.closed").withStyle(ChatFormatting.GRAY)),
 				SPRITES_BUTTON_COUNT_OPEN,
-				button -> {
+				(button, input) -> {
 					closeCountSlider();
 				},
 				List.of(
@@ -180,14 +182,14 @@ public class ExtendedInventoryIconScreen extends Screen {
 				);
 		this.buttonData = new ExtendedImageDualButton(this.leftPos + 7, this.topPos + 55, 14, 14,
 				SPRITES_BUTTON_DATA,
-				button -> {
+				(button, input) -> {
 					dataOn();
 				},
 				List.of(
 						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.data").withStyle(ChatFormatting.WHITE),
 						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.data.desc").withStyle(ChatFormatting.GRAY)),
 				SPRITES_BUTTON_DATA_ACTIVE,
-				button -> {
+				(button, input) -> {
 					dataOff();
 				},
 				List.of(
@@ -196,7 +198,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 				);
 		this.buttonSize = new ExtendedImageDualButton(this.leftPos + 7, this.topPos + 73, 14, 14,
 				SPRITES_BUTTON_SIZE,
-				button -> {
+				(button, input) -> {
 					openSizeSlider();
 				},
 				List.of(
@@ -204,7 +206,7 @@ public class ExtendedInventoryIconScreen extends Screen {
 						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.size.desc").withStyle(ChatFormatting.GRAY),
 						Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.size.desc.closed").withStyle(ChatFormatting.GRAY)),
 				SPRITES_BUTTON_SIZE_OPEN,
-				button -> {
+				(button, input) -> {
 					closeSizeSlider();
 				},
 				List.of(
@@ -214,14 +216,14 @@ public class ExtendedInventoryIconScreen extends Screen {
 				);
 		this.buttonClear = new ExtendedImageButton(this.leftPos + 7, this.topPos + 91, 14, 14,
 				SPRITES_BUTTON_CLEAR,
-				button -> {
+				(button, input) -> {
 					clearPreview();
 				},
 				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.clear").withStyle(ChatFormatting.WHITE),
 				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.clear.desc").withStyle(ChatFormatting.GRAY));
 		this.buttonReset = new ExtendedImageButton(this.leftPos + 7, this.topPos + 109, 14, 14,
 				SPRITES_BUTTON_RESET,
-				button -> {
+				(button, input) -> {
 					resetPreview();
 				},
 				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.reset").withStyle(ChatFormatting.WHITE),
@@ -229,14 +231,14 @@ public class ExtendedInventoryIconScreen extends Screen {
 		// Toolbar Bottom
 		this.buttonCancel = new ExtendedImageButton(this.leftPos + 7, this.topPos + 163, 14, 14,
 				SPRITES_BUTTON_CANCEL,
-				button -> {
+				(button, input) -> {
 					ExtendedInventory.open(this.minecraft);
 				},
 				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.cancel").withStyle(ChatFormatting.WHITE),
 				Component.translatable("container.builders_inventory.extended_inventory.icon.tooltip.button.cancel.desc").withStyle(ChatFormatting.GRAY));
 		this.buttonConfirm = new ExtendedImageButton(this.leftPos + 7, this.topPos + 181, 14, 14,
 				SPRITES_BUTTON_CONFIRM,
-				button -> {
+				(button, input) -> {
 					savePreview();
 					ExtendedInventory.open(this.minecraft);
 				},
@@ -539,11 +541,11 @@ public class ExtendedInventoryIconScreen extends Screen {
 	}
 	
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if (super.mouseClicked(mouseX, mouseY, button)) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean isDoubleClick) {
+		if (super.mouseClicked(event, isDoubleClick)) {
 			return true;
 		} else {
-			var target = findSlot((int)mouseX - this.leftPos, (int)mouseY - this.topPos);
+			var target = findSlot((int)event.x() - this.leftPos, (int)event.y() - this.topPos);
 			if (target != null && target.item != ItemStack.EMPTY) {
 				this.setPreview(target.item);
 				return true;
@@ -553,14 +555,14 @@ public class ExtendedInventoryIconScreen extends Screen {
 	}
 	
 	@Override
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-		if (this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {
+	public boolean keyPressed(KeyEvent event) {
+		if (this.minecraft.options.keyInventory.matches(event)) {
 			this.onClose();
 			return true;
-		} else if (ModKeybinds.OPEN_EXTENDED_INVENTORY.matches(keyCode, scanCode)) {
+		} else if (ModKeybinds.OPEN_EXTENDED_INVENTORY.matches(event)) {
 			ExtendedInventory.open(this.minecraft);
 			return true;
-		} else return super.keyPressed(keyCode, scanCode, modifiers);
+		} else return super.keyPressed(event);
 	}
 	
 	@Override

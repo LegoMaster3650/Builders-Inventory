@@ -5,6 +5,7 @@ import java.util.function.IntConsumer;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectFunction;
 import net.minecraft.ChatFormatting;
@@ -14,7 +15,8 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.navigation.CommonInputs;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -196,6 +198,7 @@ public class StepSliderWidget extends AbstractWidget {
 	public int value;
 	private boolean dragging = false;
 	private boolean focusDragging = false;
+	private boolean mouseDown = false;
 	
 	private StepSliderWidget(
 			SliderWidgetTheme theme,
@@ -290,6 +293,10 @@ public class StepSliderWidget extends AbstractWidget {
 		}
 		
 		gui.pose().popMatrix();
+		
+		if (this.isHovered) {
+			gui.requestCursor(this.mouseDown ? CursorTypes.RESIZE_EW : CursorTypes.POINTING_HAND);
+		}
 	}
 	
 	private void drawGuides(GuiGraphics gui) {
@@ -308,15 +315,15 @@ public class StepSliderWidget extends AbstractWidget {
 	}
 	
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean isDoubleClick) {
 		if (!this.isActive()) return false;
-		if (!this.isValidClickButton(button)) return false;
+		if (!this.isValidClickButton(event.buttonInfo())) return false;
 		
 		final var theme = this.theme;
-		final double x = mouseX - this.getX();
-		final double y = mouseY - this.getY();
+		final double x = event.x() - this.getX();
+		final double y = event.y() - this.getY();
 		if (x >= this.minX - Math.max(theme.horizontalPadding, 1) && x < this.maxX + Math.max(theme.horizontalPadding, 1) && y >= theme.border && y < this.height - theme.border) {
-			final int newVal = Mth.clamp((int)Math.round(this.min + (mouseX - this.getX() - this.minX - 1.5) / this.innerWidth * this.range), this.min, this.max);
+			final int newVal = Mth.clamp((int)Math.round(this.min + (event.x() - this.getX() - this.minX - 1.5) / this.innerWidth * this.range), this.min, this.max);
 			if (this.value != newVal) {
 				this.value = newVal;
 				this.onChange.accept(newVal);
@@ -325,9 +332,11 @@ public class StepSliderWidget extends AbstractWidget {
 			Minecraft mc = Minecraft.getInstance();
 			this.playDownSound(mc.getSoundManager());
 			this.dragging = true;
+			this.mouseDown = true;
 			return true;
 		} else {
 			this.dragging = false;
+			this.mouseDown = false;
 		}
 		
 		if (this.canCancel) {
@@ -344,12 +353,12 @@ public class StepSliderWidget extends AbstractWidget {
 	}
 	
 	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+	public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
 		if (!this.isActive()) return false;
-		if (!this.isValidClickButton(button)) return false;
+		if (!this.isValidClickButton(event.buttonInfo())) return false;
 		if (!this.dragging) return false;
 		
-		final int newVal = Mth.clamp((int)Math.round(this.min + (mouseX - this.getX() - this.minX - 1.5) / this.innerWidth * this.range), this.min, this.max);
+		final int newVal = Mth.clamp((int)Math.round(this.min + (event.x() - this.getX() - this.minX - 1.5) / this.innerWidth * this.range), this.min, this.max);
 		if (this.value != newVal) {
 			this.value = newVal;
 			this.onChange.accept(newVal);
@@ -359,10 +368,11 @@ public class StepSliderWidget extends AbstractWidget {
 	}
 	
 	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+	public boolean mouseReleased(MouseButtonEvent event) {
 		if (!this.isActive()) return false;
-		if (!this.isValidClickButton(button)) return false;
+		if (!this.isValidClickButton(event.buttonInfo())) return false;
 		this.dragging = false;
+		this.mouseDown = false;
 		return true;
 	}
 	
@@ -383,15 +393,15 @@ public class StepSliderWidget extends AbstractWidget {
 	}
 	
 	@Override
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-		if (CommonInputs.selected(keyCode)) {
+	public boolean keyPressed(KeyEvent event) {
+		if (event.isSelection()) {
 			this.focusDragging = !this.focusDragging;
 			this.dragging = this.focusDragging;
 			return true;
 		} else {
 			if (this.focusDragging) {
-				final boolean left = keyCode == InputConstants.KEY_LEFT;
-				final boolean right = keyCode == InputConstants.KEY_RIGHT;
+				final boolean left = event.key() == InputConstants.KEY_LEFT;
+				final boolean right = event.key() == InputConstants.KEY_RIGHT;
 				if (left || right) {
 					this.dragging = true;
 					final int diff = left ? -1 : 1;

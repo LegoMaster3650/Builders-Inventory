@@ -15,6 +15,7 @@ import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -66,20 +67,20 @@ public class ExtendedInventoryRenameScreen extends Screen {
 		// Buttons
 		this.addRenderableWidget(new ExtendedImageButton(this.leftPos + 180, this.topPos + 20, 14, 14,
 				SPRITES_BUTTON_CONFIRM,
-				button -> {
+				(button, input) -> {
 					this.confirmPageName();
 					ExtendedInventory.open(this.minecraft);
 				},
 				Component.translatable("container.builders_inventory.extended_inventory.rename.tooltip.button.confirm").withStyle(ChatFormatting.WHITE)));
 		this.addRenderableWidget(new ExtendedImageButton(this.leftPos + 181, this.topPos + 5, 12, 12,
 				SPRITES_BUTTON_CANCEL,
-				button -> {
+				(button, input) -> {
 					ExtendedInventory.open(this.minecraft);
 				},
 				Component.translatable("container.builders_inventory.extended_inventory.rename.tooltip.button.cancel").withStyle(ChatFormatting.WHITE)));
 		this.addRenderableWidget(new ExtendedImageButton(this.leftPos + 5, this.topPos + 21, 12, 12,
 				SPRITES_BUTTON_CLEAR,
-				button -> {
+				(button, input) -> {
 					this.name.setValue("");
 				},
 				Component.translatable("container.builders_inventory.extended_inventory.rename.tooltip.button.clear").withStyle(ChatFormatting.WHITE)));
@@ -103,12 +104,12 @@ public class ExtendedInventoryRenameScreen extends Screen {
 	}
 	
 	@Override
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-		if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
+	public boolean keyPressed(KeyEvent event) {
+		if (event.key() == GLFW.GLFW_KEY_ENTER || event.key() == GLFW.GLFW_KEY_KP_ENTER) {
 			confirmPageName();
 			ExtendedInventory.open(this.minecraft);
 			return true;
-		} else return super.keyPressed(keyCode, scanCode, modifiers);
+		} else return super.keyPressed(event);
 	}
 	
 	@Override

@@ -9,6 +9,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
@@ -88,7 +89,7 @@ public class ExtendedInventory {
 		return enabled && tab.getType() == CreativeModeTab.Type.INVENTORY;
 	}
 	
-	private static void onPressOpenButton(ExtendedImageButton button) {
+	private static void onPressOpenButton(ExtendedImageButton button, InputWithModifiers input) {
 		Minecraft mc = Minecraft.getInstance();
 		open(mc);
 	}

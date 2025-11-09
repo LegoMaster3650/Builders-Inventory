@@ -2,7 +2,6 @@ package _3650.builders_inventory.api.minimessage;
 
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance;
 import _3650.builders_inventory.mixin.feature.minimessage.ChatComponentInvoker;
-import _3650.builders_inventory.mixin.feature.minimessage.EditBoxAccessor;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.EditBox;
 
@@ -26,12 +25,8 @@ public class MiniMessageUtil {
 		return ((ChatComponentInvoker)chat).callGetLineHeight();
 	}
 	
-	public static void wrapFormatter(EditBox input, MiniMessageInstance widget) {
-		final var original = ((EditBoxAccessor)input).getFormatter();
-		input.setFormatter((text, offset) -> {
-			if (widget.canFormat()) return widget.format(offset, offset + text.length());
-			else return original.apply(text, offset);
-		});
+	public static void addFormatter(EditBox input, MiniMessageInstance widget) {
+		input.addFormatter((text, offset) -> widget.canFormat() ? widget.format(offset, offset + text.length()) : null);
 	}
 	
 }
