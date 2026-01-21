@@ -3,6 +3,7 @@ package _3650.builders_inventory.api.widgets.exbutton;
 import java.util.List;
 import java.util.function.Supplier;
 
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.WidgetSprites;
@@ -17,7 +18,6 @@ import net.minecraft.sounds.SoundEvent;
 public abstract class AbstractExtendedImageButton extends AbstractButton {
 	
 	public final Supplier<List<Component>> disabledTooltip;
-	private boolean resetFocus = false;
 	private int centerX;
 	private int centerY;
 	
@@ -32,6 +32,27 @@ public abstract class AbstractExtendedImageButton extends AbstractButton {
 		this.centerY = y + (height / 2);
 	}
 	
+	public boolean renderTooltip(Font font, GuiGraphics gui, int mouseX, int mouseY) {
+		final var tooltip = this.tooltip();
+		if (this.isActive() && this.isHoveredOrFocused() && !tooltip.isEmpty()) {
+			gui.setComponentTooltipForNextFrame(font,
+					tooltip,
+					this.isHovered() ? mouseX : this.getCenterX(),
+					this.isHovered() ? mouseY : this.getCenterY());
+			return true;
+		} else {
+			final var disabledTooltip = this.disabledTooltip.get();
+			if (this.visible && !this.active && this.isHoveredOrFocused() && !disabledTooltip.isEmpty()) {
+				gui.setComponentTooltipForNextFrame(font,
+						disabledTooltip,
+						this.isHovered() ? mouseX : this.getCenterX(),
+						this.isHovered() ? mouseY : this.getCenterY());
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	@Override
 	protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
 		this.defaultButtonNarrationText(narrationElementOutput);
@@ -39,17 +60,8 @@ public abstract class AbstractExtendedImageButton extends AbstractButton {
 	
 	@Override
 	protected void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
-		if (this.resetFocus) {
-			this.resetFocus = false;
-			this.setFocused(false);
-		}
 		var sprite = this.sprites().get(this.isActive(), this.isHoveredOrFocused());
 		gui.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, this.getX(), this.getY(), this.width, this.height);
-	}
-	
-	@Override
-	public void onPress() {
-		this.resetFocus = true;
 	}
 	
 	@Override
