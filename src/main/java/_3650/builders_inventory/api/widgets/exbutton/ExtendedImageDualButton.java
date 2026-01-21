@@ -103,7 +103,6 @@ public class ExtendedImageDualButton extends AbstractExtendedImageButton {
 	
 	@Override
 	public void onPress() {
-		super.onPress();
 		if (this.secondMode) this.onPress2.onPress(this);
 		else this.onPress1.onPress(this);
 	}
