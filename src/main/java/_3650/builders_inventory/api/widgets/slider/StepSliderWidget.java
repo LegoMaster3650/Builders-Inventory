@@ -6,6 +6,7 @@ import java.util.function.IntConsumer;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 
+import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButton;
 import it.unimi.dsi.fastutil.ints.Int2ObjectFunction;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.InputType;
@@ -184,7 +185,6 @@ public class StepSliderWidget extends AbstractWidget {
 	private final IntConsumer onChange;
 	private final IntConsumer onCancel;
 	
-	private final boolean canCancel;
 	private final int range;
 	private final int notchStep;
 	private final int innerWidth;
@@ -192,10 +192,12 @@ public class StepSliderWidget extends AbstractWidget {
 	private final int maxX;
 	private final int centerY;
 	private final int halfBarHeight;
+	private final ExtendedImageButton cancelButton;
 	
 	public int value;
 	private boolean dragging = false;
 	private boolean focusDragging = false;
+	private boolean cancelFocus = false;
 	
 	private StepSliderWidget(
 			SliderWidgetTheme theme,
@@ -226,7 +228,6 @@ public class StepSliderWidget extends AbstractWidget {
 		this.onChange = onChange;
 		this.onCancel = onCancel;
 		
-		this.canCancel = canCancel;
 		this.range = segments;
 		this.notchStep = step;
 		this.innerWidth = innerWidth;
@@ -234,6 +235,17 @@ public class StepSliderWidget extends AbstractWidget {
 		this.maxX = theme.border + theme.horizontalPadding + this.innerWidth + 3;
 		this.centerY = Math.floorDiv(this.height, 2);
 		this.halfBarHeight = Math.floorDiv(theme.barHeight, 2);
+		
+		if (canCancel) {
+			final int cancelX = this.width - theme.border - 12 - theme.cancelButtonPadding;
+			this.cancelButton = new ExtendedImageButton(this.getX() + cancelX, this.getY() + theme.border + theme.cancelButtonPadding, 12, 12,
+					theme.spritesCancelButton,
+					button -> {
+						this.onCancel.accept(this.initialValue);
+					},
+					Component.translatable("container.builders_inventory.util.tooltip.button.cancel").withStyle(ChatFormatting.WHITE),
+					Component.translatable("container.builders_inventory.util.tooltip.button.cancel.desc").withStyle(ChatFormatting.GRAY));
+		} else this.cancelButton = null;
 	}
 	
 	@Override
@@ -276,17 +288,10 @@ public class StepSliderWidget extends AbstractWidget {
 			if (!tooltip.isEmpty()) gui.setComponentTooltipForNextFrame(this.font, tooltip, sbx, sby);
 		}
 		
-		if (this.canCancel) {
-			final int cancelX = this.width - theme.border - 12 - theme.cancelButtonPadding;
-			final boolean hoveringCancel = this.active && !this.dragging && x >= cancelX && x < cancelX + 12 && y >= theme.border && y < theme.border + 12;
-			final ResourceLocation cancelSprite = theme.spritesCancelButton.get(this.isActive(), hoveringCancel);
-			gui.blitSprite(RenderPipelines.GUI_TEXTURED, cancelSprite, this.getX() + cancelX, this.getY() + theme.border + theme.cancelButtonPadding, 12, 12);
-			if (hoveringCancel) {
-				gui.setComponentTooltipForNextFrame(this.font, List.of(
-						Component.translatable("container.builders_inventory.util.tooltip.button.cancel").withStyle(ChatFormatting.WHITE),
-						Component.translatable("container.builders_inventory.util.tooltip.button.cancel.desc").withStyle(ChatFormatting.GRAY)
-						), mouseXi, mouseYi);
-			}
+		if (this.cancelButton != null) {
+			this.cancelButton.active = this.active;
+			this.cancelButton.render(gui, mouseXi, mouseYi, partialTick);
+			this.cancelButton.renderTooltip(this.font, gui, mouseXi, mouseYi);
 		}
 		
 		gui.pose().popMatrix();
@@ -326,20 +331,16 @@ public class StepSliderWidget extends AbstractWidget {
 			this.playDownSound(mc.getSoundManager());
 			this.dragging = true;
 			return true;
-		} else {
-			this.dragging = false;
 		}
 		
-		if (this.canCancel) {
-			final int cancelX = this.width - theme.border - 12 - theme.cancelButtonPadding;
-			if (!this.dragging && x >= cancelX && x <= cancelX + 12 && y >= 4 && y < 16) {
-				Minecraft mc = Minecraft.getInstance();
-				this.playDownSound(mc.getSoundManager());
-				
-				this.onCancel.accept(this.initialValue);
-				return true;
-			}
+		if (this.cancelButton != null && this.cancelButton.mouseClicked(mouseX, mouseY, button)) {
+			this.setFocused(false);
+			this.cancelFocus = true;
+			return true;
 		}
+		
+		this.dragging = false;
+		
 		return false;
 	}
 	
@@ -367,22 +368,6 @@ public class StepSliderWidget extends AbstractWidget {
 	}
 	
 	@Override
-	public void setFocused(boolean focused) {
-		super.setFocused(focused);
-		if (!focused) {
-			this.dragging = false;
-			this.focusDragging = false;
-		} else {
-			final var mc = Minecraft.getInstance();
-			final var lastInput = mc.getLastInputType();
-			if (lastInput == InputType.MOUSE || lastInput == InputType.KEYBOARD_TAB) {
-				this.dragging = true;
-				this.focusDragging = true;
-			}
-		}
-	}
-	
-	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
 		if (CommonInputs.selected(keyCode)) {
 			this.focusDragging = !this.focusDragging;
@@ -405,6 +390,26 @@ public class StepSliderWidget extends AbstractWidget {
 			}
 		}
 		return false;
+	}
+	
+	@Override
+	public void setFocused(boolean focused) {
+		if (focused && this.cancelFocus) {
+			this.cancelFocus = false;
+			return;
+		}
+		super.setFocused(focused);
+		if (!focused) {
+			this.dragging = false;
+			this.focusDragging = false;
+		} else {
+			final var mc = Minecraft.getInstance();
+			final var lastInput = mc.getLastInputType();
+			if (lastInput == InputType.MOUSE || lastInput == InputType.KEYBOARD_TAB) {
+				this.dragging = true;
+				this.focusDragging = true;
+			}
+		}
 	}
 	
 	@Override
