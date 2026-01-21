@@ -109,7 +109,6 @@ public class ExtendedImageButton extends AbstractExtendedImageButton {
 	
 	@Override
 	public void onPress(InputWithModifiers input) {
-		super.onPress(input);
 		this.onPress.onPress(this, input);
 	}
 	

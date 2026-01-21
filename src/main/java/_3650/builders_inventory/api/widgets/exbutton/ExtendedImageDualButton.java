@@ -104,7 +104,6 @@ public class ExtendedImageDualButton extends AbstractExtendedImageButton {
 	
 	@Override
 	public void onPress(InputWithModifiers input) {
-		super.onPress(input);
 		if (this.secondMode) this.onPress2.onPress(this, input);
 		else this.onPress1.onPress(this, input);
 	}

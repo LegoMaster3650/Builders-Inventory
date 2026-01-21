@@ -5,11 +5,11 @@ import java.util.function.Supplier;
 
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
@@ -20,7 +20,6 @@ import net.minecraft.sounds.SoundEvent;
 public abstract class AbstractExtendedImageButton extends AbstractButton {
 	
 	public final Supplier<List<Component>> disabledTooltip;
-	private boolean resetFocus = false;
 	private int centerX;
 	private int centerY;
 	
@@ -35,6 +34,27 @@ public abstract class AbstractExtendedImageButton extends AbstractButton {
 		this.centerY = y + (height / 2);
 	}
 	
+	public boolean renderTooltip(Font font, GuiGraphics gui, int mouseX, int mouseY) {
+		final var tooltip = this.tooltip();
+		if (this.isActive() && this.isHoveredOrFocused() && !tooltip.isEmpty()) {
+			gui.setComponentTooltipForNextFrame(font,
+					tooltip,
+					this.isHovered() ? mouseX : this.getCenterX(),
+					this.isHovered() ? mouseY : this.getCenterY());
+			return true;
+		} else {
+			final var disabledTooltip = this.disabledTooltip.get();
+			if (this.visible && !this.active && this.isHoveredOrFocused() && !disabledTooltip.isEmpty()) {
+				gui.setComponentTooltipForNextFrame(font,
+						disabledTooltip,
+						this.isHovered() ? mouseX : this.getCenterX(),
+						this.isHovered() ? mouseY : this.getCenterY());
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	@Override
 	protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
 		this.defaultButtonNarrationText(narrationElementOutput);
@@ -42,20 +62,11 @@ public abstract class AbstractExtendedImageButton extends AbstractButton {
 	
 	@Override
 	protected void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
-		if (this.resetFocus) {
-			this.resetFocus = false;
-			this.setFocused(false);
-		}
 		var sprite = this.sprites().get(this.isActive(), this.isHoveredOrFocused());
 		gui.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, this.getX(), this.getY(), this.width, this.height);
 		if (this.isHovered()) {
 			gui.requestCursor(this.isActive() ? CursorTypes.POINTING_HAND : CursorTypes.NOT_ALLOWED);
 		}
-	}
-	
-	@Override
-	public void onPress(InputWithModifiers input) {
-		this.resetFocus = true;
 	}
 	
 	@Override
