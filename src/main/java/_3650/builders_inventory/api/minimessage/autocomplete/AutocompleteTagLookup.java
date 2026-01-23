@@ -136,9 +136,9 @@ public class AutocompleteTagLookup {
 			return this;
 		}
 		
-		public EntryBuilder resource(AutocompleteArg arg) {
-			this.args.add(Suggestor.resource(arg));
-			this.args.add(Suggestor.resource(arg));
+		public EntryBuilder identifier(AutocompleteArg arg) {
+			this.args.add(Suggestor.identifier(arg));
+			this.args.add(Suggestor.identifier(arg));
 			return this;
 		}
 		
@@ -175,7 +175,7 @@ public class AutocompleteTagLookup {
 			return (prev, input) -> arg.findNonMatch(input);
 		}
 		
-		public static Suggestor resource(AutocompleteArg arg) {
+		public static Suggestor identifier(AutocompleteArg arg) {
 			return (prev, input) ->
 			prev == null ? arg.findNonMatch(input) : arg.findNonMatch(prev + ':' + input).stream().map(s -> s.substring(prev.length() + 1)).toList();
 		}

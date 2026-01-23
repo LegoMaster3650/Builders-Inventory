@@ -20,7 +20,7 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 public class StepSliderWidget extends AbstractWidget {
@@ -256,7 +256,7 @@ public class StepSliderWidget extends AbstractWidget {
 		final var theme = this.theme;
 		gui.pose().pushMatrix();
 		
-		final ResourceLocation bgSprite = theme.spritesBackground.get(this.isActive(), this.isFocused() && !this.focusDragging);
+		final Identifier bgSprite = theme.spritesBackground.get(this.isActive(), this.isFocused() && !this.focusDragging);
 		gui.blitSprite(RenderPipelines.GUI_TEXTURED, bgSprite, this.getX(), this.getY(), this.width, this.height);
 		
 		this.drawGuides(gui);
@@ -266,7 +266,7 @@ public class StepSliderWidget extends AbstractWidget {
 			final int sby = this.getY() + this.centerY - this.halfBarHeight;
 			final int sbwidth = 5;
 			final int sbheight = theme.barHeight;
-			final ResourceLocation barSprite = theme.spritesBar.get(this.isActive(), (this.dragging || mouseXi >= sbx && mouseXi < sbx + sbwidth && mouseYi >= sby && mouseYi < sby + sbheight));
+			final Identifier barSprite = theme.spritesBar.get(this.isActive(), (this.dragging || mouseXi >= sbx && mouseXi < sbx + sbwidth && mouseYi >= sby && mouseYi < sby + sbheight));
 			gui.blitSprite(RenderPipelines.GUI_TEXTURED, barSprite, sbx, sby, sbwidth, sbheight);
 		}
 		

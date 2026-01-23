@@ -71,8 +71,8 @@ public class ExtendedInventory {
 	 */
 	
 	private static final WidgetSprites OPEN_BUTTON_SPRITES = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/button_open"),
-			BuildersInventory.modLoc("extended_inventory/button_open_highlighted"));
+			BuildersInventory.modId("extended_inventory/button_open"),
+			BuildersInventory.modId("extended_inventory/button_open_highlighted"));
 	
 	/*
 	 * Creative Screen Switch Button

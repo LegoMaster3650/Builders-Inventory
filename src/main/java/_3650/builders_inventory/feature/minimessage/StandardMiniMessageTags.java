@@ -116,7 +116,7 @@ public class StandardMiniMessageTags {
 				.entry("pride").build(b -> b
 						.arg(prideFlagArg))
 				.entry("font").build(b -> b
-						.resource(ReloadableResourceArg.FONTS)
+						.identifier(ReloadableResourceArg.FONTS)
 				)
 				.entry("newline", "br").build()
 				;

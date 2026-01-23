@@ -8,7 +8,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -26,10 +25,13 @@ import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButtonGui;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageDualButton;
 import _3650.builders_inventory.config.Config;
 import _3650.builders_inventory.feature.minimessage.chat.ChatMiniMessageContext;
+import _3650.builders_inventory.mixin.feature.minimessage.EditBoxAccessor;
 import _3650.builders_inventory.feature.minimessage.chat.ChatMiniMessageButtonDisplay;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ActiveTextCollector;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.TextAlignment;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.EditBox;
@@ -39,7 +41,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 import net.minecraft.util.Mth;
 
 @Mixin(ChatScreen.class)
@@ -47,12 +48,12 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 	
 	@Unique
 	private static final WidgetSprites SPRITES_BUTTON_FORCE = new WidgetSprites(
-			BuildersInventory.modLoc("minimessage/button_force"),
-			BuildersInventory.modLoc("minimessage/button_force_highlighted"));
+			BuildersInventory.modId("minimessage/button_force"),
+			BuildersInventory.modId("minimessage/button_force_highlighted"));
 	@Unique
 	private static final WidgetSprites SPRITES_BUTTON_FORCE_ACTIVE = new WidgetSprites(
-			BuildersInventory.modLoc("minimessage/button_force_active"),
-			BuildersInventory.modLoc("minimessage/button_force_active_highlighted"));
+			BuildersInventory.modId("minimessage/button_force_active"),
+			BuildersInventory.modId("minimessage/button_force_active_highlighted"));
 	
 	@Shadow
 	protected EditBox input;
@@ -133,7 +134,7 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 	}
 	
 	@Inject(method = "resize", at = @At("TAIL"))
-	private void builders_inventory_resizeChat(Minecraft mc, int width, int height, CallbackInfo ci) {
+	private void builders_inventory_resizeChat(int width, int height, CallbackInfo ci) {
 		if (!Config.instance().minimessage_enabledChat) return;
 		if (this.minimessage.lastParse != null) this.commandSuggestions.setAllowSuggestions(false);
 		this.minimessage.reposition();
@@ -146,9 +147,23 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 	}
 	
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"))
-	private void builders_inventory_renderPreviewAndError(GuiGraphics gui, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
+	private void builders_inventory_renderMinimessage(GuiGraphics gui, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
 		if (!Config.instance().minimessage_enabledChat) return;
-		this.minimessage.renderPreviewOrError(gui);
+		
+		ActiveTextCollector text = gui.textRenderer(GuiGraphics.HoveredTextEffects.TOOLTIP_AND_CURSOR);
+		ActiveTextCollector.Parameters parameters = text.defaultParameters();
+		
+		this.minimessage.renderPreviewOrError(gui, text, parameters);
+		
+		if (this.minimessage.canFormat()) {
+			var inputAccess = ((EditBoxAccessor)this.input);
+			var formattedInput = this.minimessage.format(inputAccess.getDisplayPos(), this.input.getValue().length());
+			// submits 0 opacity formatted input text to the collector, which I'm 99% sure will just check hover info without double rendering
+			// bypassing this hacky thing would save maybe a few method calls and if statements which I feel would be lost to all the accessors/invokers it'd need
+			text.accept(TextAlignment.LEFT, inputAccess.getTextX(), inputAccess.getTextY(), parameters.withOpacity(0f), formattedInput);
+		}
+		
+		this.exGui.renderTooltip(font, gui, mouseX, mouseY);
 	}
 	
 	@WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/CommandSuggestions;render(Lnet/minecraft/client/gui/GuiGraphics;II)V"))
@@ -158,14 +173,6 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 		} else {
 			this.minimessage.renderSuggestions(gui, mouseX, mouseY);
 		}
-	}
-	
-	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;getMessageTagAt(DD)Lnet/minecraft/client/GuiMessageTag;"), cancellable = true)
-	private void builders_inventory_renderHover(GuiGraphics gui, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
-		if (!Config.instance().minimessage_enabledChat) return;
-		if (this.minimessage.renderHover(gui, mouseX, mouseY)) ci.cancel();
-		else if (this.minimessage.renderFormatHover(gui, mouseX, mouseY, 0, this.input.getValue().length())) ci.cancel();
-		else if (this.exGui.renderTooltip(font, gui, mouseX, mouseY)) ci.cancel();
 	}
 	
 	@Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
@@ -185,16 +192,6 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 	private void builders_inventory_mouseClicked(MouseButtonEvent event, boolean isDoubleClick, CallbackInfoReturnable<Boolean> cir) {
 		if (!Config.instance().minimessage_enabledChat) return;
 		if (this.minimessage.mouseClicked(event)) cir.setReturnValue(true);
-	}
-	
-	@WrapOperation(method = "mouseClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/ChatScreen;getComponentStyleAt(DD)Lnet/minecraft/network/chat/Style;"))
-	private Style builders_inventory_previewClicked(ChatScreen screen, double mouseX, double mouseY, Operation<Style> operation) {
-		if (!Config.instance().minimessage_enabledChat) {
-			return operation.call(screen, mouseX, mouseY);
-		}
-		Style style = this.minimessage.tryClickPreview(mouseX, mouseY);
-		if (style != null) return style;
-		else return operation.call(screen, mouseX, mouseY);
 	}
 	
 	@WrapOperation(method = "moveInHistory", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/EditBox;setValue(Ljava/lang/String;)V"))
@@ -248,36 +245,36 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 	 * Moving chat if preview is too tall
 	 */
 	
-	@WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;render(Lnet/minecraft/client/gui/GuiGraphics;IIIZ)V"))
-	private void builders_inventory_moveChatComponent(ChatComponent chat, GuiGraphics gui, int tickCount, int mouseX, int mouseY, boolean focused, Operation<Void> operation) {
+	@WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;render(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Font;IIIZZ)V"))
+	private void builders_inventory_moveChatComponent(ChatComponent chat, GuiGraphics gui, Font font, int ticks, int mouseX, int mouseY, boolean focused, boolean holdingShift, Operation<Void> operation) {
 		final Config config = Config.instance();
 		final int offsetThreshold = config.minimessage_previewOffsetIgnored;
 		if (config.minimessage_enabledChat && config.minimessage_previewOffsetsChat && this.minimessage.previewLines.size() > offsetThreshold) {
 			gui.pose().pushMatrix();
 			gui.pose().translate(0, -Mth.ceil(this.minimessage.getScaledLineHeight(offsetThreshold)));
-			operation.call(chat, gui, tickCount, mouseX, mouseY, focused);
+			operation.call(chat, gui, font, ticks, mouseX, mouseY, focused, holdingShift);
 			gui.pose().popMatrix();
 		} else {
-			operation.call(chat, gui, tickCount, mouseX, mouseY, focused);
+			operation.call(chat, gui, font, ticks, mouseX, mouseY, focused, holdingShift);
 		}
 	}
 	
-	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;getMessageTagAt(DD)Lnet/minecraft/client/GuiMessageTag;"), index = 1)
-	private double builders_inventory_moveLabelMouseY(double mouseY) {
-		final Config config = Config.instance();
-		final int offsetThreshold = config.minimessage_previewOffsetIgnored;
-		if (config.minimessage_enabledChat && config.minimessage_previewOffsetsChat && this.minimessage.previewLines.size() > offsetThreshold) {
-			return mouseY + Mth.ceil(this.minimessage.getScaledLineHeight(offsetThreshold));
-		} else return mouseY;
-	}
-	
-	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/ChatScreen;getComponentStyleAt(DD)Lnet/minecraft/network/chat/Style;"), index = 1)
-	private double builders_inventory_moveHoverMouseY(double mouseY) {
-		final Config config = Config.instance();
-		final int offsetThreshold = config.minimessage_previewOffsetIgnored;
-		if (config.minimessage_enabledChat && config.minimessage_previewOffsetsChat && this.minimessage.previewLines.size() > offsetThreshold) {
-			return mouseY + Mth.ceil(this.minimessage.getScaledLineHeight(offsetThreshold));
-		} else return mouseY;
-	}
+//	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;getMessageTagAt(DD)Lnet/minecraft/client/GuiMessageTag;"), index = 1)
+//	private double builders_inventory_moveLabelMouseY(double mouseY) {
+//		final Config config = Config.instance();
+//		final int offsetThreshold = config.minimessage_previewOffsetIgnored;
+//		if (config.minimessage_enabledChat && config.minimessage_previewOffsetsChat && this.minimessage.previewLines.size() > offsetThreshold) {
+//			return mouseY + Mth.ceil(this.minimessage.getScaledLineHeight(offsetThreshold));
+//		} else return mouseY;
+//	}
+//	
+//	@ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/ChatScreen;getComponentStyleAt(DD)Lnet/minecraft/network/chat/Style;"), index = 1)
+//	private double builders_inventory_moveHoverMouseY(double mouseY) {
+//		final Config config = Config.instance();
+//		final int offsetThreshold = config.minimessage_previewOffsetIgnored;
+//		if (config.minimessage_enabledChat && config.minimessage_previewOffsetsChat && this.minimessage.previewLines.size() > offsetThreshold) {
+//			return mouseY + Mth.ceil(this.minimessage.getScaledLineHeight(offsetThreshold));
+//		} else return mouseY;
+//	}
 	
 }

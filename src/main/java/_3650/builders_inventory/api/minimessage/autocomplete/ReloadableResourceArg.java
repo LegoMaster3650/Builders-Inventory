@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public abstract class ReloadableResourceArg implements AutocompleteArg {
 	
@@ -32,7 +32,7 @@ public abstract class ReloadableResourceArg implements AutocompleteArg {
 	
 	public abstract void loadStr(ArrayList<String> strs);
 	
-	public abstract void loadLoc(ArrayList<ResourceLocation> locs);
+	public abstract void loadId(ArrayList<Identifier> locs);
 	
 	private static class PlainArg extends ReloadableResourceArg {
 		
@@ -85,8 +85,8 @@ public abstract class ReloadableResourceArg implements AutocompleteArg {
 		}
 		
 		@Override
-		public void loadLoc(ArrayList<ResourceLocation> locs) {
-			throw new IllegalStateException("Cannot load ResourceLocation values into String arg");
+		public void loadId(ArrayList<Identifier> ids) {
+			throw new IllegalStateException("Cannot load Identifier values into String arg");
 		}
 		
 	}
@@ -151,15 +151,15 @@ public abstract class ReloadableResourceArg implements AutocompleteArg {
 		}
 		
 		@Override
-		public void loadLoc(ArrayList<ResourceLocation> locs) {
-			throw new IllegalStateException("Cannot load ResourceLocation values into String arg");
+		public void loadId(ArrayList<Identifier> ids) {
+			throw new IllegalStateException("Cannot load Identifier values into String arg");
 		}
 		
 	}
 	
 	private static class ResourceArg extends ReloadableResourceArg {
 		
-		private ArrayList<ResourceLocation> keys;
+		private ArrayList<Identifier> keys;
 		private ArrayList<String> vals;
 		
 		private boolean loaded = false;
@@ -177,11 +177,11 @@ public abstract class ReloadableResourceArg implements AutocompleteArg {
 			final ArrayList<String> result = new ArrayList<>();
 			final boolean namespaced = start.indexOf(':') > -1;
 			for (int i = 0; i < keys.size(); i++) {
-				final ResourceLocation loc = keys.get(i);
+				final Identifier id = keys.get(i);
 				if (namespaced) {
-					if (segmentMatches(loc.toString(), startLow)) result.add(vals.get(i));
-				} else if (segmentMatches(loc.getNamespace(), startLow)
-						|| loc.getNamespace().equals(ResourceLocation.DEFAULT_NAMESPACE) && segmentMatches(loc.getPath(), startLow)) {
+					if (segmentMatches(id.toString(), startLow)) result.add(vals.get(i));
+				} else if (segmentMatches(id.getNamespace(), startLow)
+						|| id.getNamespace().equals(Identifier.DEFAULT_NAMESPACE) && segmentMatches(id.getPath(), startLow)) {
 					result.add(vals.get(i));
 				}
 			}
@@ -196,14 +196,14 @@ public abstract class ReloadableResourceArg implements AutocompleteArg {
 			final ArrayList<String> result = new ArrayList<>();
 			final boolean namespaced = start.indexOf(':') > -1;
 			for (int i = 0; i < keys.size(); i++) {
-				final ResourceLocation loc = keys.get(i);
+				final Identifier id = keys.get(i);
 				if (namespaced) {
-					final String key = loc.toString();
+					final String key = id.toString();
 					if (segmentMatches(key, startLow) && !(key.length() == start.length() && key.equals(start))) result.add(vals.get(i));
-				} else if (segmentMatches(loc.getNamespace(), startLow)) {
+				} else if (segmentMatches(id.getNamespace(), startLow)) {
 					result.add(vals.get(i));
-				} else if (loc.getNamespace().equals(ResourceLocation.DEFAULT_NAMESPACE) && segmentMatches(loc.getPath(), startLow)) {
-					if (!(loc.getPath().length() == start.length() && loc.getPath().equals(start))) result.add(vals.get(i));
+				} else if (id.getNamespace().equals(Identifier.DEFAULT_NAMESPACE) && segmentMatches(id.getPath(), startLow)) {
+					if (!(id.getPath().length() == start.length() && id.getPath().equals(start))) result.add(vals.get(i));
 				}
 			}
 			return result;
@@ -222,16 +222,16 @@ public abstract class ReloadableResourceArg implements AutocompleteArg {
 		
 		@Override
 		public void loadStr(ArrayList<String> strs) {
-			throw new IllegalStateException("Cannot load String values into ResourceLocation arg");
+			throw new IllegalStateException("Cannot load String values into Identifier arg");
 		}
 		
 		@Override
-		public void loadLoc(ArrayList<ResourceLocation> locs) {
+		public void loadId(ArrayList<Identifier> ids) {
 			loaded = true;
-			keys = locs;
+			keys = ids;
 			vals = new ArrayList<>(keys.size());
-			for (ResourceLocation loc : locs) {
-				vals.add(loc.toString());
+			for (Identifier id : ids) {
+				vals.add(id.toString());
 			}
 		}
 		

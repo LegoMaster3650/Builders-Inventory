@@ -22,7 +22,7 @@ import net.fabricmc.loader.api.FabricLoader;
 public class Config {
 	
 	public static final ConfigClassHandler<Config> HANDLER = ConfigClassHandler.createBuilder(Config.class)
-			.id(BuildersInventory.modLoc("config"))
+			.id(BuildersInventory.modId("config"))
 			.serializer(config -> GsonConfigSerializerBuilder.create(config)
 					.setPath(FabricLoader.getInstance().getConfigDir().resolve(BuildersInventory.MOD_ID + ".json5"))
 					.appendGsonBuilder(GsonBuilder::setPrettyPrinting)

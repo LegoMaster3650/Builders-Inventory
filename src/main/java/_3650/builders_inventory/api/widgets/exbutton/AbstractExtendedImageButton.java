@@ -3,8 +3,6 @@ package _3650.builders_inventory.api.widgets.exbutton;
 import java.util.List;
 import java.util.function.Supplier;
 
-import com.mojang.blaze3d.platform.cursor.CursorTypes;
-
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -61,12 +59,9 @@ public abstract class AbstractExtendedImageButton extends AbstractButton {
 	}
 	
 	@Override
-	protected void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
+	protected void renderContents(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
 		var sprite = this.sprites().get(this.isActive(), this.isHoveredOrFocused());
 		gui.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, this.getX(), this.getY(), this.width, this.height);
-		if (this.isHovered()) {
-			gui.requestCursor(this.isActive() ? CursorTypes.POINTING_HAND : CursorTypes.NOT_ALLOWED);
-		}
 	}
 	
 	@Override

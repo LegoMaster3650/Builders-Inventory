@@ -56,12 +56,12 @@ public class EditBoxTheme {
 	public static EditBoxTheme buildCubic() {
 		return new EditBoxTheme(
 				new WidgetSprites(
-						BuildersInventory.modLoc("themes/cubic/text_field/text_field"),
-						BuildersInventory.modLoc("themes/cubic/text_field/text_field_disabled"),
-						BuildersInventory.modLoc("themes/cubic/text_field/text_field")),
+						BuildersInventory.modId("themes/cubic/text_field/text_field"),
+						BuildersInventory.modId("themes/cubic/text_field/text_field_disabled"),
+						BuildersInventory.modId("themes/cubic/text_field/text_field")),
 				new WidgetSprites(
-						BuildersInventory.modLoc("themes/cubic/text_field/scrollbar"),
-						BuildersInventory.modLoc("themes/cubic/text_field/scrollbar_highlighted")),
+						BuildersInventory.modId("themes/cubic/text_field/scrollbar"),
+						BuildersInventory.modId("themes/cubic/text_field/scrollbar_highlighted")),
 				0xFFFFFFFF,
 				0xFF707070,
 				0xFF808080,
@@ -81,11 +81,11 @@ public class EditBoxTheme {
 	public static EditBoxTheme buildCommander() {
 		return new EditBoxTheme(
 				new WidgetSprites(
-						BuildersInventory.modLoc("themes/commander/text_field/text_field"),
-						BuildersInventory.modLoc("themes/commander/text_field/text_field_highlighted")),
+						BuildersInventory.modId("themes/commander/text_field/text_field"),
+						BuildersInventory.modId("themes/commander/text_field/text_field_highlighted")),
 				new WidgetSprites(
-						BuildersInventory.modLoc("themes/commander/text_field/scrollbar"),
-						BuildersInventory.modLoc("themes/commander/text_field/scrollbar_highlighted")),
+						BuildersInventory.modId("themes/commander/text_field/scrollbar"),
+						BuildersInventory.modId("themes/commander/text_field/scrollbar_highlighted")),
 				0xFFE0E0E0,
 				0xFF707070,
 				0xFF808080,

@@ -51,18 +51,18 @@ public class SliderWidgetTheme {
 	public static SliderWidgetTheme buildCubic() {
 		return new SliderWidgetTheme(
 				new WidgetSprites(
-						BuildersInventory.modLoc("themes/cubic/slider/slider_background"),
-						BuildersInventory.modLoc("themes/cubic/slider/slider_background_disabled"),
-						BuildersInventory.modLoc("themes/cubic/slider/slider_background_highlighted")),
+						BuildersInventory.modId("themes/cubic/slider/slider_background"),
+						BuildersInventory.modId("themes/cubic/slider/slider_background_disabled"),
+						BuildersInventory.modId("themes/cubic/slider/slider_background_highlighted")),
 				new WidgetSprites(
-						BuildersInventory.modLoc("themes/cubic/slider/slider_bar"),
-						BuildersInventory.modLoc("themes/cubic/slider/slider_bar_disabled"),
-						BuildersInventory.modLoc("themes/cubic/slider/slider_bar_highlighted")),
+						BuildersInventory.modId("themes/cubic/slider/slider_bar"),
+						BuildersInventory.modId("themes/cubic/slider/slider_bar_disabled"),
+						BuildersInventory.modId("themes/cubic/slider/slider_bar_highlighted")),
 				13,
 				new WidgetSprites(
-						BuildersInventory.modLoc("themes/cubic/slider/button_cancel"),
-						BuildersInventory.modLoc("themes/commander/slider/button_cancel_disabled"),
-						BuildersInventory.modLoc("themes/cubic/slider/button_cancel_highlighted")),
+						BuildersInventory.modId("themes/cubic/slider/button_cancel"),
+						BuildersInventory.modId("themes/commander/slider/button_cancel_disabled"),
+						BuildersInventory.modId("themes/cubic/slider/button_cancel_highlighted")),
 				0xFF373737,
 				0xFF212849,
 				0xFF0F0F0F,
@@ -78,18 +78,18 @@ public class SliderWidgetTheme {
 	public static SliderWidgetTheme buildCommander() {
 		return new SliderWidgetTheme(
 				new WidgetSprites(
-						BuildersInventory.modLoc("themes/commander/slider/slider_background"),
-						BuildersInventory.modLoc("themes/commander/slider/slider_background_disabled"),
-						BuildersInventory.modLoc("themes/commander/slider/slider_background_highlighted")),
+						BuildersInventory.modId("themes/commander/slider/slider_background"),
+						BuildersInventory.modId("themes/commander/slider/slider_background_disabled"),
+						BuildersInventory.modId("themes/commander/slider/slider_background_highlighted")),
 				new WidgetSprites(
-						BuildersInventory.modLoc("themes/commander/slider/slider_bar"),
-						BuildersInventory.modLoc("themes/commander/slider/slider_bar_disabled"),
-						BuildersInventory.modLoc("themes/commander/slider/slider_bar_highlighted")),
+						BuildersInventory.modId("themes/commander/slider/slider_bar"),
+						BuildersInventory.modId("themes/commander/slider/slider_bar_disabled"),
+						BuildersInventory.modId("themes/commander/slider/slider_bar_highlighted")),
 				13,
 				new WidgetSprites(
-						BuildersInventory.modLoc("themes/commander/slider/button_cancel"),
-						BuildersInventory.modLoc("themes/commander/slider/button_cancel_disabled"),
-						BuildersInventory.modLoc("themes/commander/slider/button_cancel_highlighted")),
+						BuildersInventory.modId("themes/commander/slider/button_cancel"),
+						BuildersInventory.modId("themes/commander/slider/button_cancel_disabled"),
+						BuildersInventory.modId("themes/commander/slider/button_cancel_highlighted")),
 				0xFFE0E0E0,
 				0xFFE0E0E0,
 				0xFF333333,

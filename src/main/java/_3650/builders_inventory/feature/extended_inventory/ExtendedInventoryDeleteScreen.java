@@ -14,7 +14,6 @@ import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButton;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButtonGui;
 import _3650.builders_inventory.config.Config;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
@@ -25,7 +24,8 @@ import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.world.item.ItemStack;
 
 public class ExtendedInventoryDeleteScreen extends Screen {
@@ -34,15 +34,15 @@ public class ExtendedInventoryDeleteScreen extends Screen {
 		new DecimalFormat("0.0"), decimalFormat -> decimalFormat.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT))
 	);
 	
-	private static final ResourceLocation BACKGROUND = BuildersInventory.modLoc("textures/gui/container/extended_inventory/delete.png");
+	private static final Identifier BACKGROUND = BuildersInventory.modId("textures/gui/container/extended_inventory/delete.png");
 	
 	private static final WidgetSprites SPRITES_BUTTON_DELETE = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/delete/button_delete"),
-			BuildersInventory.modLoc("extended_inventory/delete/button_delete_disabled"),
-			BuildersInventory.modLoc("extended_inventory/delete/button_delete_highlighted"));
+			BuildersInventory.modId("extended_inventory/delete/button_delete"),
+			BuildersInventory.modId("extended_inventory/delete/button_delete_disabled"),
+			BuildersInventory.modId("extended_inventory/delete/button_delete_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_CANCEL = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/delete/button_cancel"),
-			BuildersInventory.modLoc("extended_inventory/delete/button_cancel_highlighted"));
+			BuildersInventory.modId("extended_inventory/delete/button_cancel"),
+			BuildersInventory.modId("extended_inventory/delete/button_cancel_highlighted"));
 	
 	private final ExtendedImageButtonGui exGui = new ExtendedImageButtonGui();
 	private final int imageWidth;

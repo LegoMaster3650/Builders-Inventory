@@ -16,8 +16,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.configuration.ClientboundFinishConfigurationPacket;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.Item;
@@ -32,16 +32,16 @@ public abstract class ClientConfigurationPacketListenerImplMixin {
 	private void builders_inventory_captureItemsAndEntities(ClientboundFinishConfigurationPacket packet, CallbackInfo ci, @Local(ordinal = 0) RegistryAccess.Frozen registryAccess) {
 		HolderLookup<Item> itemReg = registryAccess.lookupOrThrow(Registries.ITEM).filterFeatures(this.enabledFeatures);
 		ArrayList<String> items = itemReg.listElementIds()
-				.map(ResourceKey::location)
-				.map(ResourceLocation::getPath)
+				.map(ResourceKey::identifier)
+				.map(Identifier::getPath)
 				.sorted()
 				.collect(Collectors.toCollection(() -> new ArrayList<>()));
 		ReloadableResourceArg.ITEMS.loadStr(items);
 		
 		HolderLookup<EntityType<?>> entityReg = registryAccess.lookupOrThrow(Registries.ENTITY_TYPE).filterFeatures(this.enabledFeatures);
 		ArrayList<String> entities = entityReg.listElementIds()
-				.map(ResourceKey::location)
-				.map(ResourceLocation::getPath)
+				.map(ResourceKey::identifier)
+				.map(Identifier::getPath)
 				.sorted()
 				.collect(Collectors.toCollection(() -> new ArrayList<>()));
 		ReloadableResourceArg.ENTITIES.loadStr(entities);

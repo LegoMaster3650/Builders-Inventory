@@ -2,13 +2,13 @@ package _3650.builders_inventory.api.minimessage.format;
 
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class FontFormat extends FormatNonPlaintext {
 	
-	public final ResourceLocation font;
+	public final Identifier font;
 	
-	public FontFormat(String argString, String tag, ResourceLocation font) {
+	public FontFormat(String argString, String tag, Identifier font) {
 		super(argString, tag);
 		this.font = font;
 	}

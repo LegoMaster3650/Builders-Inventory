@@ -21,63 +21,63 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 
 public class ExtendedInventoryIconScreen extends Screen {
 	
-	private static final ResourceLocation BACKGROUND = BuildersInventory.modLoc("textures/gui/container/extended_inventory/icon.png");
+	private static final Identifier BACKGROUND = BuildersInventory.modId("textures/gui/container/extended_inventory/icon.png");
 	
 	private static final WidgetSprites SPRITES_TILE = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/organize/tile"),
-			BuildersInventory.modLoc("extended_inventory/organize/tile_highlighted"));
+			BuildersInventory.modId("extended_inventory/organize/tile"),
+			BuildersInventory.modId("extended_inventory/organize/tile_highlighted"));
 	private static final WidgetSprites SPRITES_TILE_ACTIVE = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/organize/tile_active"),
-			BuildersInventory.modLoc("extended_inventory/organize/tile_active_highlighted"));
+			BuildersInventory.modId("extended_inventory/organize/tile_active"),
+			BuildersInventory.modId("extended_inventory/organize/tile_active_highlighted"));
 	
 	private static final WidgetSprites SPRITES_BUTTON_COUNT = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/icon/button_count"),
-			BuildersInventory.modLoc("extended_inventory/icon/button_count_disabled"),
-			BuildersInventory.modLoc("extended_inventory/icon/button_count_highlighted"));
+			BuildersInventory.modId("extended_inventory/icon/button_count"),
+			BuildersInventory.modId("extended_inventory/icon/button_count_disabled"),
+			BuildersInventory.modId("extended_inventory/icon/button_count_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_COUNT_OPEN = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/icon/button_count_open"),
-			BuildersInventory.modLoc("extended_inventory/icon/button_count_disabled"),
-			BuildersInventory.modLoc("extended_inventory/icon/button_count_open_highlighted"));
+			BuildersInventory.modId("extended_inventory/icon/button_count_open"),
+			BuildersInventory.modId("extended_inventory/icon/button_count_disabled"),
+			BuildersInventory.modId("extended_inventory/icon/button_count_open_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_DATA = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/icon/button_data"),
-			BuildersInventory.modLoc("extended_inventory/icon/button_data_disabled"),
-			BuildersInventory.modLoc("extended_inventory/icon/button_data_highlighted"));
+			BuildersInventory.modId("extended_inventory/icon/button_data"),
+			BuildersInventory.modId("extended_inventory/icon/button_data_disabled"),
+			BuildersInventory.modId("extended_inventory/icon/button_data_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_DATA_ACTIVE = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/icon/button_data_active"),
-			BuildersInventory.modLoc("extended_inventory/icon/button_data_disabled"),
-			BuildersInventory.modLoc("extended_inventory/icon/button_data_active_highlighted"));
+			BuildersInventory.modId("extended_inventory/icon/button_data_active"),
+			BuildersInventory.modId("extended_inventory/icon/button_data_disabled"),
+			BuildersInventory.modId("extended_inventory/icon/button_data_active_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_SIZE = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/icon/button_size"),
-			BuildersInventory.modLoc("extended_inventory/icon/button_size_disabled"),
-			BuildersInventory.modLoc("extended_inventory/icon/button_size_highlighted"));
+			BuildersInventory.modId("extended_inventory/icon/button_size"),
+			BuildersInventory.modId("extended_inventory/icon/button_size_disabled"),
+			BuildersInventory.modId("extended_inventory/icon/button_size_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_SIZE_OPEN = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/icon/button_size_open"),
-			BuildersInventory.modLoc("extended_inventory/icon/button_size_disabled"),
-			BuildersInventory.modLoc("extended_inventory/icon/button_size_open_highlighted"));
+			BuildersInventory.modId("extended_inventory/icon/button_size_open"),
+			BuildersInventory.modId("extended_inventory/icon/button_size_disabled"),
+			BuildersInventory.modId("extended_inventory/icon/button_size_open_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_CLEAR = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/icon/button_clear"),
-			BuildersInventory.modLoc("extended_inventory/icon/button_clear_disabled"),
-			BuildersInventory.modLoc("extended_inventory/icon/button_clear_highlighted"));
+			BuildersInventory.modId("extended_inventory/icon/button_clear"),
+			BuildersInventory.modId("extended_inventory/icon/button_clear_disabled"),
+			BuildersInventory.modId("extended_inventory/icon/button_clear_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_RESET = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/icon/button_reset"),
-			BuildersInventory.modLoc("extended_inventory/icon/button_reset_disabled"),
-			BuildersInventory.modLoc("extended_inventory/icon/button_reset_highlighted"));
+			BuildersInventory.modId("extended_inventory/icon/button_reset"),
+			BuildersInventory.modId("extended_inventory/icon/button_reset_disabled"),
+			BuildersInventory.modId("extended_inventory/icon/button_reset_highlighted"));
 	
 	private static final WidgetSprites SPRITES_BUTTON_CANCEL = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/icon/button_cancel"),
-			BuildersInventory.modLoc("extended_inventory/icon/button_cancel_disabled"),
-			BuildersInventory.modLoc("extended_inventory/icon/button_cancel_highlighted"));
+			BuildersInventory.modId("extended_inventory/icon/button_cancel"),
+			BuildersInventory.modId("extended_inventory/icon/button_cancel_disabled"),
+			BuildersInventory.modId("extended_inventory/icon/button_cancel_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_CONFIRM = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/icon/button_confirm"),
-			BuildersInventory.modLoc("extended_inventory/icon/button_confirm_disabled"),
-			BuildersInventory.modLoc("extended_inventory/icon/button_confirm_highlighted"));
+			BuildersInventory.modId("extended_inventory/icon/button_confirm"),
+			BuildersInventory.modId("extended_inventory/icon/button_confirm_disabled"),
+			BuildersInventory.modId("extended_inventory/icon/button_confirm_highlighted"));
 	
 	private final ExtendedImageButtonGui exGui = new ExtendedImageButtonGui();
 	private final int imageWidth;

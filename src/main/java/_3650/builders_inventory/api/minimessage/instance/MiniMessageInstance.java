@@ -8,8 +8,10 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix3x2f;
 import org.lwjgl.glfw.GLFW;
 
 import _3650.builders_inventory.BuildersInventory;
@@ -21,20 +23,21 @@ import _3650.builders_inventory.api.minimessage.widgets.wrapper.WrappedTextField
 import _3650.builders_inventory.config.Config;
 import _3650.builders_inventory.feature.minimessage.MiniMessageFeature;
 import _3650.builders_inventory.feature.minimessage.chat.ChatMiniMessageContext;
+import _3650.builders_inventory.mixin.feature.minimessage.ChatComponentInvoker;
 import _3650.builders_inventory.util.StringDiff;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.client.gui.TextAlignment;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.ComponentRenderUtils;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.HoverEvent;
@@ -54,7 +57,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
  * {@link #cursorMoved()}<br>
  * {@link #inputEdited()}<br>
  * {@link #quietUpdate()}<br>
- * {@link #renderPreviewOrError(GuiGraphics)}
+ * {@link #renderPreviewOrError(GuiGraphics, ActiveTextCollector, net.minecraft.client.gui.ActiveTextCollector.Parameters)}
  * {@link #renderSuggestions(Minecraft, GuiGraphics, Font, int, int)}<br>
  * {@link #keyPressed(int, int, int)}<br>
  * {@link #mouseScrolled(double, double, double, double)}<br>
@@ -316,8 +319,8 @@ public class MiniMessageInstance {
 		
 		this.previewLines = List.of();
 		if (previewComponent != null) {
-			ChatComponent chatLog = this.minecraft.gui.getChat();
-			this.previewLines = ComponentRenderUtils.wrapComponents(previewComponent, Mth.floor(chatLog.getWidth() / chatLog.getScale()), this.font);
+			int previewScaledWidth = Mth.floor(this.previewOptions.getScaledWidth(this.minecraft, this.screen, this));
+			this.previewLines = ComponentRenderUtils.wrapComponents(previewComponent, previewScaledWidth, this.font);
 			this.reposition();
 		} else if (this.inputOverride != null) {
 			this.reposition();
@@ -391,7 +394,7 @@ public class MiniMessageInstance {
 			}
 			
 			@Override
-			public int getWidth(Minecraft mc, Screen screen, MiniMessageInstance widget) {
+			public float getScaledWidth(Minecraft mc, Screen screen, MiniMessageInstance widget) {
 				return screen.width;
 			}
 			
@@ -439,12 +442,12 @@ public class MiniMessageInstance {
 			
 			@Override
 			public float getScale(Minecraft mc, Screen screen) {
-				return (float) mc.gui.getChat().getScale();
+				return (float) ((ChatComponentInvoker)mc.gui.getChat()).callGetScale();
 			}
 			
 			@Override
-			public int getWidth(Minecraft mc, Screen screen, MiniMessageInstance widget) {
-				return mc.gui.getChat().getWidth();
+			public float getScaledWidth(Minecraft mc, Screen screen, MiniMessageInstance widget) {
+				return ((ChatComponentInvoker)mc.gui.getChat()).callGetWidth() / this.getScale(mc, screen);
 			}
 			
 			@Override
@@ -475,7 +478,7 @@ public class MiniMessageInstance {
 		
 		public float getScale(Minecraft mc, Screen screen);
 		
-		public int getWidth(Minecraft mc, Screen screen, MiniMessageInstance widget);
+		public float getScaledWidth(Minecraft mc, Screen screen, MiniMessageInstance widget);
 		
 		public int getX(Minecraft mc, Screen screen, MiniMessageInstance widget);
 		
@@ -489,7 +492,7 @@ public class MiniMessageInstance {
 	
 	private int _previewBGColor;
 	private float _previewScale;
-	private int _previewWidth;
+	private float _previewScaledWidth;
 	private int _previewXMin;
 	private int _previewLineTextOffset;
 	private int _previewLineHeight;
@@ -500,7 +503,7 @@ public class MiniMessageInstance {
 		if (!this.previewLines.isEmpty()) {
 			this._previewBGColor = previewOptions.getBGColor(minecraft, screen);
 			this._previewScale = previewOptions.getScale(minecraft, screen);
-			this._previewWidth = previewOptions.getWidth(minecraft, screen, this);
+			this._previewScaledWidth = previewOptions.getScaledWidth(minecraft, screen, this);
 			this._previewXMin = previewOptions.getX(minecraft, screen, this);
 			this._previewLineTextOffset = previewOptions.getLineTextOffset(minecraft, screen);
 			this._previewLineHeight = previewOptions.getLineHeight(minecraft, screen);
@@ -509,19 +512,22 @@ public class MiniMessageInstance {
 		}
 	}
 	
-	public void renderPreviewOrError(GuiGraphics gui) {
+	public void renderPreviewOrError(GuiGraphics gui, ActiveTextCollector text, ActiveTextCollector.Parameters parameters) {
 		if (!active) return;
 		if (!previewLines.isEmpty()) {
 			gui.pose().pushMatrix();
 			gui.pose().translate(_previewXMin, _previewYMin);
 			gui.pose().scale(_previewScale, _previewScale);
-			gui.fill(0, 0, Mth.ceil(_previewWidth / _previewScale) + 4 + 4 + 4, - (_previewLineHeight * previewLines.size()), _previewBGColor);
+			parameters = parameters.withPose(new Matrix3x2f(gui.pose()));
+			
+			gui.fill(0, 0, Mth.ceil(_previewScaledWidth) + 4 + 4 + 4, - (_previewLineHeight * previewLines.size()), _previewBGColor);
 			int y = _previewLineTextOffset;
 			for (int i = previewLines.size() - 1; i >= 0; --i) {
 				FormattedCharSequence line = previewLines.get(i);
-				gui.drawString(font, line, 4, y, 0xFFFFFFFF);
+				text.accept(TextAlignment.LEFT, 4, y, parameters, line);
 				y -= _previewLineHeight;
 			}
+			
 			gui.pose().popMatrix();
 		}
 	}
@@ -532,75 +538,6 @@ public class MiniMessageInstance {
 	
 	public float getScaledLineHeight(int ignoreDiff) {
 		return ignoreDiff >= this.previewLines.size() ? 0 : ((this.previewLines.size() - ignoreDiff) * _previewScaledLineHeight);
-	}
-	
-	public boolean renderHover(GuiGraphics gui, int mouseX, int mouseY) {
-		if (!previewLines.isEmpty()) {
-			double localX = toPreviewX(mouseX);
-			double localY = toPreviewYLine(mouseY);
-			int line = getPreviewLine(localX, localY);
-			if (line >= 0) {
-				Style style = font.getSplitter().componentStyleAtWidth(previewLines.get(line), Mth.floor(localX));
-				if (style != null && style.getHoverEvent() != null) {
-					gui.renderComponentHoverEffect(font, style, mouseX, mouseY);
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	public boolean renderFormatHover(GuiGraphics gui, int mouseX, int mouseY, int start, int end) {
-		if (this.inputOverride != null && Config.instance().minimessage_syntaxHighlighting) {
-			int inputX = input.getTextX();
-			int inputXMax = inputX + input.getInnerWidth();
-			int inputY = input.getTextY(start);
-			int inputYMax = inputY + input.getLineHeight();
-			if (mouseX >= inputX && mouseX < inputXMax && mouseY >= inputY && mouseY < inputYMax) {
-				Style style = font.getSplitter().componentStyleAtWidth(inputOverride.subseq(start, end), mouseX - inputX);
-				if (style != null && style.getHoverEvent() != null) {
-					gui.renderComponentHoverEffect(font, style, mouseX, mouseY);
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	public Style tryClickPreview(double mouseX, double mouseY) {
-		if (!active) return null;
-		if (!previewLines.isEmpty()) {
-			double localX = toPreviewX(mouseX);
-			double localY = toPreviewYLine(mouseY);
-			int line = getPreviewLine(localX, localY);
-			if (line >= 0) {
-				Style style = font.getSplitter().componentStyleAtWidth(previewLines.get(line), Mth.floor(localX));
-				if (style == null) return null;
-				final ClickEvent click = style.getClickEvent();
-				if (click == null || click instanceof ClickEvent.SuggestCommand) return null;
-				return style;
-			}
-		}
-		return null;
-	}
-	
-	private double toPreviewX(double mouseX) {
-		return ((mouseX - 4) / _previewScale) - _previewXMin;
-	}
-	
-	private double toPreviewYLine(double mouseY) {
-		return (_previewYMin - mouseY) / (_previewScale * _previewLineHeight);
-	}
-	
-	/**
-	 * Make sure to test if line >= 0 outside
-	 */
-	private int getPreviewLine(double localX, double localY) {
-		if (localX >= 0 && localX <= Mth.floor(_previewWidth / _previewScale)) {
-			int line = Mth.floor(localY);
-			if (line < previewLines.size()) return line; // line >= 0 tested outside
-		}
-		return -1; // always fails >= 0 as it is not greater than nor equal to zero
 	}
 	
 	@Nullable
@@ -717,7 +654,7 @@ public class MiniMessageInstance {
 	
 	private static ArrayList<String> filterStart(List<String> list, String start) {
 		ArrayList<String> result = new ArrayList<>(list.size());
-		for (String s : list) if (StringUtils.startsWithIgnoreCase(s, start)) result.add(s);
+		for (String s : list) if (Strings.CI.startsWith(s, start)) result.add(s);
 		return result;
 	}
 	
@@ -790,8 +727,8 @@ public class MiniMessageInstance {
 			
 			@Override
 			public int getY(Minecraft mc, Screen screen, MiniMessageInstance widget, int x, int suggestionHeight) {
-				ChatComponent chatc = mc.gui.getChat();
-				return screen.height - 12 - 3 - suggestionHeight - ((x >= chatc.getWidth() + 12) ? 0 :
+				final int chatWidth = ((ChatComponentInvoker)mc.gui.getChat()).callGetWidth();
+				return screen.height - 12 - 3 - suggestionHeight - ((x >= chatWidth + 12) ? 0 :
 					widget.previewLines.isEmpty() ? 0 : (Mth.ceil(widget.getScaledLineHeight()) + Config.instance().minimessage_chatPreviewHeight));
 			}
 			

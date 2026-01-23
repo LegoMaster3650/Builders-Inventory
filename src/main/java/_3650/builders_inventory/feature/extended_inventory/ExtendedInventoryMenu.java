@@ -1,6 +1,6 @@
 package _3650.builders_inventory.feature.extended_inventory;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -145,7 +145,7 @@ public class ExtendedInventoryMenu extends AbstractContainerMenu {
 		}
 		
 		@Override
-		public ResourceLocation getNoItemIcon() {
+		public Identifier getNoItemIcon() {
 			return super.getNoItemIcon();
 		}
 		

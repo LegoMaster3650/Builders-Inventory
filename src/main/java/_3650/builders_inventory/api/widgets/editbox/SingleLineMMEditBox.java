@@ -13,9 +13,10 @@ import _3650.builders_inventory.api.minimessage.instance.MMInstanceConstructor;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance;
 import _3650.builders_inventory.api.minimessage.widgets.MiniMessageEventListener;
 import _3650.builders_inventory.api.minimessage.widgets.wrapper.WrappedTextField;
+import _3650.builders_inventory.api.util.ColoredRenderingTextCollector;
 import _3650.builders_inventory.api.util.StringPos;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -29,10 +30,11 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringUtil;
+import net.minecraft.util.Util;
 
 // scary evil monolithic class thats an amalgam of EditBox, MultiLineEditBox, AbstractScrollWidget and MultilineTextField with some MiniMessageWidget thrown in for bad luck
 // if this crashes again im gonna be the one crashing next
@@ -394,17 +396,11 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 	@Override
 	public void miniMessageRender(GuiGraphics gui, int mouseX, int mouseY) {
 		if (this.isActive() && this.isFocused()) {
-			this.minimessage.renderPreviewOrError(gui);
+			ActiveTextCollector text = gui.textRenderer(GuiGraphics.HoveredTextEffects.TOOLTIP_AND_CURSOR);
+			ActiveTextCollector.Parameters parameters = text.defaultParameters();
+			
+			this.minimessage.renderPreviewOrError(gui, text, parameters);
 			this.minimessage.renderSuggestions(gui, mouseX, mouseY);
-			this.minimessage.renderHover(gui, mouseX, mouseY);
-		}
-		{
-			int y = this.getY() + this.innerPadding();
-			for (var line : this.displayLines) {
-				if (this.inVerticalBounds(y, y + 9)) {
-					this.minimessage.renderFormatHover(gui, mouseX, mouseY, line.beginIndex, line.endIndex);
-				}
-			}
 		}
 	}
 	
@@ -488,15 +484,19 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 	}
 	
 	private void renderBackground(GuiGraphics gui) {
-		ResourceLocation background = this.theme.spritesBackground.get(this.isActive(), this.isFocused());
+		Identifier background = this.theme.spritesBackground.get(this.isActive(), this.isFocused());
 		gui.blitSprite(RenderPipelines.GUI_TEXTURED, background, this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 	
 	private void renderContents(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
 		String str = this.value;
 		if (!str.isEmpty() || this.isFocused()) {
+			ColoredRenderingTextCollector text = ColoredRenderingTextCollector.create(
+					gui,
+					this.isActive() ? GuiGraphics.HoveredTextEffects.TOOLTIP_AND_CURSOR : GuiGraphics.HoveredTextEffects.TOOLTIP_ONLY,
+					this.isActive() ? this.theme.textColor : this.theme.disabledTextColor);
+			
 			final int cursor = this.cursor;
-			final int textColor = this.isActive() ? this.theme.textColor : this.theme.disabledTextColor;
 			final boolean blink = this.isFocused() && (Util.getMillis() - this.focusedTime) / 300L % 2L == 0L;
 			
 			int y = this.getY() + this.innerPadding();
@@ -512,15 +512,15 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 					if (blink && cursorInserting && cursor >= line.beginIndex && cursor <= line.endIndex) {
 						final var formatStr1 = this.format(str, line.beginIndex, cursor);
 						final var formatStr2 = this.format(str, cursor, line.endIndex);
-						gui.drawString(this.font, formatStr1, x, y, textColor);
+						text.accept(x, y, formatStr1);
 						x += font.width(formatStr1) - 1;
 						
-						gui.drawString(this.font, formatStr2, x, y, textColor);
+						text.accept(x, y, formatStr2);
 						
 						gui.fill(x, y, x + 1, y + 9, CURSOR_COLOR);
 					} else {
 						final var formatStr = this.format(str, line.beginIndex, line.endIndex);
-						gui.drawString(this.font, formatStr, x, y, textColor);
+						text.accept(x, y, formatStr);
 						x += font.width(formatStr);
 						
 						if (!cursorInserting && !this.hasSelection() && cursor >= line.beginIndex && cursor <= line.endIndex && line.endIndex == this.value.length()) {

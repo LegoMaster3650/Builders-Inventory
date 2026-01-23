@@ -16,7 +16,6 @@ import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButton;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButtonGui;
 import _3650.builders_inventory.config.Config;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
@@ -30,46 +29,47 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Util;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 
 public class ExtendedInventoryOrganizeScreen extends Screen {
 	
-	private static final ResourceLocation BACKGROUND = BuildersInventory.modLoc("textures/gui/container/extended_inventory/organize.png");
+	private static final Identifier BACKGROUND = BuildersInventory.modId("textures/gui/container/extended_inventory/organize.png");
 	
-	private static final ResourceLocation SPRITE_CREATIVE_SCROLLER = ResourceLocation.withDefaultNamespace("container/creative_inventory/scroller");
-	private static final ResourceLocation SPRITE_CREATIVE_SCROLLER_DISABLED = ResourceLocation.withDefaultNamespace("container/creative_inventory/scroller_disabled");
+	private static final Identifier SPRITE_CREATIVE_SCROLLER = Identifier.withDefaultNamespace("container/creative_inventory/scroller");
+	private static final Identifier SPRITE_CREATIVE_SCROLLER_DISABLED = Identifier.withDefaultNamespace("container/creative_inventory/scroller_disabled");
 	
 	private static final WidgetSprites SPRITES_BUTTON_BACK = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/organize/button_back"),
-			BuildersInventory.modLoc("extended_inventory/organize/button_back_highlighted"));
+			BuildersInventory.modId("extended_inventory/organize/button_back"),
+			BuildersInventory.modId("extended_inventory/organize/button_back_highlighted"));
 	
-	private static final ResourceLocation SPRITE_TILE = BuildersInventory.modLoc("extended_inventory/organize/tile");
-	private static final ResourceLocation SPRITE_TILE_SELECTED = BuildersInventory.modLoc("extended_inventory/organize/tile_highlighted");
-	private static final ResourceLocation SPRITE_TILE_SHADOW = BuildersInventory.modLoc("extended_inventory/organize/tile_shadow");
+	private static final Identifier SPRITE_TILE = BuildersInventory.modId("extended_inventory/organize/tile");
+	private static final Identifier SPRITE_TILE_SELECTED = BuildersInventory.modId("extended_inventory/organize/tile_highlighted");
+	private static final Identifier SPRITE_TILE_SHADOW = BuildersInventory.modId("extended_inventory/organize/tile_shadow");
 	private static final WidgetSprites SPRITES_TILE = new WidgetSprites(
 			SPRITE_TILE,
 			SPRITE_TILE_SELECTED);
-	private static final ResourceLocation SPRITE_TILE_ACTIVE = BuildersInventory.modLoc("extended_inventory/organize/tile_active");
-	private static final ResourceLocation SPRITE_TILE_ACTIVE_SELECTED = BuildersInventory.modLoc("extended_inventory/organize/tile_active_highlighted");
+	private static final Identifier SPRITE_TILE_ACTIVE = BuildersInventory.modId("extended_inventory/organize/tile_active");
+	private static final Identifier SPRITE_TILE_ACTIVE_SELECTED = BuildersInventory.modId("extended_inventory/organize/tile_active_highlighted");
 	private static final WidgetSprites SPRITES_TILE_ACTIVE = new WidgetSprites(
 			SPRITE_TILE_ACTIVE,
 			SPRITE_TILE_ACTIVE_SELECTED);
-	private static final ResourceLocation SPRITE_TILE_CREATE = BuildersInventory.modLoc("extended_inventory/organize/tile_create");
-	private static final ResourceLocation SPRITE_TILE_CREATE_SELECTED = BuildersInventory.modLoc("extended_inventory/organize/tile_create_highlighted");
+	private static final Identifier SPRITE_TILE_CREATE = BuildersInventory.modId("extended_inventory/organize/tile_create");
+	private static final Identifier SPRITE_TILE_CREATE_SELECTED = BuildersInventory.modId("extended_inventory/organize/tile_create_highlighted");
 	@SuppressWarnings("unused")
 	private static final WidgetSprites SPRITES_TILE_CREATE = new WidgetSprites(
 			SPRITE_TILE_CREATE,
 			SPRITE_TILE_CREATE_SELECTED);
 	@SuppressWarnings("unused")
-	private static final ResourceLocation SPRITE_TILE_CREATE_DIM = BuildersInventory.modLoc("extended_inventory/organize/tile_create_dim");
+	private static final Identifier SPRITE_TILE_CREATE_DIM = BuildersInventory.modId("extended_inventory/organize/tile_create_dim");
 	
-	private static final ResourceLocation SPRITE_BACKGROUND = BuildersInventory.modLoc("extended_inventory/organize/hover_background");
-	private static final ResourceLocation SPRITE_BACKGROUND_LOCKED = BuildersInventory.modLoc("extended_inventory/organize/hover_background_locked");
-	private static final ResourceLocation SPRITE_BACKGROUND_INVALID = BuildersInventory.modLoc("extended_inventory/organize/hover_background_invalid");
+	private static final Identifier SPRITE_BACKGROUND = BuildersInventory.modId("extended_inventory/organize/hover_background");
+	private static final Identifier SPRITE_BACKGROUND_LOCKED = BuildersInventory.modId("extended_inventory/organize/hover_background_locked");
+	private static final Identifier SPRITE_BACKGROUND_INVALID = BuildersInventory.modId("extended_inventory/organize/hover_background_invalid");
 	
 	private static final int TILE_MIN_X = 8;
 	private static final int TILE_MIN_Y = 17;
@@ -465,7 +465,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 		this.renderTransparentBackground(gui);
 		GuiUtil.blitScreenBackground(gui, BACKGROUND, this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
 		
-		ResourceLocation scrollSprite = this.canScroll() ? SPRITE_CREATIVE_SCROLLER : SPRITE_CREATIVE_SCROLLER_DISABLED;
+		Identifier scrollSprite = this.canScroll() ? SPRITE_CREATIVE_SCROLLER : SPRITE_CREATIVE_SCROLLER_DISABLED;
 		gui.blitSprite(RenderPipelines.GUI_TEXTURED, scrollSprite, this.leftPos + 193, this.topPos + 18 + (int)((178 - 15) * this.scrollAmount), 12, 15);
 	}
 	
@@ -562,7 +562,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 			int y = this.y + 1;
 			boolean moving = this.slowMoveTime > 0L;
 			WidgetSprites sprites = this.index == ExtendedInventory.getPage() ? SPRITES_TILE_ACTIVE : SPRITES_TILE;
-			ResourceLocation sprite = sprites.get(this.isActive(), this.screen.dragTile == null && this == this.screen.hoveredTile);
+			Identifier sprite = sprites.get(this.isActive(), this.screen.dragTile == null && this == this.screen.hoveredTile);
 			if (moving) {
 				float progress = (Util.getMillis() - this.slowMoveTime) / this.slowMoveLength;
 				if (progress >= 1.0f) {
@@ -578,7 +578,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 			}
 		}
 		
-		private void renderTile(GuiGraphics gui, int x, int y, ResourceLocation sprite) {
+		private void renderTile(GuiGraphics gui, int x, int y, Identifier sprite) {
 			gui.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x, y, 16, 16);
 			if (this.page.icon.isEmpty()) {
 				this.screen.renderTileText(gui, this.index + 1, x + 8, y + 4);
@@ -618,7 +618,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 		
 		@Override
 		public void renderImage(Font font, int x, int y, int width, int height, GuiGraphics gui) {
-			ResourceLocation background = this.page.valid ? this.page.isLocked() ? SPRITE_BACKGROUND_LOCKED : SPRITE_BACKGROUND : SPRITE_BACKGROUND_INVALID;
+			Identifier background = this.page.valid ? this.page.isLocked() ? SPRITE_BACKGROUND_LOCKED : SPRITE_BACKGROUND : SPRITE_BACKGROUND_INVALID;
 			gui.blitSprite(RenderPipelines.GUI_TEXTURED, background, x, y, this.getWidth(font), this.getHeight(font));
 			if (!this.page.valid) return;
 			int slot = 0;

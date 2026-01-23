@@ -14,22 +14,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import _3650.builders_inventory.api.minimessage.autocomplete.ReloadableResourceArg;
 import net.minecraft.client.gui.font.FontManager;
 import net.minecraft.client.gui.font.FontSet;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 @Mixin(FontManager.class)
 public abstract class FontManagerMixin {
 	
 	@Shadow
 	@Final
-	private Map<ResourceLocation, FontSet> fontSets;
+	private Map<Identifier, FontSet> fontSets;
 	
 	@Inject(method = "apply", at = @At("TAIL"))
 	private void builders_inventory_captureFonts(CallbackInfo ci) {
-		ArrayList<ResourceLocation> fonts = fontSets.keySet().stream()
+		ArrayList<Identifier> fonts = fontSets.keySet().stream()
 				.filter(s -> !s.getPath().startsWith("include/"))
 				.sorted()
 				.collect(Collectors.toCollection(() -> new ArrayList<>()));
-		ReloadableResourceArg.FONTS.loadLoc(fonts);
+		ReloadableResourceArg.FONTS.loadId(fonts);
 	}
 	
 }

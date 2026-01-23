@@ -2,7 +2,7 @@ package _3650.builders_inventory.api.minimessage.autocomplete;
 
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 public interface AutocompleteArg {
 	
@@ -21,11 +21,11 @@ public interface AutocompleteArg {
 		return new AutocompleteArg() {
 			@Override
 			public List<String> findNonMatch(String start) {
-				return StringUtils.startsWithIgnoreCase(val, start) && val.length() != start.length() ? List.of() : List.of(val);
+				return Strings.CI.startsWith(val, start) && val.length() != start.length() ? List.of() : List.of(val);
 			}
 			@Override
 			public List<String> find(String start) {
-				return StringUtils.startsWithIgnoreCase(val, start) ? List.of() : List.of(val);
+				return Strings.CI.startsWith(val, start) ? List.of() : List.of(val);
 			}
 		};
 	}

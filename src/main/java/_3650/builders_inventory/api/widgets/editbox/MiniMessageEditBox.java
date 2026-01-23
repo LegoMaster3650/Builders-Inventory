@@ -11,8 +11,10 @@ import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance;
 import _3650.builders_inventory.api.minimessage.widgets.MiniMessageEventListener;
 import _3650.builders_inventory.api.minimessage.widgets.wrapper.WrappedTextField;
 import _3650.builders_inventory.mixin.feature.minimessage.EditBoxAccessor;
+import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.TextAlignment;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -97,11 +99,19 @@ public class MiniMessageEditBox extends EditBox implements MiniMessageEventListe
 	@Override
 	public void miniMessageRender(GuiGraphics gui, int mouseX, int mouseY) {
 		if (this.isActive() && this.isFocused()) {
-			this.minimessage.renderPreviewOrError(gui);
+			ActiveTextCollector text = gui.textRenderer(GuiGraphics.HoveredTextEffects.TOOLTIP_AND_CURSOR);
+			ActiveTextCollector.Parameters parameters = text.defaultParameters();
+			
+			this.minimessage.renderPreviewOrError(gui, text, parameters);
+			if (this.minimessage.canFormat()) {
+				var inputAccess = ((EditBoxAccessor)this);
+				var formattedInput = this.minimessage.format(inputAccess.getDisplayPos(), this.getValue().length());
+				// see mixin.feature.minimessage.screens.ChatScreenMixin
+				text.accept(TextAlignment.LEFT, inputAccess.getTextX(), inputAccess.getTextY(), parameters.withOpacity(0f), formattedInput);
+			}
+			
 			this.minimessage.renderSuggestions(gui, mouseX, mouseY);
-			this.minimessage.renderHover(gui, mouseX, mouseY);
 		}
-		this.minimessage.renderFormatHover(gui, mouseX, mouseY, 0, this.getValue().length());
 	}
 	
 }

@@ -25,6 +25,7 @@
 		"feature.minimessage.screens.chat.ScreenMixinOverrides",
 		"feature.minimessage.ChatComponentInvoker",
 		"feature.minimessage.EditBoxAccessor",
+		"feature.minimessage.GuiGraphicsInvoker",
 		"feature.minimessage.StyleInvoker",
 		"feature.operator_items.CreativeModeInventoryScreenMixin"
 	],

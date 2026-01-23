@@ -17,21 +17,21 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class ExtendedInventoryRenameScreen extends Screen {
 	
-	private static final ResourceLocation BACKGROUND = BuildersInventory.modLoc("textures/gui/container/extended_inventory/rename.png");
+	private static final Identifier BACKGROUND = BuildersInventory.modId("textures/gui/container/extended_inventory/rename.png");
 	
 	private static final WidgetSprites SPRITES_BUTTON_CONFIRM = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/rename/button_confirm"),
-			BuildersInventory.modLoc("extended_inventory/rename/button_confirm_highlighted"));
+			BuildersInventory.modId("extended_inventory/rename/button_confirm"),
+			BuildersInventory.modId("extended_inventory/rename/button_confirm_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_CANCEL = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/rename/button_cancel"),
-			BuildersInventory.modLoc("extended_inventory/rename/button_cancel_highlighted"));
+			BuildersInventory.modId("extended_inventory/rename/button_cancel"),
+			BuildersInventory.modId("extended_inventory/rename/button_cancel_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_CLEAR = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/rename/button_clear"),
-			BuildersInventory.modLoc("extended_inventory/rename/button_clear_highlighted"));
+			BuildersInventory.modId("extended_inventory/rename/button_clear"),
+			BuildersInventory.modId("extended_inventory/rename/button_clear_highlighted"));
 	
 	private final ExtendedImageButtonGui exGui = new ExtendedImageButtonGui();
 	private final int imageWidth;

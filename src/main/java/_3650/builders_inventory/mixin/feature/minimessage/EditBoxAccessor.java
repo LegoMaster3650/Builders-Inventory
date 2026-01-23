@@ -11,4 +11,13 @@ public interface EditBoxAccessor {
 	@Accessor("canLoseFocus")
 	public boolean getCanLoseFocus();
 	
+	@Accessor("displayPos")
+	public int getDisplayPos();
+	
+	@Accessor("textX")
+	public int getTextX();
+	
+	@Accessor("textY")
+	public int getTextY();
+	
 }

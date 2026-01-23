@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.jetbrains.annotations.Nullable;
 
 import _3650.builders_inventory.BuildersInventory;
@@ -47,7 +48,7 @@ public class ChatMiniMessageContext {
 		final String ip = currentServerIP;
 		currentServer = null;
 		for (var entry : serverList) {
-			if (StringUtils.endsWithIgnoreCase(ip, entry.server)) {
+			if (Strings.CI.endsWith(ip, entry.server)) {
 				currentServer = entry.pattern;
 				break;
 			}

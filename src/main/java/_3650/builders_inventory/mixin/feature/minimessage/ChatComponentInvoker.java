@@ -11,4 +11,10 @@ public interface ChatComponentInvoker {
 	@Invoker("getLineHeight")
 	public int callGetLineHeight();
 	
+	@Invoker("getWidth")
+	public int callGetWidth();
+	
+	@Invoker("getScale")
+	public double callGetScale();
+	
 }

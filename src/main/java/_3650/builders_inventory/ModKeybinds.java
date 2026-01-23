@@ -8,12 +8,12 @@ import com.mojang.blaze3d.platform.InputConstants;
 
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class ModKeybinds {
 	
 	private static final ArrayList<KeyMapping> KEYS = new ArrayList<>();
-	private static final KeyMapping.Category KEYBIND_CATEGORY = KeyMapping.Category.register(ResourceLocation.fromNamespaceAndPath(BuildersInventory.MOD_ID, "main"));
+	private static final KeyMapping.Category KEYBIND_CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(BuildersInventory.MOD_ID, "main"));
 	
 	public static final KeyMapping HOTBAR_SCROLL = create(
 			"hotbar_swapper.hotbar_scroll",

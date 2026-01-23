@@ -19,7 +19,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeInventoryListener;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickType;
@@ -28,48 +28,48 @@ import net.minecraft.world.item.ItemStack;
 
 public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInventoryMenu> {
 	
-	public static final ResourceLocation BACKGROUND = BuildersInventory.modLoc("textures/gui/container/extended_inventory/inventory.png");
-	public static final ResourceLocation BACKGROUND_LOCKED = BuildersInventory.modLoc("textures/gui/container/extended_inventory/inventory_locked.png");
-	public static final ResourceLocation BACKGROUND_INVALID = BuildersInventory.modLoc("textures/gui/container/extended_inventory/inventory_invalid.png");
+	public static final Identifier BACKGROUND = BuildersInventory.modId("textures/gui/container/extended_inventory/inventory.png");
+	public static final Identifier BACKGROUND_LOCKED = BuildersInventory.modId("textures/gui/container/extended_inventory/inventory_locked.png");
+	public static final Identifier BACKGROUND_INVALID = BuildersInventory.modId("textures/gui/container/extended_inventory/inventory_invalid.png");
 	
 	private static final WidgetSprites SPRITES_BUTTON_REPAIR = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/button_repair"),
-			BuildersInventory.modLoc("extended_inventory/button_repair_highlighted"));
+			BuildersInventory.modId("extended_inventory/button_repair"),
+			BuildersInventory.modId("extended_inventory/button_repair_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_ORGANIZE = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/button_organize"),
-			BuildersInventory.modLoc("extended_inventory/button_organize_disabled"),
-			BuildersInventory.modLoc("extended_inventory/button_organize_highlighted"));
+			BuildersInventory.modId("extended_inventory/button_organize"),
+			BuildersInventory.modId("extended_inventory/button_organize_disabled"),
+			BuildersInventory.modId("extended_inventory/button_organize_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_DELETE = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/button_delete"),
-			BuildersInventory.modLoc("extended_inventory/button_delete_disabled"),
-			BuildersInventory.modLoc("extended_inventory/button_delete_highlighted"));
+			BuildersInventory.modId("extended_inventory/button_delete"),
+			BuildersInventory.modId("extended_inventory/button_delete_disabled"),
+			BuildersInventory.modId("extended_inventory/button_delete_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_ICON = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/button_icon"),
-			BuildersInventory.modLoc("extended_inventory/button_icon_disabled"),
-			BuildersInventory.modLoc("extended_inventory/button_icon_highlighted"));
+			BuildersInventory.modId("extended_inventory/button_icon"),
+			BuildersInventory.modId("extended_inventory/button_icon_disabled"),
+			BuildersInventory.modId("extended_inventory/button_icon_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_RENAME = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/button_rename"),
-			BuildersInventory.modLoc("extended_inventory/button_rename_disabled"),
-			BuildersInventory.modLoc("extended_inventory/button_rename_highlighted"));
+			BuildersInventory.modId("extended_inventory/button_rename"),
+			BuildersInventory.modId("extended_inventory/button_rename_disabled"),
+			BuildersInventory.modId("extended_inventory/button_rename_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_UNLOCKED = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/button_lock_unlocked"),
-			BuildersInventory.modLoc("extended_inventory/button_lock_unlocked_disabled"),
-			BuildersInventory.modLoc("extended_inventory/button_lock_unlocked_highlighted"));
+			BuildersInventory.modId("extended_inventory/button_lock_unlocked"),
+			BuildersInventory.modId("extended_inventory/button_lock_unlocked_disabled"),
+			BuildersInventory.modId("extended_inventory/button_lock_unlocked_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_LOCKED = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/button_lock_locked"),
-			BuildersInventory.modLoc("extended_inventory/button_lock_locked_disabled"),
-			BuildersInventory.modLoc("extended_inventory/button_lock_locked_highlighted"));
+			BuildersInventory.modId("extended_inventory/button_lock_locked"),
+			BuildersInventory.modId("extended_inventory/button_lock_locked_disabled"),
+			BuildersInventory.modId("extended_inventory/button_lock_locked_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_LEFT = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/button_switch_left"),
-			BuildersInventory.modLoc("extended_inventory/button_switch_left_disabled"),
-			BuildersInventory.modLoc("extended_inventory/button_switch_left_highlighted"));
+			BuildersInventory.modId("extended_inventory/button_switch_left"),
+			BuildersInventory.modId("extended_inventory/button_switch_left_disabled"),
+			BuildersInventory.modId("extended_inventory/button_switch_left_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_RIGHT = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/button_switch_right"),
-			BuildersInventory.modLoc("extended_inventory/button_switch_right_disabled"),
-			BuildersInventory.modLoc("extended_inventory/button_switch_right_highlighted"));
+			BuildersInventory.modId("extended_inventory/button_switch_right"),
+			BuildersInventory.modId("extended_inventory/button_switch_right_disabled"),
+			BuildersInventory.modId("extended_inventory/button_switch_right_highlighted"));
 	private static final WidgetSprites SPRITES_BUTTON_RIGHT_NEW = new WidgetSprites(
-			BuildersInventory.modLoc("extended_inventory/button_switch_right_new"),
-			BuildersInventory.modLoc("extended_inventory/button_switch_right_new_highlighted"));
+			BuildersInventory.modId("extended_inventory/button_switch_right_new"),
+			BuildersInventory.modId("extended_inventory/button_switch_right_new_highlighted"));
 	
 	private final ExtendedImageButtonGui exGui = new ExtendedImageButtonGui();
 	
@@ -316,7 +316,7 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 	protected void renderBg(GuiGraphics gui, float partialTick, int mouseX, int mouseY) {
 		int relX = (this.width - this.imageWidth) / 2;
 		int relY = (this.height - this.imageHeight) / 2;
-		ResourceLocation bg = ExtendedInventory.PAGE_CONTAINER.isValid() ? ExtendedInventory.PAGE_CONTAINER.isLocked() ? BACKGROUND_LOCKED : BACKGROUND : BACKGROUND_INVALID;
+		Identifier bg = ExtendedInventory.PAGE_CONTAINER.isValid() ? ExtendedInventory.PAGE_CONTAINER.isLocked() ? BACKGROUND_LOCKED : BACKGROUND : BACKGROUND_INVALID;
 		GuiUtil.blitScreenBackground(gui, bg, relX, relY, this.imageWidth, this.imageHeight);
 	}
 	

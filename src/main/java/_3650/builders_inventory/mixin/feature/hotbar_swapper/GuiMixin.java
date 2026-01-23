@@ -19,7 +19,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.contextualbar.ContextualBarRenderer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 @Mixin(value = Gui.class, priority = Integer.MAX_VALUE - 2)
@@ -34,14 +34,14 @@ public abstract class GuiMixin {
 	 */
 	
 	// Hotbars
-	@Inject(method = "renderItemHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/ResourceLocation;IIII)V", ordinal = 0, shift = At.Shift.AFTER))
+	@Inject(method = "renderItemHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIII)V", ordinal = 0, shift = At.Shift.AFTER))
 	private void builders_inventory_hotbarswapper_renderHotbars(GuiGraphics gui, DeltaTracker deltaTick, CallbackInfo ci) {
 		HotbarSwapper.renderHotbars(gui, minecraft);
 	}
 	
 	// Hotbar Selector
-	@WrapOperation(method = "renderItemHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/ResourceLocation;IIII)V", ordinal = 1))
-	private void builders_inventory_hotbarswapper_renderHotbarSelector(GuiGraphics gui, RenderPipeline pipeline, ResourceLocation sprite, int x, int y, int width, int height, Operation<Void> operation) {
+	@WrapOperation(method = "renderItemHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIII)V", ordinal = 1))
+	private void builders_inventory_hotbarswapper_renderHotbarSelector(GuiGraphics gui, RenderPipeline pipeline, Identifier sprite, int x, int y, int width, int height, Operation<Void> operation) {
 		if (!HotbarSwapper.renderHotbarSelector(gui, minecraft, sprite)) operation.call(gui, pipeline, sprite, x, y, width, height);
 	}
 	

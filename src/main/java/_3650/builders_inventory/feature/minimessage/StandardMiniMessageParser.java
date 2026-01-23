@@ -38,16 +38,16 @@ import _3650.builders_inventory.api.minimessage.tags.Translatable;
 import _3650.builders_inventory.api.minimessage.tags.TranslatableFallback;
 import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
 import net.minecraft.ChatFormatting;
-import net.minecraft.ResourceLocationException;
-import net.minecraft.Util;
+import net.minecraft.IdentifierException;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.TextColor;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringUtil;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 
@@ -280,10 +280,10 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 			}
 			case "show_item":
 			{
-				ResourceLocation id;
+				Identifier id;
 				try {
-					id = ResourceLocation.parse(MiniMessageParser.quoteArg(args.require()));
-				} catch (ResourceLocationException e) {
+					id = Identifier.parse(MiniMessageParser.quoteArg(args.require()));
+				} catch (IdentifierException e) {
 					if (output == MiniMessageTagOutput.SINK && !args.hasNext()) return false;
 					else throw invalid(e.getMessage());
 				}
@@ -342,7 +342,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 							String rmKey = key.substring(1);
 							if (rmKey.isEmpty()) return false;
 							
-							ResourceLocation loc = ResourceLocation.parse(rmKey);
+							Identifier loc = Identifier.parse(rmKey);
 							DataComponentType<?> type = BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(loc);
 							if (type == null) {
 								if (output == MiniMessageTagOutput.SINK && !args.hasNext()) break;
@@ -354,7 +354,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 							components.remove(type);
 						} else {
 							// component
-							ResourceLocation loc = ResourceLocation.parse(key);
+							Identifier loc = Identifier.parse(key);
 							DataComponentType<?> type = BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(loc);
 							if (type == null) {
 								if (output == MiniMessageTagOutput.SINK && !args.hasNext()) break;
@@ -373,7 +373,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 							if (!parser.parseComponent(type, tag, components)) throw invalid("Invalid component value for %s: %s", key, value);
 						}
 					}
-				} catch (ResourceLocationException e) {
+				} catch (IdentifierException e) {
 					if (output == MiniMessageTagOutput.SINK && !args.hasNext()) return false;
 					else throw invalid(e.getMessage());
 				}
@@ -400,10 +400,10 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 			}
 			case "show_entity":
 			{
-				ResourceLocation id;
+				Identifier id;
 				try {
-					id = ResourceLocation.parse(MiniMessageParser.quoteArg(args.require()));
-				} catch (ResourceLocationException e) {
+					id = Identifier.parse(MiniMessageParser.quoteArg(args.require()));
+				} catch (IdentifierException e) {
 					if (output == MiniMessageTagOutput.SINK && !args.hasNext()) return false;
 					else throw invalid(e.getMessage());
 				}
@@ -579,16 +579,16 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 					String arg1 = args.next();
 					if (args.hasNext()) {
 						String arg2 = args.next();
-						ResourceLocation font = ResourceLocation.fromNamespaceAndPath(arg1, arg2);
+						Identifier font = Identifier.fromNamespaceAndPath(arg1, arg2);
 						output.push(new FontFormat(argString, name, font));
 						return true;
 					} else {
-						ResourceLocation font = ResourceLocation.parse(arg1);
+						Identifier font = Identifier.parse(arg1);
 						output.push(new FontFormat(argString, name, font));
 						return true;
 					}
 				}
-			} catch (ResourceLocationException e) {
+			} catch (IdentifierException e) {
 				if (output == MiniMessageTagOutput.SINK) return false;
 				else throw invalid(e.getMessage());
 			}

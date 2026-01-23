@@ -11,14 +11,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
 public class HotbarSwapper {
 	
-	private static final ResourceLocation SPRITE_HOTBAR = ResourceLocation.withDefaultNamespace("hud/hotbar");
-	private static final ResourceLocation SPRITE_HOTBAR_SELECTION_WIDE = BuildersInventory.modLoc("hud/hotbar_selection_wide");
+	private static final Identifier SPRITE_HOTBAR = Identifier.withDefaultNamespace("hud/hotbar");
+	private static final Identifier SPRITE_HOTBAR_SELECTION_WIDE = BuildersInventory.modId("hud/hotbar_selection_wide");
 	
 	public static boolean selecting = false;
 	public static boolean singleColumn = false;
@@ -76,7 +76,7 @@ public class HotbarSwapper {
 		}
 	}
 	
-	public static boolean renderHotbarSelector(GuiGraphics gui, Minecraft mc, ResourceLocation selectorSprite) {
+	public static boolean renderHotbarSelector(GuiGraphics gui, Minecraft mc, Identifier selectorSprite) {
 		if (selecting) {
 			int width = gui.guiWidth() / 2;
 			if (singleColumn) {
