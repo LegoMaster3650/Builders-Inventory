@@ -1,10 +1,15 @@
 package _3650.builders_inventory.api.minimessage;
 
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance;
+import _3650.builders_inventory.feature.minimessage.chat.ChatMiniMessageContext;
+
+import _3650.builders_inventory.api.minimessage.instance.HighlightedTextInput;
 import _3650.builders_inventory.mixin.feature.minimessage.ChatComponentInvoker;
 import _3650.builders_inventory.mixin.feature.minimessage.EditBoxAccessor;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 
 public class MiniMessageUtil {
 	
@@ -32,6 +37,10 @@ public class MiniMessageUtil {
 			if (widget.canFormat()) return widget.format(offset, offset + text.length());
 			else return original.apply(text, offset);
 		});
+	}
+	
+	public static void rebuildChatValidation(String original, String modified, MutableComponent highlighted, HighlightedTextInput.Builder output, Style prefixStyle) {
+		ChatMiniMessageContext.rebuildChatText(original, modified, highlighted, output, prefixStyle);
 	}
 	
 }
