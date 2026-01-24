@@ -5,12 +5,12 @@ import net.minecraft.network.chat.MutableComponent;
 
 public abstract class Node {
 	
-	public abstract String plainText();
+	public abstract String getPlainText();
 	
-	public abstract MutableComponent visit();
+	public abstract MutableComponent getFormatted();
 	
-	public MutableComponent visitPlainText() {
-		return Component.literal(plainText());
+	public MutableComponent getFormattedPlainText() {
+		return Component.literal(getPlainText());
 	}
 	
 }

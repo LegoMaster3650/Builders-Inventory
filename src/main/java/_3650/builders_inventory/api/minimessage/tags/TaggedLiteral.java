@@ -14,12 +14,12 @@ public class TaggedLiteral extends Node {
 	}
 	
 	@Override
-	public String plainText() {
+	public String getPlainText() {
 		return tag;
 	}
 	
 	@Override
-	public MutableComponent visit() {
+	public MutableComponent getFormatted() {
 		return Component.literal(text);
 	}
 	
