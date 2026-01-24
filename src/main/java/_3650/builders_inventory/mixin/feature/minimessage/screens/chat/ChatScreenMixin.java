@@ -77,7 +77,7 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 				(Screen)(Object)this,
 				this.font,
 				WrappedTextField.editBox(this.input),
-				ChatMiniMessageContext::isValid,
+				ChatMiniMessageContext.INSTANCE,
 				LastParseListener.IGNORE,
 				PreviewOptions.chat(),
 				SuggestionOptions.chat(() -> this.commandSuggestions)

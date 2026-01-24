@@ -1,10 +1,10 @@
 package _3650.builders_inventory.api.minimessage.instance;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +21,6 @@ import _3650.builders_inventory.api.minimessage.widgets.wrapper.WrappedTextField
 import _3650.builders_inventory.config.Config;
 import _3650.builders_inventory.feature.minimessage.MiniMessageFeature;
 import _3650.builders_inventory.feature.minimessage.chat.ChatMiniMessageContext;
-import _3650.builders_inventory.util.StringDiff;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -34,7 +33,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -191,14 +189,28 @@ public class MiniMessageInstance {
 		return false;
 	}
 	
-	private static final Style LITERAL_STYLE = Style.EMPTY.withColor(ChatFormatting.GRAY);
+	private static class ValidatorHolder implements Consumer<MiniMessageValidator> {
+		
+		public MiniMessageValidator validator;
+		
+		public ValidatorHolder(@NotNull MiniMessageValidator initial) {
+			this.validator = initial;
+		}
+		
+		@Override
+		public void accept(MiniMessageValidator validator) {
+			this.validator = validator;
+		}
+		
+	}
 	
 	private boolean updateMiniMessage(@NotNull String value) {
 		final String originalValue = value;
 		
+		var validatorUsed = new ValidatorHolder(this.context);
 		{
 			// only work in certain contexts
-			final var newVal = this.context.isValid(this.minecraft, value);
+			final var newVal = this.context.isValid(this.minecraft, value, validatorUsed);
 //			BuildersInventory.LOGGER.warn(newVal.toString());
 			
 			// validate value
@@ -212,77 +224,17 @@ public class MiniMessageInstance {
 		final var mini = MiniMessageParser.parse(value, registryAccess(this.minecraft), ChatMiniMessageContext.currentServerIP);
 		this.setLastParse(mini);
 		
-		// find any text lost
-		final var missing = StringDiff.missing(originalValue, value);
-		final List<StringDiff> diffs = missing.diffs;
-		final Iterator<StringDiff> diffIter = diffs.iterator();
-		final int origS = originalValue.length();
-		
 		// get plaintext with fun syntax highlighting
-		MutableComponent highSeq = mini.getFormattedPlain();
+		MutableComponent highlighted = mini.getFormattedPlain();
 		
 		// input result
-		final var input = new HighlightedTextInput.Builder(origS + missing.length);
+		final var formatBuilder = new HighlightedTextInput.Builder(originalValue.length());
 		
-		final var reconstructor = new FormattedText.StyledContentConsumer<Integer>() {
-			public int index = 0;
-			public StringDiff diff = diffs.isEmpty() ? null : diffIter.next();
-			
-			@Override
-			public Optional<Integer> accept(Style style, String string) {
-				if (input.length + string.length() >= origS) {
-					final int i = origS - input.length;
-					if (i > 0) {
-						final String end = string.substring(0, i);
-						input.append(end, style);
-					}
-					return Optional.of(input.length + i);
-				}
-				if (diff == null) {
-					input.append(string, style);
-					return Optional.empty();
-				}
-				
-				if (index + string.length() >= diff.index && diff.index >= index) {
-					final int i = diff.index - index;
-					
-					if (i > 0) {
-						final String before = string.substring(0, i);
-						input.append(before, style);
-						index += before.length();
-					}
-					input.append(diff.value, style);
-					
-					diff = diffIter.hasNext() ? diffIter.next() : null;
-					
-					if (i < string.length()) return accept(style, string.substring(i));
-				} else {
-					input.append(string, style);
-					index += string.length();
-				}
-				return Optional.empty();
-			}
-		};
-		
-		// deal with index 0 diffs first
-		while (reconstructor.diff != null && reconstructor.diff.index == 0) {
-			input.append(reconstructor.diff.value, LITERAL_STYLE);
-			reconstructor.diff = diffIter.hasNext() ? diffIter.next() : null;
-		}
-		
-		// execute order 66
-		highSeq.visit(reconstructor, Style.EMPTY).toString();
-		
-		// clean up remaining diffs
-		if (reconstructor.diff != null) {
-			input.append(reconstructor.diff.value, Style.EMPTY);
-		}
-		while (diffIter.hasNext()) {
-			input.append(diffIter.next().value, Style.EMPTY);
-		}
+		// rebuild input, now the validators' responsibility
+		validatorUsed.validator.rebuildText(originalValue, value, highlighted, formatBuilder);
 		
 		// build formatted input
-		final var formattedInput = input.build();
+		final HighlightedTextInput formattedInput = formatBuilder.build();
 		
 		// get error to yell about
 		final int err = StringUtils.indexOfDifference(originalValue, formattedInput.text);
@@ -290,7 +242,7 @@ public class MiniMessageInstance {
 		// get preview component depending on if it's an error or not
 		MutableComponent previewComponent = null;
 		if (err > -1) {
-			previewComponent = Component.literal(highSeq.getString()).withStyle(style -> style
+			previewComponent = Component.literal(highlighted.getString()).withStyle(style -> style
 					.applyFormat(ChatFormatting.DARK_RED)
 					.withHoverEvent(new HoverEvent.ShowText(
 							Component.translatable("err.builders_inventory.minimessage.mismatch", err)
