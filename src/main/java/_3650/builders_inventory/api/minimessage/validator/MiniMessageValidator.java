@@ -13,11 +13,11 @@ import net.minecraft.network.chat.Style;
  * Also gets to fix any changes it made to the original text so the input displays properly :D
  */
 public interface MiniMessageValidator {
-	public static final MiniMessageValidator ALWAYS = new UnmodifiedMMValidator();
+	public static final MiniMessageValidator PASSTHROUGH = new UnmodifiedMMValidator();
 	
 	public Optional<String> isValid(Minecraft minecraft, String value, Consumer<MiniMessageValidator> validatorChanger);
 	
-	public void rebuildText(String original, String modified, MutableComponent highlighted, HighlightedTextInput.Builder output);
+	public void applyFormattedInput(String original, String modified, MutableComponent highlighted, HighlightedTextInput.Builder output);
 	
 	/*
 	 * MiniMessage validator base type that doesn't modify the input in any way<br>
@@ -31,7 +31,7 @@ public interface MiniMessageValidator {
 		}
 		
 		@Override
-		public void rebuildText(String original, String modified, MutableComponent highlighted, HighlightedTextInput.Builder output) {
+		public void applyFormattedInput(String original, String modified, MutableComponent highlighted, HighlightedTextInput.Builder output) {
 			output.visit(highlighted, Style.EMPTY);
 		}
 		
