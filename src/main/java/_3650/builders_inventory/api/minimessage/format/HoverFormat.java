@@ -60,7 +60,7 @@ public class HoverFormat extends Format {
 		}
 		@Override
 		protected HoverEvent.ShowText build() {
-			return new HoverEvent.ShowText(this.contents.visit());
+			return new HoverEvent.ShowText(this.contents.getFormatted());
 		}
 	}
 	
@@ -88,7 +88,7 @@ public class HoverFormat extends Format {
 		}
 		@Override
 		protected HoverEvent.ShowEntity build() {
-			var info = new HoverEvent.EntityTooltipInfo(this.type, this.id, this.name.map(Node::visit));
+			var info = new HoverEvent.EntityTooltipInfo(this.type, this.id, this.name.map(Node::getFormatted));
 			return new HoverEvent.ShowEntity(info);
 		}
 	}

@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 import org.jetbrains.annotations.Nullable;
 
 import _3650.builders_inventory.api.minimessage.MiniMessageUtil;
-import _3650.builders_inventory.api.minimessage.instance.LastParseListener;
+import _3650.builders_inventory.api.minimessage.instance.MiniMessageParseListener;
 import _3650.builders_inventory.api.minimessage.instance.MMInstanceConstructor;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance;
 import _3650.builders_inventory.api.minimessage.widgets.MiniMessageEventListener;
@@ -38,13 +38,13 @@ public class MiniMessageEditBox extends EditBox implements MiniMessageEventListe
 	
 	public MiniMessageEditBox(MMInstanceConstructor widget, Font font, int x, int y, int width, int height, Component message) {
 		super(font, x, y, width, height, message);
-		this.minimessage = widget.construct(WrappedTextField.editBox(this), LastParseListener.IGNORE);
+		this.minimessage = widget.construct(WrappedTextField.editBox(this), MiniMessageParseListener.IGNORE);
 		this.initMiniMessage();
 	}
 	
 	public MiniMessageEditBox(MMInstanceConstructor widget, Font font, int x, int y, int width, int height, @Nullable EditBox editBox, Component message) {
 		super(font, x, y, width, height, editBox, message);
-		this.minimessage = widget.construct(WrappedTextField.editBox(this), LastParseListener.IGNORE);
+		this.minimessage = widget.construct(WrappedTextField.editBox(this), MiniMessageParseListener.IGNORE);
 		this.initMiniMessage();
 	}
 	

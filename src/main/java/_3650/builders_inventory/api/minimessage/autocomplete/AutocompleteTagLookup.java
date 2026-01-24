@@ -12,12 +12,12 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 public class AutocompleteTagLookup {
 	
-	private SimpleStringArg nodes;
-	private Object2ObjectOpenHashMap<String, Entry> entries;
+	private SimpleStringArg tags;
+	private Object2ObjectOpenHashMap<String, TagArgs> tagArgs;
 	
 	public AutocompleteTagLookup() {
-		this.nodes = SimpleStringArg.of(List.of());
-		this.entries = new Object2ObjectOpenHashMap<>();
+		this.tags = SimpleStringArg.of(List.of());
+		this.tagArgs = new Object2ObjectOpenHashMap<>();
 	}
 	
 	public ACBuilder builder() {
@@ -25,29 +25,29 @@ public class AutocompleteTagLookup {
 	}
 	
 	public List<String> suggestTag(String input) {
-		return sort(input, this.nodes.findNonMatch(input));
+		return prioritySort(input, this.tags.findNonMatch(input));
 	}
 	
 	public List<String> suggestArg(String tagName, int arg, @Nullable String prev, @NotNull String input) {
-		Entry entry = this.entries.get(tagName);
-		if (entry == null) return List.of();
-		Suggestor suggest;
-		if (entry.varargs != null) suggest = entry.varargs;
-		else if (arg < entry.args.size()) suggest = entry.args.get(arg);
+		TagArgs tag = this.tagArgs.get(tagName);
+		if (tag == null) return List.of();
+		Suggestor suggestor;
+		if (tag.varargs != null) suggestor = tag.varargs;
+		else if (arg < tag.args.size()) suggestor = tag.args.get(arg);
 		else return List.of();
-		return sort(input, suggest.suggest(prev, input));
+		return prioritySort(input, suggestor.suggest(prev, input));
 	}
 	
-	private static List<String> sort(String input, List<String> strs) {
-		if (strs.isEmpty()) return strs;
-		final boolean isMc = strs.get(0).startsWith("minecraft:");
+	private static List<String> prioritySort(String input, List<String> suggestions) {
+		if (suggestions.isEmpty()) return suggestions;
+		final boolean isMc = suggestions.get(0).startsWith("minecraft:");
 		final String lower = input.toLowerCase(Locale.ROOT);
-		final String str = isMc ? "minecraft:" + lower : lower;
-		ArrayList<String> sorted = new ArrayList<>(strs.size());
-		ArrayList<String> nostart = new ArrayList<>(strs.size());
-		for (String s : strs) {
-			if (s.startsWith(str)) sorted.add(s);
-			else nostart.add(s);
+		final String prefix = isMc ? "minecraft:" + lower : lower;
+		ArrayList<String> sorted = new ArrayList<>(suggestions.size());
+		ArrayList<String> nostart = new ArrayList<>(suggestions.size());
+		for (String suggestion : suggestions) {
+			if (suggestion.startsWith(prefix)) sorted.add(suggestion);
+			else nostart.add(suggestion);
 		}
 		sorted.addAll(nostart);
 		return sorted;
@@ -55,45 +55,45 @@ public class AutocompleteTagLookup {
 	
 	public class ACBuilder {
 		
-		private final ArrayList<String> vals = new ArrayList<>();
-		private final Object2ObjectOpenHashMap<String, Entry> entries = new Object2ObjectOpenHashMap<>();
+		private final ArrayList<String> tags = new ArrayList<>();
+		private final Object2ObjectOpenHashMap<String, TagArgs> tagArgs = new Object2ObjectOpenHashMap<>();
 		
 		private ACBuilder() {}
 		
-		public EBStage entry(String name) {
-			return new EBStage(List.of(name));
+		public TagBuilder tag(String name) {
+			return new TagBuilder(List.of(name));
 		}
 		
-		public EBStage entry(String... names) {
-			return new EBStage(List.of(names));
+		public TagBuilder tag(String... names) {
+			return new TagBuilder(List.of(names));
 		}
 		
-		public EBStage entry(Collection<String> names) {
-			return new EBStage(names);
+		public TagBuilder tag(Collection<String> names) {
+			return new TagBuilder(names);
 		}
 		
-		public class EBStage {
+		public class TagBuilder {
 			
 			private final Collection<String> names;
 			
-			private EBStage(Collection<String> names) {
+			private TagBuilder(Collection<String> names) {
 				this.names = names;
 			}
 			
 			public ACBuilder build() {
 				for (String name : names) {
-					ACBuilder.this.entries.put(name, new Entry(List.of(), null));
-					ACBuilder.this.vals.add(name);
+					ACBuilder.this.tagArgs.put(name, new TagArgs(List.of(), null));
+					ACBuilder.this.tags.add(name);
 				}
 				return ACBuilder.this;
 			}
 			
-			public ACBuilder build(Consumer<EntryBuilder> builder) {
+			public ACBuilder build(Consumer<ArgBuilder> builder) {
 				for (String name : names) {
-					EntryBuilder b = new EntryBuilder();
-					builder.accept(b);
-					ACBuilder.this.entries.put(name, new Entry(b.args, b.varargs));
-					ACBuilder.this.vals.add(name);
+					ArgBuilder argBuilder = new ArgBuilder();
+					builder.accept(argBuilder);
+					ACBuilder.this.tagArgs.put(name, new TagArgs(argBuilder.args, argBuilder.varargs));
+					ACBuilder.this.tags.add(name);
 				}
 				return ACBuilder.this;
 			}
@@ -101,58 +101,58 @@ public class AutocompleteTagLookup {
 		}
 		
 		public void end() {
-			AutocompleteTagLookup.this.nodes = SimpleStringArg.of(vals);
-			AutocompleteTagLookup.this.entries = entries;
+			AutocompleteTagLookup.this.tags = SimpleStringArg.of(tags);
+			AutocompleteTagLookup.this.tagArgs = tagArgs;
 		}
 		
 	}
 	
-	private static class Entry {
+	private static class TagArgs {
 		
 		public final List<Suggestor> args;
 		public final Suggestor varargs;
 		
-		private Entry(List<Suggestor> args, Suggestor varargs) {
+		private TagArgs(List<Suggestor> args, Suggestor varargs) {
 			this.args = args;
 			this.varargs = varargs;
 		}
 		
 	}
 	
-	public static class EntryBuilder {
+	public static class ArgBuilder {
 		
 		private final List<Suggestor> args = new ArrayList<>();
 		private Suggestor varargs = null;
 		
-		private EntryBuilder() {}
+		private ArgBuilder() {}
 		
-		public EntryBuilder emptyArg() {
+		public ArgBuilder emptyArg() {
 			this.args.add(Suggestor.empty());
 			return this;
 		}
 		
-		public EntryBuilder arg(AutocompleteArg arg) {
+		public ArgBuilder arg(AutocompleteArg arg) {
 			this.args.add(Suggestor.arg(arg));
 			return this;
 		}
 		
-		public EntryBuilder identifier(AutocompleteArg arg) {
+		public ArgBuilder identifier(AutocompleteArg arg) {
 			this.args.add(Suggestor.identifier(arg));
 			this.args.add(Suggestor.identifier(arg));
 			return this;
 		}
 		
-		public EntryBuilder arg(String arg) {
+		public ArgBuilder arg(String arg) {
 			this.args.add(Suggestor.literal(arg));
 			return this;
 		}
 		
-		public EntryBuilder arg(Suggestor arg) {
+		public ArgBuilder arg(Suggestor arg) {
 			this.args.add(arg);
 			return this;
 		}
 		
-		public EntryBuilder varArg(Suggestor arg) {
+		public ArgBuilder varArg(Suggestor arg) {
 			this.varargs = arg;
 			return this;
 		}

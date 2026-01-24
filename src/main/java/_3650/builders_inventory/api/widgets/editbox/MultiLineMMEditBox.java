@@ -10,7 +10,7 @@ import com.mojang.blaze3d.platform.cursor.CursorTypes;
 
 import _3650.builders_inventory.BuildersInventory;
 import _3650.builders_inventory.api.minimessage.MiniMessageResult;
-import _3650.builders_inventory.api.minimessage.instance.LastParseListener;
+import _3650.builders_inventory.api.minimessage.instance.MiniMessageParseListener;
 import _3650.builders_inventory.api.minimessage.instance.MMInstanceConstructor;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance;
 import _3650.builders_inventory.api.minimessage.widgets.MiniMessageEventListener;
@@ -76,7 +76,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	private Runnable linesResetListener = IGNORE_RUN;
 	
 	@Nullable
-	private MiniMessageInstance activeWidget = null;
+	private MiniMessageInstance activeMiniMessage = null;
 	
 	private boolean showLineNumbers = false;
 	private int lineNumWidth = 0;
@@ -297,8 +297,8 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 		this.selecting = event.hasShiftDown();
 		final int keyCode = event.key();
 		if (keyCode != InputConstants.KEY_UP && keyCode != InputConstants.KEY_DOWN) {
-			if (this.activeWidget != null) {
-				if (this.activeWidget.keyPressed(event)) return true;
+			if (this.activeMiniMessage != null) {
+				if (this.activeMiniMessage.keyPressed(event)) return true;
 			}
 		}
 		if (event.isSelectAll()) {
@@ -404,16 +404,16 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	@Override
 	public void miniMessageTick() {
 		if (!this.isActive() || !this.isFocused()) return;
-		if (this.activeWidget != null) {
-			this.activeWidget.tick();
+		if (this.activeMiniMessage != null) {
+			this.activeMiniMessage.tick();
 		}
 	}
 	
 	@Override
 	public boolean miniMessageMouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
 		if (!this.isActive() || !this.isFocused()) return false;
-		if (this.activeWidget != null) {
-			if (this.activeWidget.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) return true;
+		if (this.activeMiniMessage != null) {
+			if (this.activeMiniMessage.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) return true;
 		}
 		return false;
 	}
@@ -421,20 +421,20 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	@Override
 	public boolean miniMessageMouseClicked(MouseButtonEvent event) {
 		if (!this.isActive() || !this.isFocused()) return false;
-		if (this.activeWidget != null) {
-			if (this.activeWidget.mouseClicked(event)) return true;
+		if (this.activeMiniMessage != null) {
+			if (this.activeMiniMessage.mouseClicked(event)) return true;
 		}
 		return false;
 	}
 	
 	@Override
 	public void miniMessageRender(GuiGraphics gui, int mouseX, int mouseY) {
-		if (this.isActive() && this.isFocused() && this.activeWidget != null) {
+		if (this.isActive() && this.isFocused() && this.activeMiniMessage != null) {
 			ActiveTextCollector text = gui.textRenderer(GuiGraphics.HoveredTextEffects.TOOLTIP_AND_CURSOR);
 			ActiveTextCollector.Parameters parameters = text.defaultParameters();
 			
-			this.activeWidget.renderPreviewOrError(gui, text, parameters);
-			this.activeWidget.renderSuggestions(gui, mouseX, mouseY);
+			this.activeMiniMessage.renderPreviewOrError(gui, text, parameters);
+			this.activeMiniMessage.renderSuggestions(gui, mouseX, mouseY);
 		}
 	}
 	
@@ -1029,7 +1029,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 		return new FormatLine(this, line, lineIndex);
 	}
 	
-	private static class FormatLine implements WrappedTextField, LastParseListener {
+	private static class FormatLine implements WrappedTextField, MiniMessageParseListener {
 		
 		private final MultiLineMMEditBox input;
 		private final MiniMessageInstance minimessage;
@@ -1045,8 +1045,8 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 		}
 		
 		@Override
-		public void onParseChange(@Nullable MiniMessageResult lastParse) {
-			this.input.lineEditListener.onParseChange(this.lineIndex, lastParse);
+		public void onParseChange(@Nullable MiniMessageResult parseResult) {
+			this.input.lineEditListener.onParseChange(this.lineIndex, parseResult);
 		}
 		
 		public boolean isActive() {
@@ -1067,7 +1067,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 			boolean active = this.isActive();
 			this.minimessage.setActive(active);
 			if (active) {
-				this.input.activeWidget = this.minimessage;
+				this.input.activeMiniMessage = this.minimessage;
 				this.minimessage.cursorMoved();
 			} else {
 				this.input.suggestion = null;
@@ -1083,7 +1083,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 			boolean active = this.isActive();
 			this.minimessage.setActive(active);
 			if (active) {
-				this.input.activeWidget = this.minimessage;
+				this.input.activeMiniMessage = this.minimessage;
 				this.minimessage.unknownEdit();
 			} else {
 				this.minimessage.quietUpdate();
@@ -1093,7 +1093,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 		public void setActive(boolean active) {
 			this.minimessage.setActive(active);
 			if (active) {
-				this.input.activeWidget = this.minimessage;
+				this.input.activeMiniMessage = this.minimessage;
 				this.minimessage.unknownEdit();
 			} else {
 				this.input.suggestion = null;

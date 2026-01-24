@@ -27,18 +27,18 @@ public class MiniMessageResult {
 	
 	public MutableComponent getFormatted() {
 		if (formatted == null) {
-			formatted = root.visit();
+			formatted = root.getFormatted();
 		}
 		return formatted;
 	}
 	
-	private MutableComponent formattedPlain;
+	private MutableComponent formattedPlainText;
 	
-	public MutableComponent getFormattedPlain() {
-		if (formattedPlain == null) {
-			formattedPlain = root.visitPlainText();
+	public MutableComponent getFormattedPlainText() {
+		if (formattedPlainText == null) {
+			formattedPlainText = root.getFormattedPlainText();
 		}
-		return formattedPlain;
+		return formattedPlainText;
 	}
 	
 	public void debug(Consumer<Component> output) {
@@ -47,7 +47,7 @@ public class MiniMessageResult {
 		output.accept(Component.literal("DEBUG"));
 		output.accept(Component.empty());
 		output.accept(this.getFormatted());
-		output.accept(this.getFormattedPlain());
+		output.accept(this.getFormattedPlainText());
 		output.accept(Component.empty());
 		output.accept(Component.literal("TRAILING TEXT"));
 		output.accept(Component.empty());

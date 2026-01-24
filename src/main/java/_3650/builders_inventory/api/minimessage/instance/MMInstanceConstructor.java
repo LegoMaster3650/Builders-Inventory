@@ -16,11 +16,11 @@ public interface MMInstanceConstructor {
 				screen,
 				font,
 				input,
-				MiniMessageValidator.ALWAYS,
+				MiniMessageValidator.PASSTHROUGH,
 				listener,
 				PreviewOptions.standard(false),
 				SuggestionOptions.standard(7));
 	}
 	
-	public MiniMessageInstance construct(WrappedTextField input, LastParseListener listener);
+	public MiniMessageInstance construct(WrappedTextField input, MiniMessageParseListener listener);
 }

@@ -37,7 +37,7 @@ public class MiniMessageParser {
 	private final String server;
 	private MiniMessageTagOutput tagOutput;
 	
-	private final String s;
+	private final String input;
 	private final int tMax;
 	public final Branch root;
 	public Branch ctx;
@@ -55,26 +55,26 @@ public class MiniMessageParser {
 		return parse(str, Optional.empty(), null);
 	}
 	
-	public static MiniMessageResult parse(String str, HolderLookup.Provider registryAccess, @Nullable String server) {
-		return parse(str, Optional.ofNullable(registryAccess), server);
+	public static MiniMessageResult parse(String input, HolderLookup.Provider registryAccess, @Nullable String server) {
+		return parse(input, Optional.ofNullable(registryAccess), server);
 	}
 	
-	public static MiniMessageResult parse(String str, Optional<HolderLookup.Provider> registryAccess, @Nullable String server) {
-		return parse(str, Format.PLAIN, registryAccess, server);
+	public static MiniMessageResult parse(String input, Optional<HolderLookup.Provider> registryAccess, @Nullable String server) {
+		return parse(input, Format.PLAIN, registryAccess, server);
 	}
 	
-	static MiniMessageResult parse(String str, Format rootFormat, Optional<HolderLookup.Provider> registryAccess, @Nullable String server) {
-		return new MiniMessageParser(str, rootFormat, registryAccess.map(access -> access.createSerializationContext(NbtOps.INSTANCE)), server).parseContent();
+	static MiniMessageResult parse(String input, Format rootFormat, Optional<HolderLookup.Provider> registryAccess, @Nullable String server) {
+		return new MiniMessageParser(input, rootFormat, registryAccess.map(access -> access.createSerializationContext(NbtOps.INSTANCE)), server).parseContent();
 	}
 	
-	private MiniMessageResult subParse(String s, Format format) {
-		return new MiniMessageParser(s, format, this.registryOps, this.server).parseContent();
+	private MiniMessageResult subParse(String str, Format rootFormat) {
+		return new MiniMessageParser(str, rootFormat, this.registryOps, this.server).parseContent();
 	}
 	
-	private MiniMessageParser(String s, Format format, Optional<DynamicOps<Tag>> registryOps, @Nullable String server) {
-		this.s = s;
-		this.tMax = s.length() - 1;
-		this.root = new Branch(format);
+	private MiniMessageParser(String input, Format rootFormat, Optional<DynamicOps<Tag>> registryOps, @Nullable String server) {
+		this.input = input;
+		this.tMax = input.length() - 1;
+		this.root = new Branch(rootFormat);
 		this.ctx = root;
 		this.registryOps = registryOps;
 		this.tagParser = TagParser.create(registryOps.orElse(NbtOps.INSTANCE));
@@ -118,7 +118,7 @@ public class MiniMessageParser {
 			
 			if (!escaped) {
 				if (c == '\\' && hasNext()) {
-					char next = s.charAt(tail + 1);
+					char next = input.charAt(tail + 1);
 					switch (state) {
 					case NORMAL:
 						escaped = next == '<' || next == '\\';
@@ -178,7 +178,7 @@ public class MiniMessageParser {
 					state = ParseState.TAG;
 					exitState = ParseState.TAG;
 				} else if (c == ':') {
-					if (tail + 2 < s.length() && s.charAt(tail + 1) == '/' && s.charAt(tail + 2) == '/') {
+					if (tail + 2 < input.length() && input.charAt(tail + 1) == '/' && input.charAt(tail + 2) == '/') {
 					} else {
 						finishArg();
 						argHead = head;
@@ -187,7 +187,7 @@ public class MiniMessageParser {
 					finishArg();
 					argHead = head;
 					if (args.size() > 0) {
-						String argString = s.substring(tagHead + 1, tail);
+						String argString = input.substring(tagHead + 1, tail);
 						String name = args.get(0);
 						ArgData argsData = new ArgData(args.size() > 1 ? args.subList(1, args.size()) : List.of());
 						if (!parseTag(argString, name, argsData)) {
@@ -199,7 +199,7 @@ public class MiniMessageParser {
 					exitState = ParseState.NORMAL;
 				} else if (c == '\'' || c == '"') {
 					quote = c;
-					if (s.indexOf(c, tail + 1) != -1) {
+					if (input.indexOf(c, tail + 1) != -1) {
 						state = ParseState.STRING;
 						exitState = ParseState.STRING;
 					}
@@ -232,7 +232,7 @@ public class MiniMessageParser {
 			finishArg();
 			head = tagHead;
 		}
-		if (head < tail) ctx.append(new Literal(s.substring(head, tail)));
+		if (head < tail) ctx.append(new Literal(input.substring(head, tail)));
 		
 		// read trailing args
 		for (String arg : args) {
@@ -248,7 +248,7 @@ public class MiniMessageParser {
 		}
 		
 		if (exitState == ParseState.TAG && args.size() > 0) {
-			String argString = s.substring(tagHead + 1, tail);
+			String argString = input.substring(tagHead + 1, tail);
 			String name = args.get(0);
 			ArgData argsData = new ArgData(args.size() > 1 ? args.subList(1, args.size()) : List.of());
 			this.tagOutput = MiniMessageTagOutput.SINK;
@@ -293,7 +293,7 @@ public class MiniMessageParser {
 	}
 	
 	public char next() {
-		return tail < tMax ? s.charAt(++tail) : 0;
+		return tail < tMax ? input.charAt(++tail) : 0;
 	}
 	
 	public boolean hasNext() {
@@ -309,7 +309,7 @@ public class MiniMessageParser {
 //	}
 	
 	public boolean finishArg() {
-		String str = head <= tail ? s.substring(head, tail) : null;
+		String str = head <= tail ? input.substring(head, tail) : null;
 		if (str != null) args.add(str);
 		head = tail + 1;
 		return str != null;
@@ -317,13 +317,13 @@ public class MiniMessageParser {
 	
 	public void terminate() {
 		args.clear();
-		String str = tok();
+		String str = token();
 		if (str != null && !str.isEmpty()) ctx.append(new Literal(str));
 		head = tail;
 	}
 	
-	public String tok() {
-		return head < tail && tail <= s.length() ? s.substring(head, tail) : null;
+	public String token() {
+		return head < tail && tail <= input.length() ? input.substring(head, tail) : null;
 	}
 	
 	
