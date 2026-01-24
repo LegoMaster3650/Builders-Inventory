@@ -5,10 +5,10 @@ import org.jetbrains.annotations.Nullable;
 import _3650.builders_inventory.api.minimessage.MiniMessageResult;
 
 @FunctionalInterface
-public interface LastParseListener {
+public interface MiniMessageParseListener {
 	
-	public static final LastParseListener IGNORE = lastParse -> {};
+	public static final MiniMessageParseListener IGNORE = parseResult -> {};
 	
-	public void onParseChange(@Nullable MiniMessageResult lastParse);
+	public void onParseChange(@Nullable MiniMessageResult parseResult);
 	
 }

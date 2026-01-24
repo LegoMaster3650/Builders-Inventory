@@ -20,12 +20,12 @@ public class TranslatableFallback extends Node {
 	}
 	
 	@Override
-	public String plainText() {
+	public String getPlainText() {
 		return key;
 	}
 	@Override
-	public MutableComponent visit() {
-		return args.isEmpty() ? Component.translatableWithFallback(key, fallback) : Component.translatableWithFallback(key, fallback, args.stream().map(Node::visit).toArray());
+	public MutableComponent getFormatted() {
+		return args.isEmpty() ? Component.translatableWithFallback(key, fallback) : Component.translatableWithFallback(key, fallback, args.stream().map(Node::getFormatted).toArray());
 	}
 	
 }
