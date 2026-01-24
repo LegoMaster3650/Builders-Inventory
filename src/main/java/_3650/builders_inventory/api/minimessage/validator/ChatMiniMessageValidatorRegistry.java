@@ -2,6 +2,7 @@ package _3650.builders_inventory.api.minimessage.validator;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import net.minecraft.client.Minecraft;
 
@@ -13,10 +14,13 @@ public class ChatMiniMessageValidatorRegistry {
 		VALIDATORS.add(context);
 	}
 	
-	public static Optional<String> isValid(Minecraft minecraft, String value) {
+	public static Optional<String> isValid(Minecraft minecraft, String value, Consumer<MiniMessageValidator> validatorChanger) {
 		for (var context : VALIDATORS) {
-			final var result = context.isValid(minecraft, value);
-			if (result.isPresent()) return result;
+			final Optional<String> result = context.isValid(minecraft, value, validatorChanger);
+			if (result.isPresent()) {
+				validatorChanger.accept(context);
+				return result;
+			}
 		}
 		return Optional.empty();
 	}

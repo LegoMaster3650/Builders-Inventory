@@ -1,8 +1,12 @@
 package _3650.builders_inventory.api.minimessage.instance;
 
+import java.util.Optional;
+
 import com.google.common.collect.ImmutableList;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import net.minecraft.network.chat.FormattedText.StyledContentConsumer;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 
@@ -47,6 +51,7 @@ public class HighlightedTextInput {
 		
 		public void append(String str, Style style) {
 			final int len = str.length();
+			if (len == 0) return;
 			final int max = length + len;
 			text.append(str);
 			final StyleData data = new StyleData(len, length, style);
@@ -56,6 +61,21 @@ public class HighlightedTextInput {
 		
 		public HighlightedTextInput build() {
 			return new HighlightedTextInput(text.toString(), styles);
+		}
+		
+		// this is very dumb but I kept autocompleting to accept while trying to type append and I don't want that
+		public void visit(FormattedText text, Style defaultStyle) {
+			text.visit(new StyleVisitor(), defaultStyle);
+		}
+		
+		private class StyleVisitor implements StyledContentConsumer<Void> {
+			
+			@Override
+			public Optional<Void> accept(Style style, String string) {
+				Builder.this.append(string, style);
+				return Optional.empty();
+			}
+			
 		}
 		
 	}
