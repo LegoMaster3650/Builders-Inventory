@@ -64,7 +64,7 @@ public class MiniMessageInstance {
 	private final Font font;
 	public final WrappedTextField input;
 	private final MiniMessageValidator context;
-	private final LastParseListener listener;
+	private final MiniMessageParseListener listener;
 	private final PreviewOptions previewOptions;
 	private final SuggestionsDisplay display;
 	
@@ -75,7 +75,7 @@ public class MiniMessageInstance {
 			Font font,
 			WrappedTextField input,
 			MiniMessageValidator context,
-			LastParseListener listener,
+			MiniMessageParseListener listener,
 			PreviewOptions previewOptions,
 			SuggestionOptions suggestionOptions) {
 		this.minecraft = minecraft;
@@ -221,17 +221,17 @@ public class MiniMessageInstance {
 		}
 		
 		// parse message
-		final var mini = MiniMessageParser.parse(value, registryAccess(this.minecraft), ChatMiniMessageContext.currentServerIP);
-		this.setLastParse(mini);
+		final var parseResult = MiniMessageParser.parse(value, registryAccess(this.minecraft), ChatMiniMessageContext.currentServerIP);
+		this.setLastParse(parseResult);
 		
 		// get plaintext with fun syntax highlighting
-		MutableComponent highlighted = mini.getFormattedPlain();
+		MutableComponent highlighted = parseResult.getFormattedPlainText();
 		
 		// input result
 		final var formatBuilder = new HighlightedTextInput.Builder(originalValue.length());
 		
-		// rebuild input, now the validators' responsibility
-		validatorUsed.validator.rebuildText(originalValue, value, highlighted, formatBuilder);
+		// construct the formatted input, now the validators' responsibility
+		validatorUsed.validator.applyFormattedInput(originalValue, value, highlighted, formatBuilder);
 		
 		// build formatted input
 		final HighlightedTextInput formattedInput = formatBuilder.build();
@@ -242,7 +242,7 @@ public class MiniMessageInstance {
 		// get preview component depending on if it's an error or not
 		MutableComponent previewComponent = null;
 		if (err > -1) {
-			previewComponent = Component.literal(highlighted.getString()).withStyle(style -> style
+			previewComponent = Component.literal(formattedInput.text).withStyle(style -> style
 					.applyFormat(ChatFormatting.DARK_RED)
 					.withHoverEvent(new HoverEvent(
 							HoverEvent.Action.SHOW_TEXT,
@@ -251,18 +251,18 @@ public class MiniMessageInstance {
 			BuildersInventory.LOGGER.error("FORMAT ERROR at {} for original {} and reconstructed {}", err, originalValue, formattedInput.text);
 			this.inputOverride = null;
 		} else {
-			if (!mini.errors.isEmpty()) {
+			if (!parseResult.errors.isEmpty()) {
 				previewComponent = Component.empty().withStyle(ChatFormatting.RED);
-				final var errors = mini.errors;
+				final var errors = parseResult.errors;
 				for (int i = 0; i < errors.size(); i++) {
 					String error = errors.get(i);
 					if (i < errors.size() - 1) error = error + '\n';
 					previewComponent.append(Component.literal(error));
 				}
-			} else if (this.previewOptions.doStandardPreview(this.minecraft, this.screen, this)) previewComponent = mini.getFormatted();
+			} else if (this.previewOptions.doStandardPreview(this.minecraft, this.screen, this)) previewComponent = parseResult.getFormatted();
 			if (Config.instance().minimessage_syntaxHighlighting) this.inputOverride = formattedInput;
 			else this.inputOverride = null;
-			this.update(mini);
+			this.update(parseResult);
 		}
 		
 		this.previewLines = List.of();
@@ -327,7 +327,7 @@ public class MiniMessageInstance {
 			}
 			
 			@Override
-			public boolean doStandardPreview(Minecraft mc, Screen screen, MiniMessageInstance widget) {
+			public boolean doStandardPreview(Minecraft mc, Screen screen, MiniMessageInstance minimessage) {
 				return this.doStandardPreview && Config.instance().minimessage_messagePreview;
 			}
 			
@@ -342,12 +342,12 @@ public class MiniMessageInstance {
 			}
 			
 			@Override
-			public int getWidth(Minecraft mc, Screen screen, MiniMessageInstance widget) {
+			public int getWidth(Minecraft mc, Screen screen, MiniMessageInstance minimessage) {
 				return screen.width;
 			}
 			
 			@Override
-			public int getX(Minecraft mc, Screen screen, MiniMessageInstance widget) {
+			public int getX(Minecraft mc, Screen screen, MiniMessageInstance minimessage) {
 				return 0;
 			}
 			
@@ -362,8 +362,8 @@ public class MiniMessageInstance {
 			}
 			
 			@Override
-			public int getY(Minecraft mc, Screen screen, MiniMessageInstance widget) {
-				return widget.input.getY() + widget.input.getHeight() + 2 + Mth.floor(widget.getScaledLineHeight());
+			public int getY(Minecraft mc, Screen screen, MiniMessageInstance minimessage) {
+				return minimessage.input.getY() + minimessage.input.getHeight() + 2 + Mth.floor(minimessage.getScaledLineHeight());
 			}
 			
 		}
@@ -379,7 +379,7 @@ public class MiniMessageInstance {
 			}
 			
 			@Override
-			public boolean doStandardPreview(Minecraft mc, Screen screen, MiniMessageInstance widget) {
+			public boolean doStandardPreview(Minecraft mc, Screen screen, MiniMessageInstance minimessage) {
 				return Config.instance().minimessage_messagePreview;
 			}
 			
@@ -394,12 +394,12 @@ public class MiniMessageInstance {
 			}
 			
 			@Override
-			public int getWidth(Minecraft mc, Screen screen, MiniMessageInstance widget) {
+			public int getWidth(Minecraft mc, Screen screen, MiniMessageInstance minimessage) {
 				return mc.gui.getChat().getWidth();
 			}
 			
 			@Override
-			public int getX(Minecraft mc, Screen screen, MiniMessageInstance widget) {
+			public int getX(Minecraft mc, Screen screen, MiniMessageInstance minimessage) {
 				return 0;
 			}
 			
@@ -414,27 +414,27 @@ public class MiniMessageInstance {
 			}
 			
 			@Override
-			public int getY(Minecraft mc, Screen screen, MiniMessageInstance widget) {
+			public int getY(Minecraft mc, Screen screen, MiniMessageInstance minimessage) {
 				return screen.height - 14 - Config.instance().minimessage_chatPreviewHeight;
 			}
 			
 		}
 		
-		public boolean doStandardPreview(Minecraft mc, Screen screen, MiniMessageInstance widget);
+		public boolean doStandardPreview(Minecraft mc, Screen screen, MiniMessageInstance minimessage);
 		
 		public int getBGColor(Minecraft mc, Screen screen);
 		
 		public float getScale(Minecraft mc, Screen screen);
 		
-		public int getWidth(Minecraft mc, Screen screen, MiniMessageInstance widget);
+		public int getWidth(Minecraft mc, Screen screen, MiniMessageInstance minimessage);
 		
-		public int getX(Minecraft mc, Screen screen, MiniMessageInstance widget);
+		public int getX(Minecraft mc, Screen screen, MiniMessageInstance minimessage);
 		
 		public int getLineTextOffset(Minecraft mc, Screen screen);
 		
 		public int getLineHeight(Minecraft mc, Screen screen);
 		
-		public int getY(Minecraft mc, Screen screen, MiniMessageInstance widget);
+		public int getY(Minecraft mc, Screen screen, MiniMessageInstance minimessage);
 		
 	}
 	
@@ -560,14 +560,14 @@ public class MiniMessageInstance {
 	@Nullable
 	private ArrayList<String> unclosedTags = null;
 	@Nullable
-	private SuggestionList endSuggestion;
+	private SuggestionList suggestions;
 	@Nullable
-	private SuggestionList suggestion;
+	private SuggestionList endSuggestions;
 	
 	public void clear() {
 		cache.clear();
-		endSuggestion = null;
-		suggestion = null;
+		suggestions = null;
+		endSuggestions = null;
 		unclosedTags = null;
 		if (suppressSuggestionUpdate) return;
 		display.clear();
@@ -578,8 +578,8 @@ public class MiniMessageInstance {
 		unclosedTags = msg.unclosedTags;
 		List<String> unclosed = filterTagClose(msg.trailingText);
 		ArrayList<String> formatUnclosed = new ArrayList<>(unclosed.size());
-		for (String s : unclosed) formatUnclosed.add("</" + s + '>');
-		endSuggestion = new SuggestionList(formatUnclosed, 0);
+		for (String tag : unclosed) formatUnclosed.add("</" + tag + '>');
+		endSuggestions = new SuggestionList(formatUnclosed, 0);
 		ProfilerFiller profiler = Profiler.get();
 		profiler.push("cursorMovedMM");
 		cursorMoved(input.getValue(), input.getCursorPosition());
@@ -595,78 +595,78 @@ public class MiniMessageInstance {
 		if (cursor > value.length()) return;
 		if (moveCursor(value, cursor)) {
 			// get suggestions for finishing tags
-			this.display.set(suggestion, suggestion.start, cursor, cursor == value.length());
+			this.display.set(suggestions, suggestions.start, cursor, cursor == value.length());
 		} else if (cursor == value.length()) {
 			// get suggestions for unclosed tags
-			this.display.set(endSuggestion, cursor, cursor, true);
+			this.display.set(endSuggestions, cursor, cursor, true);
 		} else display.clear();
 	}
 	
 	private boolean moveCursor(String value, int cursor) {
 		if (cache.containsKey(cursor)) {
-			var suggestion = cache.get(cursor);
-			if (suggestion.valid) {
-				this.suggestion = suggestion;
+			SuggestionList suggestions = cache.get(cursor);
+			if (suggestions.valid) {
+				this.suggestions = suggestions;
 				return true;
 			} else {
-				this.suggestion = null;
+				this.suggestions = null;
 				return false;
 			}
 		}
 		if (value == null || value.isEmpty()) {
-			this.suggestion = null;
+			this.suggestions = null;
 			return false;
 		}
 		final int start = value.lastIndexOf('<', cursor - 1);
 		if (start > 0 && value.charAt(start - 1) == '\\') {
-			this.suggestion = null;
+			this.suggestions = null;
 			return false;
 		}
 		if (start == -1 || start >= cursor) {
-			this.suggestion = null;
+			this.suggestions = null;
 			return false;
 		}
-		final var text = value.substring(start, cursor);
-		final var parse = minecraft.level == null ? MiniMessageParser.parseNoRegistry(text) : MiniMessageParser.parse(text, Optional.of(minecraft.level.registryAccess()), ChatMiniMessageContext.currentServerIP);
-		if (parse.trailingText == null) {
-			this.suggestion = null;
+		final var searchText = value.substring(start, cursor);
+		final var tagSearch = minecraft.level == null ? MiniMessageParser.parseNoRegistry(searchText) : MiniMessageParser.parse(searchText, Optional.of(minecraft.level.registryAccess()), ChatMiniMessageContext.currentServerIP);
+		if (tagSearch.trailingText == null) {
+			this.suggestions = null;
 			return false;
 		}
 		
 		// get suggestion list
-		final var input = parse.trailingText;
-		if (!input.isEmpty() && parse.trailingArgs.isEmpty() && input.charAt(0) == '/') {
+		final var input = tagSearch.trailingText;
+		if (!input.isEmpty() && tagSearch.trailingArgs.isEmpty() && input.charAt(0) == '/') {
 			if (cursor == value.length() || value.indexOf('<', cursor) == -1) {
 				final var unclosed = filterTagClose(input);
 				if (!unclosed.isEmpty()) {
-					final var strs = new ArrayList<String>(unclosed.size());
-					for (String s : unclosed) strs.add("</" + s + '>');
-					this.suggestion = new SuggestionList(strs, cursor - input.length() - 1);
+					final var vals = new ArrayList<String>(unclosed.size());
+					for (String tag : unclosed) vals.add("</" + tag + '>');
+					this.suggestions = new SuggestionList(vals, cursor - input.length() - 1);
 				} else {
-					final var strs = MiniMessageFeature.TAG_LOOKUP.suggestTag(input.substring(1));
-					this.suggestion = new SuggestionList(strs, cursor - input.length() + 1);
+					final var vals = MiniMessageFeature.TAG_LOOKUP.suggestTag(input.substring(1));
+					this.suggestions = new SuggestionList(vals, cursor - input.length() + 1);
 				}
 			} else {
-				final var strs = MiniMessageFeature.TAG_LOOKUP.suggestTag(input.substring(1));
-				this.suggestion = new SuggestionList(strs, cursor - input.length() + 1);
+				final var vals = MiniMessageFeature.TAG_LOOKUP.suggestTag(input.substring(1));
+				this.suggestions = new SuggestionList(vals, cursor - input.length() + 1);
 			}
-		} else if (parse.trailingArgs.isEmpty()) {
-			final var strs = MiniMessageFeature.TAG_LOOKUP.suggestTag(input);
-			this.suggestion = new SuggestionList(strs, cursor - input.length());
+		} else if (tagSearch.trailingArgs.isEmpty()) {
+			final var vals = MiniMessageFeature.TAG_LOOKUP.suggestTag(input);
+			this.suggestions = new SuggestionList(vals, cursor - input.length());
 		} else {
-			final var args = parse.trailingArgs;
+			final var args = tagSearch.trailingArgs;
 			final var tagName = args.get(0);
 			final var prev = args.size() > 1 ? args.get(args.size() - 1) : null;
-			final var strs = MiniMessageFeature.TAG_LOOKUP.suggestArg(tagName, args.size() - 1, prev, input);
-			this.suggestion = new SuggestionList(strs, cursor - input.length());
+			final var vals = MiniMessageFeature.TAG_LOOKUP.suggestArg(tagName, args.size() - 1, prev, input);
+			this.suggestions = new SuggestionList(vals, cursor - input.length());
 		}
-		cache.put(cursor, this.suggestion);
+		cache.put(cursor, this.suggestions);
 		return true;
 	}
 	
-	private List<String> filterTagClose(String trailingText) {
+	private List<String> filterTagClose(String closingTag) {
 		if (unclosedTags == null) return List.of();
-		return trailingText == null || trailingText.length() <= 1 ? unclosedTags : filterStart(unclosedTags, trailingText.substring(1));
+		return closingTag == null || closingTag.length() <= 1 ? unclosedTags : filterStart(unclosedTags, closingTag.substring(1));
 	}
 	
 	private static ArrayList<String> filterStart(List<String> list, String start) {
@@ -677,16 +677,16 @@ public class MiniMessageInstance {
 	
 	private static class SuggestionList {
 		
-		public final List<String> strs;
+		public final List<String> vals;
 		public final int start;
 		public final int size;
 		public final boolean valid;
 		
-		public SuggestionList(List<String> strs, int start) {
-			this.strs = strs;
+		public SuggestionList(List<String> vals, int start) {
+			this.vals = vals;
 			this.start = start;
-			this.size = strs.size();
-			this.valid = !strs.isEmpty();
+			this.size = vals.size();
+			this.valid = !vals.isEmpty();
 		}
 		
 	}
@@ -709,8 +709,8 @@ public class MiniMessageInstance {
 			}
 			
 			@Override
-			public int getY(Minecraft mc, Screen screen, MiniMessageInstance widget, int x, int suggestionHeight) {
-				return widget.previewLines.isEmpty() ? (widget.input.getY() + widget.input.getHeight()) : (widget._previewYMin + 1);
+			public int getY(Minecraft mc, Screen screen, MiniMessageInstance minimessage, int x, int suggestionHeight) {
+				return minimessage.previewLines.isEmpty() ? (minimessage.input.getY() + minimessage.input.getHeight()) : (minimessage._previewYMin + 1);
 			}
 			
 			@Override
@@ -743,10 +743,10 @@ public class MiniMessageInstance {
 			}
 			
 			@Override
-			public int getY(Minecraft mc, Screen screen, MiniMessageInstance widget, int x, int suggestionHeight) {
+			public int getY(Minecraft mc, Screen screen, MiniMessageInstance minimessage, int x, int suggestionHeight) {
 				ChatComponent chatc = mc.gui.getChat();
 				return screen.height - 12 - 3 - suggestionHeight - ((x >= chatc.getWidth() + 12) ? 0 :
-					widget.previewLines.isEmpty() ? 0 : (Mth.ceil(widget.getScaledLineHeight()) + Config.instance().minimessage_chatPreviewHeight));
+					minimessage.previewLines.isEmpty() ? 0 : (Mth.ceil(minimessage.getScaledLineHeight()) + Config.instance().minimessage_chatPreviewHeight));
 			}
 			
 			@Override
@@ -766,7 +766,7 @@ public class MiniMessageInstance {
 			
 		}
 		
-		public int getY(Minecraft mc, Screen screen, MiniMessageInstance widget, int x, int suggestionHeight);
+		public int getY(Minecraft mc, Screen screen, MiniMessageInstance minimessage, int x, int suggestionHeight);
 		
 		public int getColor();
 		
@@ -817,7 +817,7 @@ public class MiniMessageInstance {
 		private final SuggestionOptions suggestionOptions;
 		
 		public boolean visible = false;
-		public List<String> suggestion = List.of();
+		public List<String> suggestions = List.of();
 		public int start = 0;
 		private int end = 0;
 		private boolean atEnd = false;
@@ -839,7 +839,7 @@ public class MiniMessageInstance {
 		
 		public void clear() {
 			this.hide();
-			this.suggestion = null;
+			this.suggestions = null;
 			MiniMessageInstance.this.input.setSuggestion(null);
 		}
 		
@@ -852,13 +852,13 @@ public class MiniMessageInstance {
 			this.clear();
 			if (list == null || !list.valid) return;
 			this.visible = true;
-			this.suggestion = list.strs;
+			this.suggestions = list.vals;
 			this.start = start;
 			this.end = cursor;
 			this.atEnd = atEnd;
 			
 			int widthScan = 0;
-			for (String str : this.suggestion) widthScan = Math.max(widthScan, MiniMessageInstance.this.font.width(str));
+			for (String str : this.suggestions) widthScan = Math.max(widthScan, MiniMessageInstance.this.font.width(str));
 			this.width = widthScan + 1;
 			this.height = Math.min(list.size, this.suggestionOptions.getLimit()) * 12;
 			this.reposition();
@@ -883,9 +883,9 @@ public class MiniMessageInstance {
 		
 		public boolean render(GuiGraphics gui, int mouseX, int mouseY) {
 			if (!this.visible) return false;
-			final int size = Math.min(this.suggestion.size(), this.suggestionOptions.getLimit());
+			final int size = Math.min(this.suggestions.size(), this.suggestionOptions.getLimit());
 			final boolean topCut = this.offset > 0;
-			final boolean bottomCut = this.suggestion.size() > this.offset + size;
+			final boolean bottomCut = this.suggestions.size() > this.offset + size;
 			
 			final int bgColor = this.suggestionOptions.getColor();
 			
@@ -920,7 +920,7 @@ public class MiniMessageInstance {
 					select(index);
 				}
 				
-				String s = this.suggestion.get(index);
+				String s = this.suggestions.get(index);
 				gui.drawString(MiniMessageInstance.this.font, s, x + 1, y + 2 + (12 * i), (index == this.selected) ? 0xFFFFFF00 : 0xFFAAAAAA);
 			}
 			
@@ -950,16 +950,16 @@ public class MiniMessageInstance {
 		
 		public boolean mouseScrolled(int mouseX, int mouseY, double delta) {
 			if (mouseX > x && mouseX < x + width && mouseY > y && mouseY < y + height) {
-				offset = Mth.clamp((int)(offset - delta), 0, Math.max(suggestion.size() - this.suggestionOptions.getLimit(), 0));
+				offset = Mth.clamp((int)(offset - delta), 0, Math.max(suggestions.size() - this.suggestionOptions.getLimit(), 0));
 				return true;
 			} else return false;
 		}
 		
 		public boolean mouseClicked(int mouseX, int mouseY, int button) {
 			if (mouseX > x && mouseX < x + width && mouseY > y && mouseY < y + height) {
-				int ind = (mouseY - y) / 12 + offset;
-				if (ind >= 0 && ind < suggestion.size()) {
-					select(ind);
+				int index = (mouseY - y) / 12 + offset;
+				if (index >= 0 && index < suggestions.size()) {
+					select(index);
 					useSuggestion();
 				}
 				return true;
@@ -968,18 +968,18 @@ public class MiniMessageInstance {
 		
 		private void cycle(int amt) {
 			select(selected + amt);
-			if (selected < offset) offset = Mth.clamp(selected, 0, Math.max(suggestion.size() - this.suggestionOptions.getLimit(), 0));
-			else if (selected > offset + this.suggestionOptions.getLimit() - 1) offset = Mth.clamp(selected + 9, 0, Math.max(suggestion.size() - this.suggestionOptions.getLimit(), 0));
+			if (selected < offset) offset = Mth.clamp(selected, 0, Math.max(suggestions.size() - this.suggestionOptions.getLimit(), 0));
+			else if (selected > offset + this.suggestionOptions.getLimit() - 1) offset = Mth.clamp(selected + 9, 0, Math.max(suggestions.size() - this.suggestionOptions.getLimit(), 0));
 		}
 		
 		private void select(int i) {
-			if (i < 0) i += suggestion.size();
-			if (i >= suggestion.size()) i -= suggestion.size();
+			if (i < 0) i += suggestions.size();
+			if (i >= suggestions.size()) i -= suggestions.size();
 			this.selected = i;
-			String sel = suggestion.get(i);
-			String hint = substr(sel, end - start);
+			String selectedVal = suggestions.get(i);
+			String hint = substr(selectedVal, end - start);
 			if (hint == null) MiniMessageInstance.this.input.setSuggestion(null);
-			else if (atEnd && sel.startsWith(MiniMessageInstance.this.input.getValue().substring(start, end))) MiniMessageInstance.this.input.setSuggestion(hint);
+			else if (atEnd && selectedVal.startsWith(MiniMessageInstance.this.input.getValue().substring(start, end))) MiniMessageInstance.this.input.setSuggestion(hint);
 		}
 		
 		@Nullable
@@ -988,13 +988,13 @@ public class MiniMessageInstance {
 		}
 		
 		private void useSuggestion() {
-			String str = suggestion.get(selected);
+			String selectedVal = suggestions.get(selected);
 			MiniMessageInstance.this.suppressSuggestionUpdate = true;
 			final var input = MiniMessageInstance.this.input;
 			String original = input.getValue();
-			input.setValue(original.substring(0, start) + str + (this.atEnd ? "" : input.getValue().substring(end)));
+			input.setValue(original.substring(0, start) + selectedVal + (this.atEnd ? "" : input.getValue().substring(end)));
 			input.setSuggestion(null);
-			final int cursor = start + str.length();
+			final int cursor = start + selectedVal.length();
 			input.setCursorPosition(cursor);
 			input.setHighlightPos(cursor);
 			this.end = cursor;

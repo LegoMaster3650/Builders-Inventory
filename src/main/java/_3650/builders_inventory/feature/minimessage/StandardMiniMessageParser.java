@@ -73,15 +73,15 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 		case "colour":
 		case "c":
 		{
-			String colName = args.require();
-			if (colName.isEmpty()) {
+			String colorName = args.require();
+			if (colorName.isEmpty()) {
 				if (output == MiniMessageTagOutput.SINK) return false;
 				else throw invalid("Color name cannot be empty");
 			}
-			var color = MiniMessageParser.parseColor(colName);
+			var color = MiniMessageParser.parseColor(colorName);
 			if (color.isEmpty()) {
 				if (output == MiniMessageTagOutput.SINK) return false;
-				else throw invalid("%s is not a valid color", colName);
+				else throw invalid("%s is not a valid color", colorName);
 			}
 			output.push(new ColorFormat(argString, name, color.get()));
 			return true;

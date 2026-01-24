@@ -14,7 +14,7 @@ public class ColorFormat extends Format {
 	
 	@Override
 	public MutableComponent format(MutableComponent component) {
-		return component.withColor(this.color.getValue());
+		return component.withStyle(component.getStyle().withColor(this.color));
 	}
 	
 }

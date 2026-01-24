@@ -20,12 +20,12 @@ public class HiddenLiteral extends Node {
 	}
 	
 	@Override
-	public String plainText() {
+	public String getPlainText() {
 		return text;
 	}
 	
 	@Override
-	public MutableComponent visit() {
+	public MutableComponent getFormatted() {
 		return Component.empty();
 	}
 	

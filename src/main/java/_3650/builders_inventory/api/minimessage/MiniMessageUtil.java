@@ -31,16 +31,16 @@ public class MiniMessageUtil {
 		return ((ChatComponentInvoker)chat).callGetLineHeight();
 	}
 	
-	public static void wrapFormatter(EditBox input, MiniMessageInstance widget) {
+	public static void wrapFormatter(EditBox input, MiniMessageInstance minimessage) {
 		final var original = ((EditBoxAccessor)input).getFormatter();
 		input.setFormatter((text, offset) -> {
-			if (widget.canFormat()) return widget.format(offset, offset + text.length());
+			if (minimessage.canFormat()) return minimessage.format(offset, offset + text.length());
 			else return original.apply(text, offset);
 		});
 	}
 	
-	public static void rebuildChatValidation(String original, String modified, MutableComponent highlighted, HighlightedTextInput.Builder output, Style prefixStyle) {
-		ChatMiniMessageContext.rebuildChatText(original, modified, highlighted, output, prefixStyle);
+	public static void applyChatFormat(String original, String modified, MutableComponent highlighted, HighlightedTextInput.Builder output, Style prefixStyle) {
+		ChatMiniMessageContext.rebuildChatInput(original, modified, highlighted, output, prefixStyle);
 	}
 	
 }
