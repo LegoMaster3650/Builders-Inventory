@@ -11,7 +11,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 
-public class MiniMessageUtil {
+public final class MiniMessageUtil {
 	
 	public static final int lerpColor(float phase, int a, int b) {
 		final float lphase = Math.min(1f, Math.max(0f, phase));
