@@ -18,13 +18,13 @@ public class Translatable extends Node {
 	}
 	
 	@Override
-	public String plainText() {
+	public String getPlainText() {
 		return tag;
 	}
 	
 	@Override
-	public MutableComponent visit() {
-		return args.isEmpty() ? Component.translatable(key) : Component.translatable(key, args.stream().map(Node::visit).toArray());
+	public MutableComponent getFormatted() {
+		return args.isEmpty() ? Component.translatable(key) : Component.translatable(key, args.stream().map(Node::getFormatted).toArray());
 	}
 	
 //	@Override

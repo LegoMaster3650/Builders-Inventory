@@ -17,7 +17,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 import _3650.builders_inventory.BuildersInventory;
 import _3650.builders_inventory.api.minimessage.MiniMessageUtil;
-import _3650.builders_inventory.api.minimessage.instance.LastParseListener;
+import _3650.builders_inventory.api.minimessage.instance.MiniMessageParseListener;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance.PreviewOptions;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance.SuggestionOptions;
@@ -73,14 +73,14 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 	@Inject(method = "init", at = @At("TAIL"), order = Integer.MAX_VALUE - 1)
 	private void builders_inventory_initChat(CallbackInfo ci) {
 		if (!Config.instance().minimessage_enabledChat) return;
-		// load tagWidget
+		// load minimessage
 		this.minimessage = new MiniMessageInstance(
 				this.minecraft,
 				(Screen)(Object)this,
 				this.font,
 				WrappedTextField.editBox(this.input),
 				ChatMiniMessageContext.INSTANCE,
-				LastParseListener.IGNORE,
+				MiniMessageParseListener.IGNORE,
 				PreviewOptions.chat(),
 				SuggestionOptions.chat(() -> this.commandSuggestions)
 				);

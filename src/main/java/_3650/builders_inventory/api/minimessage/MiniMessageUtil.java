@@ -30,12 +30,12 @@ public class MiniMessageUtil {
 		return ((ChatComponentInvoker)chat).callGetLineHeight();
 	}
 	
-	public static void addFormatter(EditBox input, MiniMessageInstance widget) {
-		input.addFormatter((text, offset) -> widget.canFormat() ? widget.format(offset, offset + text.length()) : null);
+	public static void addFormatter(EditBox input, MiniMessageInstance minimessage) {
+		input.addFormatter((text, offset) -> minimessage.canFormat() ? minimessage.format(offset, offset + text.length()) : null);
 	}
 	
-	public static void rebuildChatValidation(String original, String modified, MutableComponent highlighted, HighlightedTextInput.Builder output, Style prefixStyle) {
-		ChatMiniMessageContext.rebuildChatText(original, modified, highlighted, output, prefixStyle);
+	public static void applyChatFormat(String original, String modified, MutableComponent highlighted, HighlightedTextInput.Builder output, Style prefixStyle) {
+		ChatMiniMessageContext.rebuildChatInput(original, modified, highlighted, output, prefixStyle);
 	}
 	
 }

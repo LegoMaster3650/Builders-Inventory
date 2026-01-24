@@ -38,6 +38,11 @@ public class HighlightedTextInput {
 		return result;
 	}
 	
+	@Override
+	public String toString() {
+		return this.text;
+	}
+	
 	public static class Builder {
 		
 		private final StringBuilder text;

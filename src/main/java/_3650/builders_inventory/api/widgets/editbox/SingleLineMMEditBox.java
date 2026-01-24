@@ -8,7 +8,7 @@ import com.mojang.blaze3d.platform.cursor.CursorTypes;
 
 import _3650.builders_inventory.BuildersInventory;
 import _3650.builders_inventory.api.minimessage.MiniMessageResult;
-import _3650.builders_inventory.api.minimessage.instance.LastParseListener;
+import _3650.builders_inventory.api.minimessage.instance.MiniMessageParseListener;
 import _3650.builders_inventory.api.minimessage.instance.MMInstanceConstructor;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance;
 import _3650.builders_inventory.api.minimessage.widgets.MiniMessageEventListener;
@@ -44,7 +44,7 @@ import net.minecraft.util.StringUtil;
  * {@link #miniMessageMouseClicked(double, double, int)}<br>
  * These are either not possible in a widget or occur outside the widget's area and need full-screen coverage
  */
-public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEventListener, LastParseListener {
+public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEventListener, MiniMessageParseListener {
 	
 	private static final int CURSOR_COLOR = 0xFFD0D0D0;
 	
@@ -61,7 +61,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 	private String suggestion = null;
 	
 	private LinedMMEditBoxListener changeListener = LinedMMEditBoxListener.IGNORE;
-	private LastParseListener miniMessageListener = LastParseListener.IGNORE;
+	private MiniMessageParseListener miniMessageListener = MiniMessageParseListener.IGNORE;
 	
 	private boolean externalScrollbar = false;
 	private int scrollbarPadding = 0;
@@ -90,7 +90,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 		this.changeListener = changeListener;
 	}
 	
-	public void setMiniMessageListener(LastParseListener miniMessageListener) {
+	public void setMiniMessageListener(MiniMessageParseListener miniMessageListener) {
 		this.miniMessageListener = miniMessageListener;
 	}
 	
@@ -173,8 +173,8 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 	}
 	
 	@Override
-	public void onParseChange(@Nullable MiniMessageResult lastParse) {
-		this.miniMessageListener.onParseChange(lastParse);
+	public void onParseChange(@Nullable MiniMessageResult parseResult) {
+		this.miniMessageListener.onParseChange(parseResult);
 	}
 	
 	public int getCursorPos() {
