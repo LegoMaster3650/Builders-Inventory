@@ -99,11 +99,11 @@ public class ChatMiniMessageContext implements MiniMessageValidator {
 	private static final Style LITERAL_STYLE = Style.EMPTY.withColor(ChatFormatting.GRAY);
 	
 	@Override
-	public void rebuildText(String original, String modified, MutableComponent highlighted, HighlightedTextInput.Builder output) {
-		rebuildChatText(original, modified, highlighted, output, LITERAL_STYLE);
+	public void applyFormattedInput(String original, String modified, MutableComponent highlighted, HighlightedTextInput.Builder output) {
+		rebuildChatInput(original, modified, highlighted, output, LITERAL_STYLE);
 	}
 	
-	public static void rebuildChatText(String original, String modified, MutableComponent highlighted, HighlightedTextInput.Builder output, Style prefixStyle) {
+	public static void rebuildChatInput(String original, String modified, MutableComponent highlighted, HighlightedTextInput.Builder output, Style prefixStyle) {
 		// use my less evil chat-specific diff checker that shouldn't break
 		final var chatDiff = ChatDiff.calculate(original, modified);
 		final var swaps = chatDiff.swaps;

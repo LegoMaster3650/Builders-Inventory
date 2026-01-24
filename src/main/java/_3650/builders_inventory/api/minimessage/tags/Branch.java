@@ -21,32 +21,32 @@ public class Branch extends Node {
 	}
 	
 	@Override
-	public String plainText() {
+	public String getPlainText() {
 		StringBuilder result = new StringBuilder();
 		result.append(this.format.plainTextFront());
 		for (var node : this.nodes) {
-			result.append(node.plainText());
+			result.append(node.getPlainText());
 		}
 		if (closed) result.append(this.format.plainTextBack());
 		return result.toString();
 	}
 	
 	@Override
-	public MutableComponent visit() {
+	public MutableComponent getFormatted() {
 		MutableComponent result = Component.empty();
 		for (var node : this.nodes) {
-			result.append(node.visit());
+			result.append(node.getFormatted());
 		}
 		return format.format(result);
 	}
 	
 	@Override
-	public MutableComponent visitPlainText() {
+	public MutableComponent getFormattedPlainText() {
 		MutableComponent result = Component.empty();
 		result.append(format.formatPlain(Component.literal(format.plainTextFront())));
 		MutableComponent content = Component.empty();
 		for (var node : this.nodes) {
-			content.append(node.visitPlainText());
+			content.append(node.getFormattedPlainText());
 		}
 		result.append(format.formatPlain(content));
 		if (closed) result.append(format.formatPlain(Component.literal(format.plainTextBack())));
