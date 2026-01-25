@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -250,6 +251,10 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 						output.push(new ClickFormat(argString, name, ClickFormat.suggestCommand(command)));
 						return true;
 					}
+					case SHOW_DIALOG:
+					{
+						throw invalid("Dialog click action is not implemented");
+					}
 					case CHANGE_PAGE:
 					{
 						String pageArg = args.requireQuiet();
@@ -270,6 +275,28 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 					{
 						String value = MiniMessageParser.quoteArg(args.requireQuiet());
 						output.push(new ClickFormat(argString, name, ClickFormat.copyToClipboard(value)));
+						return true;
+					}
+					case CUSTOM:
+					{
+						ResourceLocation id;
+						try {
+							id = ResourceLocation.parse(MiniMessageParser.quoteArg(args.requireQuiet()));
+						} catch (ResourceLocationException e) {
+							if (output == MiniMessageTagOutput.SINK && !args.hasNext()) return false;
+							else throw invalid(e.getMessage());
+						}
+						if (!args.hasNext()) {
+							output.push(new ClickFormat(argString, name, ClickFormat.custom(id, Optional.empty())));
+						}
+						String payloadArg = args.next();
+						Tag tag;
+						try {
+							tag = parser.tagParser.parseFully(payloadArg);
+						} catch (CommandSyntaxException e) {
+							throw invalid("Invalid custom click event payload NBT for %s: %s", id, payloadArg);
+						}
+						output.push(new ClickFormat(argString, name, ClickFormat.custom(id, Optional.ofNullable(tag))));
 						return true;
 					}
 					default:
