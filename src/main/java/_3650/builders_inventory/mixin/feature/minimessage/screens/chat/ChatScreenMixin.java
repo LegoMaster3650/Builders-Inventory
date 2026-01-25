@@ -15,7 +15,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 import _3650.builders_inventory.BuildersInventory;
-import _3650.builders_inventory.api.minimessage.MiniMessageUtil;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageParseListener;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance.PreviewOptions;
@@ -41,6 +40,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 
 @Mixin(ChatScreen.class)
@@ -85,9 +85,6 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 				PreviewOptions.chat(),
 				SuggestionOptions.chat(() -> this.commandSuggestions)
 				);
-		
-		// add formatter
-		MiniMessageUtil.addFormatter(this.input, this.minimessage);
 		
 		// exGui for button
 		this.exGui.init();
@@ -144,6 +141,14 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 	private void builders_inventory_editChat(String value, CallbackInfo ci) {
 		if (!Config.instance().minimessage_enabledChat) return;
 		if (this.minimessage.unknownEdit()) ci.cancel();
+	}
+	
+	@Inject(method = "formatChat", at = @At("HEAD"), cancellable = true)
+	private void builders_inventory_formatChat(String text, int displayPos, CallbackInfoReturnable<FormattedCharSequence> cir) {
+		if (this.minimessage.canFormat()) {
+			var formatted = this.minimessage.format(displayPos, displayPos + text.length());
+			if (formatted != null) cir.setReturnValue(formatted);
+		}
 	}
 	
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"))
