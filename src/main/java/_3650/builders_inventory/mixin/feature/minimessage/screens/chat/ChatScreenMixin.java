@@ -39,7 +39,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 import net.minecraft.util.Mth;
 
 @Mixin(ChatScreen.class)
@@ -185,16 +184,6 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 	private void builders_inventory_mouseClicked(MouseButtonEvent event, boolean isDoubleClick, CallbackInfoReturnable<Boolean> cir) {
 		if (!Config.instance().minimessage_enabledChat) return;
 		if (this.minimessage.mouseClicked(event)) cir.setReturnValue(true);
-	}
-	
-	@WrapOperation(method = "mouseClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/ChatScreen;getComponentStyleAt(DD)Lnet/minecraft/network/chat/Style;"))
-	private Style builders_inventory_previewClicked(ChatScreen screen, double mouseX, double mouseY, Operation<Style> operation) {
-		if (!Config.instance().minimessage_enabledChat) {
-			return operation.call(screen, mouseX, mouseY);
-		}
-		Style style = this.minimessage.tryClickPreview(mouseX, mouseY);
-		if (style != null) return style;
-		else return operation.call(screen, mouseX, mouseY);
 	}
 	
 	@WrapOperation(method = "moveInHistory", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/EditBox;setValue(Ljava/lang/String;)V"))

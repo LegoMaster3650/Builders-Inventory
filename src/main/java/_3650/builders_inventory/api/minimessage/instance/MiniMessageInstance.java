@@ -33,7 +33,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
@@ -268,8 +267,8 @@ public class MiniMessageInstance {
 		
 		this.previewLines = List.of();
 		if (previewComponent != null) {
-			ChatComponent chatLog = this.minecraft.gui.getChat();
-			this.previewLines = ComponentRenderUtils.wrapComponents(previewComponent, Mth.floor(chatLog.getWidth() / chatLog.getScale()), this.font);
+			int previewScaledWidth = Mth.floor(this.previewOptions.getScaledWidth(this.minecraft, this.screen, this));
+			this.previewLines = ComponentRenderUtils.wrapComponents(previewComponent, previewScaledWidth, this.font);
 			this.reposition();
 		} else if (this.inputOverride != null) {
 			this.reposition();
@@ -343,7 +342,7 @@ public class MiniMessageInstance {
 			}
 			
 			@Override
-			public int getWidth(Minecraft mc, Screen screen, MiniMessageInstance minimessage) {
+			public float getScaledWidth(Minecraft mc, Screen screen, MiniMessageInstance minimessage) {
 				return screen.width;
 			}
 			
@@ -395,8 +394,8 @@ public class MiniMessageInstance {
 			}
 			
 			@Override
-			public int getWidth(Minecraft mc, Screen screen, MiniMessageInstance minimessage) {
-				return mc.gui.getChat().getWidth();
+			public float getScaledWidth(Minecraft mc, Screen screen, MiniMessageInstance minimessage) {
+				return mc.gui.getChat().getWidth() / this.getScale(mc, screen);
 			}
 			
 			@Override
@@ -427,7 +426,7 @@ public class MiniMessageInstance {
 		
 		public float getScale(Minecraft mc, Screen screen);
 		
-		public int getWidth(Minecraft mc, Screen screen, MiniMessageInstance minimessage);
+		public float getScaledWidth(Minecraft mc, Screen screen, MiniMessageInstance minimessage);
 		
 		public int getX(Minecraft mc, Screen screen, MiniMessageInstance minimessage);
 		
@@ -441,7 +440,7 @@ public class MiniMessageInstance {
 	
 	private int _previewBGColor;
 	private float _previewScale;
-	private int _previewWidth;
+	private float _previewScaledWidth;
 	private int _previewXMin;
 	private int _previewLineTextOffset;
 	private int _previewLineHeight;
@@ -452,7 +451,7 @@ public class MiniMessageInstance {
 		if (!this.previewLines.isEmpty()) {
 			this._previewBGColor = previewOptions.getBGColor(minecraft, screen);
 			this._previewScale = previewOptions.getScale(minecraft, screen);
-			this._previewWidth = previewOptions.getWidth(minecraft, screen, this);
+			this._previewScaledWidth = previewOptions.getScaledWidth(minecraft, screen, this);
 			this._previewXMin = previewOptions.getX(minecraft, screen, this);
 			this._previewLineTextOffset = previewOptions.getLineTextOffset(minecraft, screen);
 			this._previewLineHeight = previewOptions.getLineHeight(minecraft, screen);
@@ -467,7 +466,7 @@ public class MiniMessageInstance {
 			gui.pose().pushMatrix();
 			gui.pose().translate(_previewXMin, _previewYMin);
 			gui.pose().scale(_previewScale, _previewScale);
-			gui.fill(0, 0, Mth.ceil(_previewWidth / _previewScale) + 4 + 4 + 4, - (_previewLineHeight * previewLines.size()), _previewBGColor);
+			gui.fill(0, 0, Mth.ceil(_previewScaledWidth) + 4 + 4 + 4, - (_previewLineHeight * previewLines.size()), _previewBGColor);
 			int y = _previewLineTextOffset;
 			for (int i = previewLines.size() - 1; i >= 0; --i) {
 				FormattedCharSequence line = previewLines.get(i);
@@ -519,23 +518,6 @@ public class MiniMessageInstance {
 		return false;
 	}
 	
-	public Style tryClickPreview(double mouseX, double mouseY) {
-		if (!active) return null;
-		if (!previewLines.isEmpty()) {
-			double localX = toPreviewX(mouseX);
-			double localY = toPreviewYLine(mouseY);
-			int line = getPreviewLine(localX, localY);
-			if (line >= 0) {
-				Style style = font.getSplitter().componentStyleAtWidth(previewLines.get(line), Mth.floor(localX));
-				if (style == null) return null;
-				final ClickEvent click = style.getClickEvent();
-				if (click == null || click instanceof ClickEvent.SuggestCommand) return null;
-				return style;
-			}
-		}
-		return null;
-	}
-	
 	private double toPreviewX(double mouseX) {
 		return ((mouseX - 4) / _previewScale) - _previewXMin;
 	}
@@ -548,7 +530,7 @@ public class MiniMessageInstance {
 	 * Make sure to test if line >= 0 outside
 	 */
 	private int getPreviewLine(double localX, double localY) {
-		if (localX >= 0 && localX <= Mth.floor(_previewWidth / _previewScale)) {
+		if (localX >= 0 && localX <= Mth.floor(_previewScaledWidth)) {
 			int line = Mth.floor(localY);
 			if (line < previewLines.size()) return line; // line >= 0 tested outside
 		}
