@@ -32,6 +32,7 @@ import net.minecraft.network.chat.TextColor;
 
 public class MiniMessageParser {
 	
+	public final Optional<HolderLookup.Provider> registryAccess;
 	public final Optional<DynamicOps<Tag>> registryOps;
 	@Nullable
 	private final String server;
@@ -64,18 +65,19 @@ public class MiniMessageParser {
 	}
 	
 	static MiniMessageResult parse(String input, Format rootFormat, Optional<HolderLookup.Provider> registryAccess, @Nullable String server) {
-		return new MiniMessageParser(input, rootFormat, registryAccess.map(access -> access.createSerializationContext(NbtOps.INSTANCE)), server).parseContent();
+		return new MiniMessageParser(input, rootFormat, registryAccess, registryAccess.map(access -> access.createSerializationContext(NbtOps.INSTANCE)), server).parseContent();
 	}
 	
 	private MiniMessageResult subParse(String str, Format rootFormat) {
-		return new MiniMessageParser(str, rootFormat, this.registryOps, this.server).parseContent();
+		return new MiniMessageParser(str, rootFormat, this.registryAccess, this.registryOps, this.server).parseContent();
 	}
 	
-	private MiniMessageParser(String input, Format rootFormat, Optional<DynamicOps<Tag>> registryOps, @Nullable String server) {
+	private MiniMessageParser(String input, Format rootFormat, Optional<HolderLookup.Provider> registryAccess, Optional<DynamicOps<Tag>> registryOps, @Nullable String server) {
 		this.input = input;
 		this.tMax = input.length() - 1;
 		this.root = new Branch(rootFormat);
 		this.ctx = root;
+		this.registryAccess = registryAccess;
 		this.registryOps = registryOps;
 		this.server = null;
 		this.tagOutput = new MiniMessageTagOutput() {
