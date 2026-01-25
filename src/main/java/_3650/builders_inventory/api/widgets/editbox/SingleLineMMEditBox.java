@@ -455,7 +455,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 			try {
 				this.renderContents(gui, mouseX, mouseY, partialTick);
 			} catch (Exception e) {
-				BuildersInventory.LOGGER.error("MultiLineMMEditBox.renderContents is about to crash. Printing report.");
+				BuildersInventory.LOGGER.error("SingleLineMMEditBox.renderContents is about to crash. Printing report.");
 				BuildersInventory.LOGGER.error("cursor=" + this.cursor);
 				BuildersInventory.LOGGER.error("value=" + this.value);
 				throw e;
