@@ -589,24 +589,21 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 		case "font":
 		{
 			try {
+				String arg1 = MiniMessageParser.quoteArg(args.requireQuiet());
 				if (args.hasNext()) {
-					String arg1 = args.next();
-					if (args.hasNext()) {
-						String arg2 = args.next();
-						Identifier font = Identifier.fromNamespaceAndPath(arg1, arg2);
-						output.push(new FontFormat(argString, name, font));
-						return true;
-					} else {
-						Identifier font = Identifier.parse(arg1);
-						output.push(new FontFormat(argString, name, font));
-						return true;
-					}
+					String arg2 = args.next();
+					Identifier font = Identifier.fromNamespaceAndPath(arg1, arg2);
+					output.push(new FontFormat(argString, name, font));
+					return true;
+				} else {
+					Identifier font = Identifier.parse(arg1);
+					output.push(new FontFormat(argString, name, font));
+					return true;
 				}
 			} catch (IdentifierException e) {
 				if (output == MiniMessageTagOutput.SINK) return false;
 				else throw invalid(e.getMessage());
 			}
-			return false;
 		}
 		case "newline":
 		case "br":
