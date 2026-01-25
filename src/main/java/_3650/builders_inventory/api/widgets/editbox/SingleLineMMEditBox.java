@@ -491,10 +491,12 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 	private void renderContents(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
 		String str = this.value;
 		if (!str.isEmpty() || this.isFocused()) {
+			
+			final int textColor = this.isActive() ? this.theme.textColor : this.theme.disabledTextColor;
 			ColoredRenderingTextCollector text = ColoredRenderingTextCollector.create(
 					gui,
 					this.isActive() ? GuiGraphics.HoveredTextEffects.TOOLTIP_AND_CURSOR : GuiGraphics.HoveredTextEffects.TOOLTIP_ONLY,
-					this.isActive() ? this.theme.textColor : this.theme.disabledTextColor);
+					textColor);
 			
 			final int cursor = this.cursor;
 			final boolean blink = this.isFocused() && (Util.getMillis() - this.focusedTime) / 300L % 2L == 0L;
@@ -530,7 +532,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 							
 							if (blink) {
 								if (this.cursor == line.beginIndex) x -= 1;
-								gui.drawString(this.font, "_", x, y, CURSOR_COLOR);
+								gui.drawString(this.font, "_", x, y, textColor);
 							}
 						}
 					}
