@@ -1,9 +1,12 @@
 package _3650.builders_inventory.api.minimessage.format;
 
 import java.net.URI;
+import java.util.Optional;
 
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
 
 public class ClickFormat extends Format {
 	
@@ -37,6 +40,10 @@ public class ClickFormat extends Format {
 	
 	public static CopyToClipboardContents copyToClipboard(String value) {
 		return new CopyToClipboardContents(value);
+	}
+	
+	public static CustomContents custom(ResourceLocation id, Optional<Tag> payload) {
+		return new CustomContents(id, payload);
 	}
 	
 	public static abstract class ClickContents<T extends ClickEvent> {
@@ -105,6 +112,20 @@ public class ClickFormat extends Format {
 		@Override
 		protected ClickEvent.CopyToClipboard build() {
 			return new ClickEvent.CopyToClipboard(this.value);
+		}
+	}
+	
+	private static class CustomContents extends ClickContents<ClickEvent.Custom> {
+		public final ResourceLocation id;
+		public final Optional<Tag> payload;
+		private CustomContents(ResourceLocation id, Optional<Tag> payload) {
+			super(ClickEvent.Action.CUSTOM);
+			this.id = id;
+			this.payload = payload;
+		}
+		@Override
+		protected ClickEvent.Custom build() {
+			return new ClickEvent.Custom(this.id, this.payload);
 		}
 	}
 	
