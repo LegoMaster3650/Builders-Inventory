@@ -361,6 +361,7 @@ public class MiniMessageParser {
 		char first = arg.charAt(0);
 		if (first == '\'' || first == '"') {
 			++min;
+			// note to self: yes, this means unclosed quotes WILL be eaten. yes, this is how it works in regular minimessage
 			if (arg.charAt(max - 1) == first) --max;
 			return arg.substring(min, max).replaceAll("\\\\" + first, String.valueOf(first));
 		}
