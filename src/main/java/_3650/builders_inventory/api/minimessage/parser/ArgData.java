@@ -25,7 +25,7 @@ public class ArgData {
 		return args.get(i);
 	}
 	
-	public String require() throws InvalidMiniMessage {
+	public String requireQuiet() throws InvalidMiniMessage {
 		if (hasNext()) return next();
 		else throw new InvalidMiniMessage();
 	}
