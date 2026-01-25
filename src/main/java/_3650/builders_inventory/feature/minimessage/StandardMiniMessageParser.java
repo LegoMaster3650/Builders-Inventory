@@ -279,10 +279,10 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 					}
 					case CUSTOM:
 					{
-						ResourceLocation id;
+						Identifier id;
 						try {
-							id = ResourceLocation.parse(MiniMessageParser.quoteArg(args.requireQuiet()));
-						} catch (ResourceLocationException e) {
+							id = Identifier.parse(MiniMessageParser.quoteArg(args.requireQuiet()));
+						} catch (IdentifierException e) {
 							if (output == MiniMessageTagOutput.SINK && !args.hasNext()) return false;
 							else throw invalid(e.getMessage());
 						}

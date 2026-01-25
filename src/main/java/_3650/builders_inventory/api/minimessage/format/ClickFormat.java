@@ -6,7 +6,7 @@ import java.util.Optional;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class ClickFormat extends Format {
 	
@@ -42,7 +42,7 @@ public class ClickFormat extends Format {
 		return new CopyToClipboardContents(value);
 	}
 	
-	public static CustomContents custom(ResourceLocation id, Optional<Tag> payload) {
+	public static CustomContents custom(Identifier id, Optional<Tag> payload) {
 		return new CustomContents(id, payload);
 	}
 	
@@ -116,9 +116,9 @@ public class ClickFormat extends Format {
 	}
 	
 	private static class CustomContents extends ClickContents<ClickEvent.Custom> {
-		public final ResourceLocation id;
+		public final Identifier id;
 		public final Optional<Tag> payload;
-		private CustomContents(ResourceLocation id, Optional<Tag> payload) {
+		private CustomContents(Identifier id, Optional<Tag> payload) {
 			super(ClickEvent.Action.CUSTOM);
 			this.id = id;
 			this.payload = payload;
