@@ -496,9 +496,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 				
 				// line contents
 				if (lineVisible) {
-					final boolean cursorInserting = cursor < line.endIndex;
-					
-					if (blink && cursorInserting && cursor >= line.beginIndex && cursor <= line.endIndex) {
+					if (blink && cursor >= line.beginIndex && cursor <= line.endIndex) {
 						final var formatStr1 = this.format(str, line.beginIndex, cursor);
 						final var formatStr2 = this.format(str, cursor, line.endIndex);
 						gui.drawString(this.font, formatStr1, x, y, textColor);
@@ -512,7 +510,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 						gui.drawString(this.font, formatStr, x, y, textColor);
 						x += font.width(formatStr);
 						
-						if (!cursorInserting && !this.hasSelection() && cursor >= line.beginIndex && cursor <= line.endIndex && line.endIndex == this.value.length()) {
+						if (!this.hasSelection() && cursor >= line.beginIndex && cursor == line.endIndex && line.endIndex == this.value.length()) {
 							if (this.suggestion != null) {
 								gui.drawString(this.font, this.suggestion, x - 1, y, this.theme.suggestionColor);
 							}
