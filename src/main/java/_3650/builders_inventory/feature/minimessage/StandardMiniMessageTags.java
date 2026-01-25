@@ -53,7 +53,7 @@ public class StandardMiniMessageTags {
 		ArrayList<String> clickEvents = StringDefinitions.list()
 				.add(add -> {
 					for (var act : ClickEvent.Action.values()) {
-						if (act.isAllowedFromServer()) add.accept(act.getSerializedName());
+						if (act.isAllowedFromServer() && act != ClickEvent.Action.SHOW_DIALOG) add.accept(act.getSerializedName());
 					}
 				})
 				.finish();
