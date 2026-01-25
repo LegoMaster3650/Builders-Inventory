@@ -1,5 +1,6 @@
 package _3650.builders_inventory.feature.minimessage;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -38,6 +39,7 @@ import _3650.builders_inventory.api.minimessage.tags.TranslatableFallback;
 import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
 import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.Util;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -46,6 +48,7 @@ import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 
@@ -207,9 +210,58 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 			String value = MiniMessageParser.quoteArg(args.requireQuiet());
 			String actLower = action.toLowerCase();
 			for (var act : ClickEvent.Action.values()) {
-				if (act.getSerializedName().equals(actLower) && act.isAllowedFromServer()) {
-					output.push(new ClickFormat(argString, name, new ClickEvent(act, value)));
-					return true;
+				if (act.getSerializedName().equals(actLower)) {
+					if (!act.isAllowedFromServer()) throw invalid("Click action %s is not allowed", actLower);
+					switch (act) {
+					case OPEN_URL:
+						try {
+							Util.parseAndValidateUntrustedUri(value);
+						} catch (URISyntaxException e) {
+							if (output == MiniMessageTagOutput.SINK) return false;
+							else throw invalid("%s is not a valid link", value);
+						}
+						output.push(new ClickFormat(argString, name, new ClickEvent(act, value)));
+						return true;
+					case RUN_COMMAND:
+						for (int i = 0; i < value.length(); i++) {
+							char c = value.charAt(i);
+							if (!StringUtil.isAllowedChatCharacter(c)) {
+								if (output == MiniMessageTagOutput.SINK) return false;
+								else throw invalid("Character %s not allowed in command", String.valueOf(c));
+							}
+						}
+						output.push(new ClickFormat(argString, name, new ClickEvent(act, value)));
+						return true;
+					case SUGGEST_COMMAND:
+						for (int i = 0; i < value.length(); i++) {
+							char c = value.charAt(i);
+							if (!StringUtil.isAllowedChatCharacter(c)) {
+								if (output == MiniMessageTagOutput.SINK) return false;
+								else throw invalid("Character %s not allowed in command", String.valueOf(c));
+							}
+						}
+						output.push(new ClickFormat(argString, name, new ClickEvent(act, value)));
+						return true;
+					case CHANGE_PAGE:
+						int page;
+						try {
+							page = Integer.parseInt(value);
+						} catch (NumberFormatException e) {
+							if (output == MiniMessageTagOutput.SINK) return false;
+							else throw invalid("%s is not a valid number", value);
+						}
+						if (page < 1) {
+							throw invalid("%s must be 1 or greater", value);
+						}
+						output.push(new ClickFormat(argString, name, new ClickEvent(act, value)));
+						return true;
+					case COPY_TO_CLIPBOARD:
+						output.push(new ClickFormat(argString, name, new ClickEvent(act, value)));
+						return true;
+					default:
+						if (output == MiniMessageTagOutput.SINK) return false;
+						else throw invalid("Invalid click action %s. Report this bug to the mod author.", actLower);
+					}
 				}
 			}
 			return false;
