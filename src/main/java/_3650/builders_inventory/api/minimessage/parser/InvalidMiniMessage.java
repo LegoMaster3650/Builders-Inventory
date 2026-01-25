@@ -3,13 +3,12 @@ package _3650.builders_inventory.api.minimessage.parser;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("serial")
-public class InvalidMiniMessage extends Exception {
+public class InvalidMiniMessage extends Throwable {
 	
 	@Nullable
 	public final String error;
 	
 	public InvalidMiniMessage() {
-		super();
 		this.error = null;
 	}
 	
