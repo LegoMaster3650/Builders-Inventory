@@ -221,7 +221,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 							if (output == MiniMessageTagOutput.SINK) return false;
 							else throw invalid("%s is not a valid link", uriArg);
 						}
-						output.push(new ClickFormat(argString, name, new ClickEvent.OpenUrl(uri)));
+						output.push(new ClickFormat(argString, name, ClickFormat.openUrl(uri)));
 						return true;
 					}
 					case RUN_COMMAND:
@@ -234,7 +234,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 								else throw invalid("Character %s not allowed in command", String.valueOf(c));
 							}
 						}
-						output.push(new ClickFormat(argString, name, new ClickEvent.RunCommand(command)));
+						output.push(new ClickFormat(argString, name, ClickFormat.runCommand(command)));
 						return true;
 					}
 					case SUGGEST_COMMAND:
@@ -247,7 +247,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 								else throw invalid("Character %s not allowed in command", String.valueOf(c));
 							}
 						}
-						output.push(new ClickFormat(argString, name, new ClickEvent.SuggestCommand(command)));
+						output.push(new ClickFormat(argString, name, ClickFormat.suggestCommand(command)));
 						return true;
 					}
 					case CHANGE_PAGE:
@@ -263,13 +263,13 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 						if (page < 1) {
 							throw invalid("%s must be 1 or greater", pageArg);
 						}
-						output.push(new ClickFormat(argString, name, new ClickEvent.ChangePage(page)));
+						output.push(new ClickFormat(argString, name, ClickFormat.changePage(page)));
 						return true;
 					}
 					case COPY_TO_CLIPBOARD:
 					{
 						String value = MiniMessageParser.quoteArg(args.requireQuiet());
-						output.push(new ClickFormat(argString, name, new ClickEvent.CopyToClipboard(value)));
+						output.push(new ClickFormat(argString, name, ClickFormat.copyToClipboard(value)));
 						return true;
 					}
 					default:
