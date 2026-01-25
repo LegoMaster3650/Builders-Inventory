@@ -90,7 +90,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 		}
 		case "shadow":
 		{
-			String colName = args.require();
+			String colName = args.requireQuiet();
 			if (colName.isEmpty()) {
 				if (output == MiniMessageTagOutput.SINK) return false;
 				else throw invalid("Color name cannot be empty");
