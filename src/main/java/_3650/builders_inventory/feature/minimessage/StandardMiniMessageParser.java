@@ -206,58 +206,72 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 		case "click":
 		{
 			String action = args.requireQuiet();
-			String value = MiniMessageParser.quoteArg(args.requireQuiet());
 			String actLower = action.toLowerCase();
 			for (var act : ClickEvent.Action.values()) {
 				if (act.getSerializedName().equals(actLower)) {
 					if (!act.isAllowedFromServer()) throw invalid("Click action %s is not allowed", actLower);
 					switch (act) {
 					case OPEN_URL:
+					{
+						String uriArg = MiniMessageParser.quoteArg(args.requireQuiet());
 						URI uri;
 						try {
-							uri = Util.parseAndValidateUntrustedUri(value);
+							uri = Util.parseAndValidateUntrustedUri(uriArg);
 						} catch (URISyntaxException e) {
 							if (output == MiniMessageTagOutput.SINK) return false;
-							else throw invalid("%s is not a valid link", value);
+							else throw invalid("%s is not a valid link", uriArg);
 						}
 						output.push(new ClickFormat(argString, name, new ClickEvent.OpenUrl(uri)));
 						return true;
+					}
 					case RUN_COMMAND:
-						for (int i = 0; i < value.length(); i++) {
-							char c = value.charAt(i);
+					{
+						String command = MiniMessageParser.quoteArg(args.requireQuiet());
+						for (int i = 0; i < command.length(); i++) {
+							char c = command.charAt(i);
 							if (!StringUtil.isAllowedChatCharacter(c)) {
 								if (output == MiniMessageTagOutput.SINK) return false;
 								else throw invalid("Character %s not allowed in command", String.valueOf(c));
 							}
 						}
-						output.push(new ClickFormat(argString, name, new ClickEvent.RunCommand(value)));
+						output.push(new ClickFormat(argString, name, new ClickEvent.RunCommand(command)));
 						return true;
+					}
 					case SUGGEST_COMMAND:
-						for (int i = 0; i < value.length(); i++) {
-							char c = value.charAt(i);
+					{
+						String command = MiniMessageParser.quoteArg(args.requireQuiet());
+						for (int i = 0; i < command.length(); i++) {
+							char c = command.charAt(i);
 							if (!StringUtil.isAllowedChatCharacter(c)) {
 								if (output == MiniMessageTagOutput.SINK) return false;
 								else throw invalid("Character %s not allowed in command", String.valueOf(c));
 							}
 						}
-						output.push(new ClickFormat(argString, name, new ClickEvent.SuggestCommand(value)));
+						output.push(new ClickFormat(argString, name, new ClickEvent.SuggestCommand(command)));
 						return true;
+					}
 					case CHANGE_PAGE:
+					{
+						String pageArg = args.requireQuiet();
 						int page;
 						try {
-							page = Integer.parseInt(value);
+							page = Integer.parseInt(pageArg);
 						} catch (NumberFormatException e) {
 							if (output == MiniMessageTagOutput.SINK) return false;
-							else throw invalid("%s is not a valid number", value);
+							else throw invalid("%s is not a valid number", pageArg);
 						}
 						if (page < 1) {
-							throw invalid("%s must be 1 or greater", value);
+							throw invalid("%s must be 1 or greater", pageArg);
 						}
 						output.push(new ClickFormat(argString, name, new ClickEvent.ChangePage(page)));
 						return true;
+					}
 					case COPY_TO_CLIPBOARD:
+					{
+						String value = MiniMessageParser.quoteArg(args.requireQuiet());
 						output.push(new ClickFormat(argString, name, new ClickEvent.CopyToClipboard(value)));
 						return true;
+					}
 					default:
 						if (output == MiniMessageTagOutput.SINK) return false;
 						else throw invalid("Invalid click action %s. Report this bug to the mod author.", actLower);
