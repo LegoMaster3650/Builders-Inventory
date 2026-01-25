@@ -88,8 +88,7 @@ public class HoverFormat extends Format {
 		}
 		@Override
 		protected HoverEvent.ShowEntity build() {
-			var info = new HoverEvent.EntityTooltipInfo(this.type, this.id, this.name.map(Node::getFormatted));
-			return new HoverEvent.ShowEntity(info);
+			return new HoverEvent.ShowEntity(new HoverEvent.EntityTooltipInfo(this.type, this.id, this.name.map(Node::getFormatted)));
 		}
 	}
 	
