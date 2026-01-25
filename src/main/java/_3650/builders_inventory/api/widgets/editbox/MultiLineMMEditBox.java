@@ -565,9 +565,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 				
 				// line contents
 				if (lineVisible) {
-					final boolean cursorInserting = cursor < line.endIndex;
-					
-					if (blink && cursorInserting && cursor >= line.beginIndex && cursor <= line.endIndex) {
+					if (blink && cursor >= line.beginIndex && cursor <= line.endIndex) {
 						final var formatStr1 = this.format(formatLine, str, line.beginIndex, cursor);
 						final var formatStr2 = this.format(formatLine, str, cursor, line.endIndex);
 						text.accept(x, y, formatStr1);
@@ -581,7 +579,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 						text.accept(x, y, formatStr);
 						x += font.width(formatStr);
 						
-						if (!cursorInserting && !this.hasSelection() && cursor >= line.beginIndex && cursor <= line.endIndex && line.endIndex == formatPos.endIndex) {
+						if (!this.hasSelection() && cursor >= line.beginIndex && cursor == line.endIndex && line.endIndex == formatPos.endIndex) {
 							if (this.suggestion != null) {
 								gui.drawString(this.font, this.suggestion, x - 1, y, this.theme.suggestionColor);
 							}
