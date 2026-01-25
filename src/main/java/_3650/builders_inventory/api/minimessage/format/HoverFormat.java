@@ -51,8 +51,7 @@ public class HoverFormat extends Format {
 			this.type = type;
 		}
 		public HoverEvent event() {
-			HoverEvent evt = new HoverEvent(this.type, this.build());
-			return evt;
+			return new HoverEvent(this.type, this.build());
 		}
 		protected abstract T build();
 	}
@@ -93,8 +92,7 @@ public class HoverFormat extends Format {
 		}
 		@Override
 		protected HoverEvent.EntityTooltipInfo build() {
-			var info = new HoverEvent.EntityTooltipInfo(this.type, this.id, this.name.map(Node::getFormatted));
-			return info;
+			return new HoverEvent.EntityTooltipInfo(this.type, this.id, this.name.map(Node::getFormatted));
 		}
 	}
 	
