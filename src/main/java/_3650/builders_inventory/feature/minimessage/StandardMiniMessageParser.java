@@ -73,7 +73,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 		case "colour":
 		case "c":
 		{
-			String colorName = args.require();
+			String colorName = args.requireQuiet();
 			if (colorName.isEmpty()) {
 				if (output == MiniMessageTagOutput.SINK) return false;
 				else throw invalid("Color name cannot be empty");
@@ -203,8 +203,8 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 			return true;
 		case "click":
 		{
-			String action = args.require();
-			String value = MiniMessageParser.quoteArg(args.require());
+			String action = args.requireQuiet();
+			String value = MiniMessageParser.quoteArg(args.requireQuiet());
 			String actLower = action.toLowerCase();
 			for (var act : ClickEvent.Action.values()) {
 				if (act.getSerializedName().equals(actLower) && act.isAllowedFromServer()) {
@@ -216,11 +216,11 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 		}
 		case "hover":
 		{
-			String action = args.require();
+			String action = args.requireQuiet();
 			switch (action.toLowerCase(Locale.ROOT)) {
 			case "show_text":
 			{
-				String arg = args.require();
+				String arg = args.requireQuiet();
 				output.push(new HoverFormat(argString, name, HoverFormat.text(
 						parser.nodeArg(arg)
 						)));
@@ -230,7 +230,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 			{
 				ResourceLocation id;
 				try {
-					id = ResourceLocation.parse(MiniMessageParser.quoteArg(args.require()));
+					id = ResourceLocation.parse(MiniMessageParser.quoteArg(args.requireQuiet()));
 				} catch (ResourceLocationException e) {
 					if (output == MiniMessageTagOutput.SINK && !args.hasNext()) return false;
 					else throw invalid(e.getMessage());
@@ -311,7 +311,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 							if (type.isTransient()) throw invalid("Component type %s is client-only", key);
 							if (!keys.add(type)) throw invalid("Component %s is already specified in this tag", key);
 							
-							String value = args.require();
+							String value = args.requireQuiet();
 							Tag tag;
 							try {
 								tag = new TagParser(new StringReader(value)).readValue();
@@ -350,14 +350,14 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 			{
 				ResourceLocation id;
 				try {
-					id = ResourceLocation.parse(MiniMessageParser.quoteArg(args.require()));
+					id = ResourceLocation.parse(MiniMessageParser.quoteArg(args.requireQuiet()));
 				} catch (ResourceLocationException e) {
 					if (output == MiniMessageTagOutput.SINK && !args.hasNext()) return false;
 					else throw invalid(e.getMessage());
 				}
 				EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.getOptional(id).orElseThrow(invalidSup(output, args, "%s is not a valid entity ID", id.toString()));
 				
-				String uuidStr = args.require();
+				String uuidStr = args.requireQuiet();
 				UUID uuid;
 				try {
 					uuid = UUID.fromString(uuidStr);
@@ -380,7 +380,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 		}
 		case "key":
 		{
-			String key = args.require();
+			String key = args.requireQuiet();
 			output.append(new Keybind(argString, key));
 			return true;
 		}
@@ -388,7 +388,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 		case "translate":
 		case "tr":
 		{
-			String key = args.require();
+			String key = args.requireQuiet();
 			if (args.size > 1) {
 				ArrayList<Node> trargs = new ArrayList<>(args.size);
 				while (args.hasNext()) trargs.add(parser.nodeArg(args.next()));
@@ -403,8 +403,8 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 		case "translate_or":
 		case "tr_or":
 		{
-			String key = args.require();
-			String fallback = args.require();
+			String key = args.requireQuiet();
+			String fallback = args.requireQuiet();
 			if (args.size > 2) {
 				ArrayList<Node> trargs = new ArrayList<>(args.size);
 				while (args.hasNext()) trargs.add(parser.nodeArg(args.next()));
@@ -416,7 +416,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 		}
 		case "insert":
 		{
-			String text = args.require();
+			String text = args.requireQuiet();
 			output.push(new InsertionFormat(argString, name, text));
 			return true;
 		}
