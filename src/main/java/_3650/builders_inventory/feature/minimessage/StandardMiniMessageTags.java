@@ -9,10 +9,12 @@ import org.jetbrains.annotations.Nullable;
 
 import _3650.builders_inventory.api.minimessage.autocomplete.ReloadableResourceArg;
 import _3650.builders_inventory.api.minimessage.autocomplete.SimpleStringArg;
+import _3650.builders_inventory.api.minimessage.autocomplete.AtlasSpriteSuggestor;
 import _3650.builders_inventory.api.minimessage.autocomplete.AutocompleteTagLookup.ACBuilder;
 import _3650.builders_inventory.api.minimessage.autocomplete.AutocompleteTagLookup.Suggestor;
 import _3650.builders_inventory.api.minimessage.color.PrideFlagGradients;
 import _3650.builders_inventory.api.util.StringDefinitions;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.network.chat.ClickEvent;
 
 public class StandardMiniMessageTags {
@@ -117,6 +119,17 @@ public class StandardMiniMessageTags {
 				.tag("font").build(b -> b
 						.resource(ReloadableResourceArg.FONTS)
 				)
+				.tag("sprite").build(b -> b
+						.arg((prev, input) -> {
+							var atlases = ReloadableResourceArg.ATLASES.findNonMatch(input);
+							if (!atlases.isEmpty()) return atlases;
+							var arg = AtlasSpriteSuggestor.INSTANCE.getAtlasArg(AtlasIds.BLOCKS);
+							if (arg.isPresent()) return arg.get().findNonMatch(input);
+							return List.of();
+						})
+						.arg(AtlasSpriteSuggestor.INSTANCE))
+				.tag("head").build(b -> b
+						.arg(Suggestor.playerList()))
 				.tag("newline", "br").build()
 				;
 	}

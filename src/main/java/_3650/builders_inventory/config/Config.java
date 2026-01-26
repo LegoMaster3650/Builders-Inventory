@@ -162,6 +162,15 @@ public class Config {
 	public boolean minimessage_suggestions = true;
 	
 	@SerialEntry(
+			value = "minimessage.preloadAtlasData",
+			comment = "Whether to preload atlas texture information for suggestions on resource reload\n"
+					+ "This may increase game loading and resource reloading times but may also prevent lag spikes when loading atlases for the <sprite:> tag\n"
+					+ "Not recommended to turn off unless you have a very slow computer and need to reload the game/resource packs a LOT")
+	@AutoGen(category = "minimessage")
+	@Boolean(colored = true, formatter = Formatter.ON_OFF)
+	public boolean minimessage_preloadAtlasData = true;
+	
+	@SerialEntry(
 			value = "minimessage.updateDelay",
 			comment = "Number of ticks you must go without typing to update the minimessage formatter\n"
 					+ "Not recommended unless typing in a minimessage input slows your game")
