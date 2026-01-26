@@ -91,10 +91,10 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 		}
 		case "shadow":
 		{
-			String colName = args.requireQuiet();
+			String colName = args.requireWarn("Shadow tag requires a color");
 			if (colName.isEmpty()) {
 				if (output == MiniMessageTagOutput.SINK) return false;
-				else throw invalid("Color name cannot be empty");
+				else throw error("Color name cannot be empty");
 			}
 			if (colName.charAt(0) == '#' && colName.length() == 9) {
 				// RRGGBBAA
@@ -105,23 +105,23 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 					return true;
 				} catch (NumberFormatException e) {
 					if (output == MiniMessageTagOutput.SINK) return false;
-					else throw invalid("%s is not a valid hex color", name);
+					else throw error("%s is not a valid hex color", name);
 				}
 			}
 			var color = MiniMessageParser.parseColor(colName);
 			if (color.isEmpty()) {
 				if (output == MiniMessageTagOutput.SINK) return false;
-				else throw invalid("%s is not a valid color", colName);
+				else throw error("%s is not a valid color", colName);
 			}
 			int alpha = 0x3F;
 			if (args.hasNext()) {
 				String alphaStr = args.next();
 				try {
 					alpha = (int) (Double.parseDouble(alphaStr) * 0xFF);
-					if (alpha < 0 || alpha > 0xFF) throw invalid("Alpha %s must be between 0 and 1 (including those numbers)", alphaStr);
+					if (alpha < 0 || alpha > 0xFF) throw error("Alpha %s must be between 0 and 1 (including those numbers)", alphaStr);
 				} catch (NumberFormatException e) {
 					if (output == MiniMessageTagOutput.SINK) return false;
-					else throw invalid("%s is not a valid number", alphaStr);
+					else throw error("%s is not a valid number", alphaStr);
 				}
 			}
 			output.push(new ShadowColorFormat(argString, name, color.get().getValue() | (alpha << 24)));
@@ -253,7 +253,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 					}
 					case SHOW_DIALOG:
 					{
-						throw invalid("Dialog click action is not implemented");
+						throw error("Dialog click action is not implemented");
 					}
 					case CHANGE_PAGE:
 					{
@@ -281,10 +281,10 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 					{
 						ResourceLocation id;
 						try {
-							id = ResourceLocation.parse(MiniMessageParser.quoteArg(args.requireQuiet()));
+							id = ResourceLocation.parse(MiniMessageParser.quoteArg(args.requireWarn("Custom click event requires an identifier")));
 						} catch (ResourceLocationException e) {
 							if (output == MiniMessageTagOutput.SINK && !args.hasNext()) return false;
-							else throw invalid(e.getMessage());
+							else throw error(e.getMessage());
 						}
 						if (!args.hasNext()) {
 							output.push(new ClickFormat(argString, name, ClickFormat.custom(id, Optional.empty())));
@@ -294,7 +294,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 						try {
 							tag = parser.tagParser.parseFully(payloadArg);
 						} catch (CommandSyntaxException e) {
-							throw invalid("Invalid custom click event payload NBT for %s: %s", id, payloadArg);
+							throw error("Invalid custom click event payload NBT for %s: %s", id, payloadArg);
 						}
 						output.push(new ClickFormat(argString, name, ClickFormat.custom(id, Optional.ofNullable(tag))));
 						return true;
