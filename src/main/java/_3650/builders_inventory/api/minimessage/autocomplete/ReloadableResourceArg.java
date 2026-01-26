@@ -8,9 +8,9 @@ import net.minecraft.resources.Identifier;
 
 public abstract class ReloadableResourceArg implements AutocompleteArg {
 	
-	public static final ReloadableResourceArg KEYS = str();
-	public static final ReloadableResourceArg LANG = str();
-	public static final ReloadableResourceArg FONTS = loc();
+	public static final ReloadableResourceArg KEYS = key();
+	public static final ReloadableResourceArg LANG = key();
+	public static final ReloadableResourceArg FONTS = resource();
 	public static final ReloadableResourceArg ITEMS = plain();
 	public static final ReloadableResourceArg ENTITIES = plain();
 	public static final ReloadableResourceArg ATLASES = str();
@@ -31,19 +31,19 @@ public abstract class ReloadableResourceArg implements AutocompleteArg {
 		return new PlainArg(filter);
 	}
 	
-	public static ReloadableResourceArg str() {
-		return new StringArg(AutocompleteArg.Filter.key());
+	public static ReloadableResourceArg key() {
+		return new KeyArg(AutocompleteArg.Filter.key());
 	}
 	
-	public static ReloadableResourceArg str(AutocompleteArg.Filter filter) {
-		return new StringArg(filter);
+	public static ReloadableResourceArg key(AutocompleteArg.Filter filter) {
+		return new KeyArg(filter);
 	}
 	
-	public static ReloadableResourceArg loc() {
+	public static ReloadableResourceArg resource() {
 		return new ResourceArg(AutocompleteArg.Filter.resource());
 	}
 	
-	public static ReloadableResourceArg loc(AutocompleteArg.Filter filter) {
+	public static ReloadableResourceArg resource(AutocompleteArg.Filter filter) {
 		return new ResourceArg(filter);
 	}
 	
@@ -101,9 +101,9 @@ public abstract class ReloadableResourceArg implements AutocompleteArg {
 		
 	}
 	
-	private static class StringArg extends ReloadableResourceArg {
+	private static class KeyArg extends ReloadableResourceArg {
 		
-		private StringArg(AutocompleteArg.Filter filter) {
+		private KeyArg(AutocompleteArg.Filter filter) {
 			super(filter);
 		}
 		
