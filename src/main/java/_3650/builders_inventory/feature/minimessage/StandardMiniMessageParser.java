@@ -90,10 +90,10 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 		}
 		case "shadow":
 		{
-			String colName = args.requireQuiet();
+			String colName = args.requireWarn("Shadow tag requires a color");
 			if (colName.isEmpty()) {
 				if (output == MiniMessageTagOutput.SINK) return false;
-				else throw invalid("Color name cannot be empty");
+				else throw error("Color name cannot be empty");
 			}
 			if (colName.charAt(0) == '#' && colName.length() == 9) {
 				// RRGGBBAA
@@ -104,23 +104,23 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 					return true;
 				} catch (NumberFormatException e) {
 					if (output == MiniMessageTagOutput.SINK) return false;
-					else throw invalid("%s is not a valid hex color", name);
+					else throw error("%s is not a valid hex color", name);
 				}
 			}
 			var color = MiniMessageParser.parseColor(colName);
 			if (color.isEmpty()) {
 				if (output == MiniMessageTagOutput.SINK) return false;
-				else throw invalid("%s is not a valid color", colName);
+				else throw error("%s is not a valid color", colName);
 			}
 			int alpha = 0x3F;
 			if (args.hasNext()) {
 				String alphaStr = args.next();
 				try {
 					alpha = (int) (Double.parseDouble(alphaStr) * 0xFF);
-					if (alpha < 0 || alpha > 0xFF) throw invalid("Alpha %s must be between 0 and 1 (including those numbers)", alphaStr);
+					if (alpha < 0 || alpha > 0xFF) throw error("Alpha %s must be between 0 and 1 (including those numbers)", alphaStr);
 				} catch (NumberFormatException e) {
 					if (output == MiniMessageTagOutput.SINK) return false;
-					else throw invalid("%s is not a valid number", alphaStr);
+					else throw error("%s is not a valid number", alphaStr);
 				}
 			}
 			output.push(new ShadowColorFormat(argString, name, color.get().getValue() | (alpha << 24)));
