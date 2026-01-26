@@ -13,13 +13,15 @@ public class MiniMessageResult {
 	public final String trailingText;
 	public final ArrayList<String> trailingArgs;
 	public final ArrayList<String> unclosedTags;
+	public final ArrayList<String> warnings;
 	public final ArrayList<String> errors;
 	
-	MiniMessageResult(Branch root, String trailingText, ArrayList<String> trailingArgs, ArrayList<String> unclosedTags, ArrayList<String> errors) {
+	MiniMessageResult(Branch root, String trailingText, ArrayList<String> trailingArgs, ArrayList<String> unclosedTags, ArrayList<String> warnings, ArrayList<String> errors) {
 		this.root = root;
 		this.trailingText = trailingText;
 		this.trailingArgs = trailingArgs;
 		this.unclosedTags = unclosedTags;
+		this.warnings = warnings;
 		this.errors = errors;
 	}
 	

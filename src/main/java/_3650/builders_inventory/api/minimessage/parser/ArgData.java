@@ -25,14 +25,14 @@ public class ArgData {
 		return args.get(i);
 	}
 	
-	public String requireQuiet() throws InvalidMiniMessage {
+	public String requireWarn(String message) throws InvalidMiniMessage {
 		if (hasNext()) return next();
-		else throw new InvalidMiniMessage();
+		else throw InvalidMiniMessage.warning(message);
 	}
 	
-	public String require(String error) throws InvalidMiniMessage {
+	public String require(String message) throws InvalidMiniMessage {
 		if (hasNext()) return next();
-		else throw new InvalidMiniMessage(error);
+		else throw InvalidMiniMessage.error(message);
 	}
 	
 }

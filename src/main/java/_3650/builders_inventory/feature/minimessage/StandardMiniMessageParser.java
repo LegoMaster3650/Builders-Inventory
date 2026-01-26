@@ -59,15 +59,15 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 			// hex color tag
 			try {
 				int color = Integer.parseInt(name.substring(1), 16);
-				if (color > 0xFFFFFF) throw invalid("Color %s must be less than #FFFFFF", name);
+				if (color > 0xFFFFFF) throw error("Color %s must be less than #FFFFFF", name);
 				output.push(new ColorFormat(argString, name, TextColor.fromRgb(color)));
 				return true;
 			} catch (NumberFormatException e) {
 				if (output == MiniMessageTagOutput.SINK) return false;
-				else throw invalid("%s is not a valid hex color", name);
+				else throw error("%s is not a valid hex color", name);
 			} catch (IndexOutOfBoundsException e) {
 				if (output == MiniMessageTagOutput.SINK) return false;
-				else throw invalid("Color cannot be empty");
+				else throw error("Color cannot be empty");
 			}
 		}
 		switch (name.toLowerCase()) {
@@ -75,15 +75,15 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 		case "colour":
 		case "c":
 		{
-			String colorName = args.requireQuiet();
+			String colorName = args.requireWarn("Color tag requires a color");
 			if (colorName.isEmpty()) {
 				if (output == MiniMessageTagOutput.SINK) return false;
-				else throw invalid("Color name cannot be empty");
+				else throw error("Color name cannot be empty");
 			}
 			var color = MiniMessageParser.parseColor(colorName);
 			if (color.isEmpty()) {
 				if (output == MiniMessageTagOutput.SINK) return false;
-				else throw invalid("%s is not a valid color", colorName);
+				else throw error("%s is not a valid color", colorName);
 			}
 			output.push(new ColorFormat(argString, name, color.get()));
 			return true;
@@ -110,7 +110,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 			var color = MiniMessageParser.parseNamedColor(name);
 			if (color.isEmpty()) {
 				if (output == MiniMessageTagOutput.SINK) return false;
-				else throw invalid("%s is not a valid color, but should be! Please report this bug!", name);
+				else throw error("%s is not a valid color, but should be! Please report this bug!", name);
 			}
 			output.push(new ColorFormat(argString, name, color.get()));
 			return true;
@@ -158,7 +158,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 			output.push(new InverseStyleFormat(argString, name, ChatFormatting.OBFUSCATED));
 			return true;
 		case "reset":
-			if (args.size > 0) throw new InvalidMiniMessage(String.format("Tag %s does not accept arguments", name));
+			if (args.size > 0) throw error("Tag %s does not accept arguments", name);
 			while (parser.ctx != parser.root) {
 				Branch b = output.popUnclosed();
 				output.append(b);
@@ -167,32 +167,32 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 			return true;
 		case "click":
 		{
-			String action = args.requireQuiet();
+			String action = args.requireWarn("Click tag requires an action to be specified");
 			String actLower = action.toLowerCase();
 			for (var act : ClickEvent.Action.values()) {
 				if (act.getSerializedName().equals(actLower)) {
-					if (!act.isAllowedFromServer()) throw invalid("Click action %s is not allowed", actLower);
+					if (!act.isAllowedFromServer()) throw error("Click action %s is not allowed", actLower);
 					switch (act) {
 					case OPEN_URL:
 					{
-						String uriArg = MiniMessageParser.quoteArg(args.requireQuiet());
+						String uriArg = MiniMessageParser.quoteArg(args.requireWarn("Open URL click event requires a URL"));
 						try {
 							Util.parseAndValidateUntrustedUri(uriArg);
 						} catch (URISyntaxException e) {
 							if (output == MiniMessageTagOutput.SINK) return false;
-							else throw invalid("%s is not a valid link", uriArg);
+							else throw error("%s is not a valid link", uriArg);
 						}
 						output.push(new ClickFormat(argString, name, new ClickEvent(act, uriArg)));
 						return true;
 					}
 					case RUN_COMMAND:
 					{
-						String command = MiniMessageParser.quoteArg(args.requireQuiet());
+						String command = MiniMessageParser.quoteArg(args.requireWarn("Run Command click event requires a command"));
 						for (int i = 0; i < command.length(); i++) {
 							char c = command.charAt(i);
 							if (!StringUtil.isAllowedChatCharacter(c)) {
 								if (output == MiniMessageTagOutput.SINK) return false;
-								else throw invalid("Character %s not allowed in command", String.valueOf(c));
+								else throw error("Character %s not allowed in command", String.valueOf(c));
 							}
 						}
 						output.push(new ClickFormat(argString, name, new ClickEvent(act, command)));
@@ -200,12 +200,12 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 					}
 					case SUGGEST_COMMAND:
 					{
-						String command = MiniMessageParser.quoteArg(args.requireQuiet());
+						String command = MiniMessageParser.quoteArg(args.requireWarn("Suggest Command click event requires a command"));
 						for (int i = 0; i < command.length(); i++) {
 							char c = command.charAt(i);
 							if (!StringUtil.isAllowedChatCharacter(c)) {
 								if (output == MiniMessageTagOutput.SINK) return false;
-								else throw invalid("Character %s not allowed in command", String.valueOf(c));
+								else throw error("Character %s not allowed in command", String.valueOf(c));
 							}
 						}
 						output.push(new ClickFormat(argString, name, new ClickEvent(act, command)));
@@ -213,41 +213,42 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 					}
 					case CHANGE_PAGE:
 					{
-						String pageArg = args.requireQuiet();
+						String pageArg = args.requireWarn("Change Page click event requires a target page");
 						int page;
 						try {
 							page = Integer.parseInt(pageArg);
 						} catch (NumberFormatException e) {
 							if (output == MiniMessageTagOutput.SINK) return false;
-							else throw invalid("%s is not a valid number", pageArg);
+							else throw error("%s is not a valid number", pageArg);
 						}
 						if (page < 1) {
-							throw invalid("%s must be 1 or greater", pageArg);
+							throw error("%s must be 1 or greater", pageArg);
 						}
 						output.push(new ClickFormat(argString, name, new ClickEvent(act, pageArg)));
 						return true;
 					}
 					case COPY_TO_CLIPBOARD:
 					{
-						String value = MiniMessageParser.quoteArg(args.requireQuiet());
+						String value = MiniMessageParser.quoteArg(args.requireWarn("Copy to Clipboard click event requires a value"));
 						output.push(new ClickFormat(argString, name, new ClickEvent(act, value)));
 						return true;
 					}
 					default:
 						if (output == MiniMessageTagOutput.SINK) return false;
-						else throw invalid("Invalid click action %s. Report this bug to the mod author.", actLower);
+						else throw error("Click action %s not implemented. Report this bug to the mod author.", actLower);
 					}
 				}
 			}
-			return false;
+			if (output == MiniMessageTagOutput.SINK) return false;
+			else throw warningOrError(args.hasNext(), "%s is not a valid click event", action);
 		}
 		case "hover":
 		{
-			String action = args.requireQuiet();
+			String action = args.requireWarn("Hover tag requires an action to be specified");
 			switch (action.toLowerCase(Locale.ROOT)) {
 			case "show_text":
 			{
-				String arg = args.requireQuiet();
+				String arg = args.requireWarn("Show Text hover event requires text to show");
 				output.push(new HoverFormat(argString, name, HoverFormat.text(
 						parser.nodeArg(arg)
 						)));
@@ -257,10 +258,10 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 			{
 				ResourceLocation id;
 				try {
-					id = ResourceLocation.parse(MiniMessageParser.quoteArg(args.requireQuiet()));
+					id = ResourceLocation.parse(MiniMessageParser.quoteArg(args.requireWarn("Show Item hover event requires an item to show")));
 				} catch (ResourceLocationException e) {
 					if (output == MiniMessageTagOutput.SINK && !args.hasNext()) return false;
-					else throw invalid(e.getMessage());
+					else throw error(e.getMessage());
 				}
 				Item item = BuiltInRegistries.ITEM.getOptional(id).orElseThrow(invalidSup(output, args, "%s is not a valid item ID", id.toString()));
 				if (!args.hasNext()) {
@@ -278,7 +279,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 					count = Integer.parseInt(countArg);
 				} catch (NumberFormatException e) {
 					if (output == MiniMessageTagOutput.SINK && !args.hasNext()) return false;
-					else throw invalid("%s is not a valid item count", countArg);
+					else throw error("%s is not a valid item count", countArg);
 				}
 				if (!args.hasNext()) {
 					output.push(new HoverFormat(argString, name, HoverFormat.item(
@@ -301,7 +302,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 					return true;
 				}
 				
-				if (parser.registryOps.isEmpty()) throw invalid("Item components need a world open to resolve");
+				if (parser.registryOps.isEmpty()) throw error("Item components need a world open to resolve");
 				
 				final DataComponentPatch.Builder components = DataComponentPatch.builder();
 				final ReferenceArraySet<DataComponentType<?>> keys = new ReferenceArraySet<>();
@@ -310,21 +311,21 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 						String key = MiniMessageParser.quoteArg(args.next());
 						if (key.isEmpty()) {
 							if (output == MiniMessageTagOutput.SINK && !args.hasNext()) break;
-							else throw invalid("Cannot have empty component type");
+							else throw error("Cannot have empty component type");
 						}
 						if (key.charAt(0) == '!') {
 							// remove component
 							String rmKey = key.substring(1);
-							if (rmKey.isEmpty()) return false;
+							if (rmKey.isEmpty()) throw warning("Removed item component must be specified");
 							
 							ResourceLocation loc = ResourceLocation.parse(rmKey);
 							DataComponentType<?> type = BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(loc);
 							if (type == null) {
 								if (output == MiniMessageTagOutput.SINK && !args.hasNext()) break;
-								else throw invalid("Invalid component type %s", key);
+								else throw error("Invalid component type %s", key);
 							}
-							if (type.isTransient()) throw invalid("Component type %s is client-only", rmKey);
-							if (!keys.add(type)) throw invalid("Component %s is already specified in this tag", rmKey);
+							if (type.isTransient()) throw error("Component type %s is client-only", rmKey);
+							if (!keys.add(type)) throw error("Component %s is already specified in this tag", rmKey);
 							
 							components.remove(type);
 						} else {
@@ -333,24 +334,24 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 							DataComponentType<?> type = BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(loc);
 							if (type == null) {
 								if (output == MiniMessageTagOutput.SINK && !args.hasNext()) break;
-								else throw invalid("Invalid component type %s", key);
+								else throw error("Invalid component type %s", key);
 							}
-							if (type.isTransient()) throw invalid("Component type %s is client-only", key);
-							if (!keys.add(type)) throw invalid("Component %s is already specified in this tag", key);
+							if (type.isTransient()) throw error("Component type %s is client-only", key);
+							if (!keys.add(type)) throw error("Component %s is already specified in this tag", key);
 							
-							String value = args.requireQuiet();
+							String value = args.requireWarn("Item components require a following value");
 							Tag tag;
 							try {
 								tag = new TagParser(new StringReader(value)).readValue();
 							} catch (CommandSyntaxException e) {
-								throw invalid("Invalid component NBT for %s: %s", key, value);
+								throw error("Invalid component NBT for %s: %s", key, value);
 							}
-							if (!parser.parseComponent(type, tag, components)) throw invalid("Invalid component value for %s: %s", key, value);
+							if (!parser.parseComponent(type, tag, components)) throw error("Invalid component value for %s: %s", key, value);
 						}
 					}
 				} catch (ResourceLocationException e) {
 					if (output == MiniMessageTagOutput.SINK && !args.hasNext()) return false;
-					else throw invalid(e.getMessage());
+					else throw error(e.getMessage());
 				}
 				output.push(new HoverFormat(argString, name, HoverFormat.item(
 						item,
@@ -377,20 +378,20 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 			{
 				ResourceLocation id;
 				try {
-					id = ResourceLocation.parse(MiniMessageParser.quoteArg(args.requireQuiet()));
+					id = ResourceLocation.parse(MiniMessageParser.quoteArg(args.requireWarn("Show Entity hover event requires an entity to show")));
 				} catch (ResourceLocationException e) {
 					if (output == MiniMessageTagOutput.SINK && !args.hasNext()) return false;
-					else throw invalid(e.getMessage());
+					else throw error(e.getMessage());
 				}
 				EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.getOptional(id).orElseThrow(invalidSup(output, args, "%s is not a valid entity ID", id.toString()));
 				
-				String uuidStr = args.requireQuiet();
+				String uuidStr = args.requireWarn("Show Entity hover event requires an entity UUID");
 				UUID uuid;
 				try {
 					uuid = UUID.fromString(uuidStr);
 				} catch (IllegalArgumentException e) {
 					if (output == MiniMessageTagOutput.SINK && !args.hasNext()) return false;
-					else throw invalid("%s is not a valid UUID", uuidStr);
+					else throw error("%s is not a valid UUID", uuidStr);
 				}
 				if (!args.hasNext()) {
 					output.push(new HoverFormat(argString, name, HoverFormat.entity(type, uuid)));
@@ -401,13 +402,13 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 				return true;
 			}
 			default:
-				if (args.hasNext()) throw invalid("%s is not a valid hover event", action);
-				return false;
+				if (output == MiniMessageTagOutput.SINK) return false;
+				else throw warningOrError(args.hasNext(), "%s is not a valid hover event", action);
 			}
 		}
 		case "key":
 		{
-			String key = args.requireQuiet();
+			String key = args.requireWarn("Key tag requires a keybind");
 			output.append(new Keybind(argString, key));
 			return true;
 		}
@@ -415,7 +416,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 		case "translate":
 		case "tr":
 		{
-			String key = args.requireQuiet();
+			String key = args.requireWarn("Translate tag requires a translation key");
 			if (args.size > 1) {
 				ArrayList<Node> trargs = new ArrayList<>(args.size);
 				while (args.hasNext()) trargs.add(parser.nodeArg(args.next()));
@@ -430,8 +431,8 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 		case "translate_or":
 		case "tr_or":
 		{
-			String key = args.requireQuiet();
-			String fallback = args.requireQuiet();
+			String key = args.requireWarn("Translate tag requires a translation key");
+			String fallback = args.requireWarn("Translate with fallback tag requires a fallback");
 			if (args.size > 2) {
 				ArrayList<Node> trargs = new ArrayList<>(args.size);
 				while (args.hasNext()) trargs.add(parser.nodeArg(args.next()));
@@ -443,7 +444,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 		}
 		case "insert":
 		{
-			String text = args.requireQuiet();
+			String text = args.requireWarn("Insert tag requires text to insert");
 			output.push(new InsertionFormat(argString, name, text));
 			return true;
 		}
@@ -465,7 +466,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 				try {
 					phase = Integer.valueOf(arg);
 				} catch (NumberFormatException e) {
-					throw invalid("%s is not a valid number", arg);
+					throw error("%s is not a valid number", arg);
 				}
 			}
 			output.push(new RainbowFormat(argString, name, invert, phase));
@@ -484,16 +485,15 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 					if (!args.hasNext()) {
 						try {
 							phase = Double.parseDouble(arg);
-							if (phase < -1.0 || phase > 1.0) throw invalid("Phase %s must be between -1 and 1 (including those numbers)", phase);
+							if (phase < -1.0 || phase > 1.0) throw error("Phase %s must be between -1 and 1 (including those numbers)", phase);
 						} catch (NumberFormatException e) {
 							if (output == MiniMessageTagOutput.SINK && !args.hasNext()) return false;
-							else throw invalid("%s is not a valid color", arg);
+							else throw error("%s is not a valid color", arg);
 						}
 					}
-					return false;
 				}
 			}
-			if (colors.size() == 1) throw invalid("Gradient must have more than 1 color, but only has %s", colors.get(0));
+			if (colors.size() == 1) throw error("Gradient must have more than 1 color, but only has %s", colors.get(0));
 			output.push(new GradientFormat(argString, name, colors, phase));
 			return true;
 		}
@@ -510,18 +510,17 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 					if (!args.hasNext()) {
 						try {
 							phase = Double.parseDouble(arg);
-							if (phase < -1.0 || phase > 1.0) throw invalid("Phase %s must be between -1 and 1 (including those numbers)", phase);
+							if (phase < -1.0 || phase > 1.0) throw error("Phase %s must be between -1 and 1 (including those numbers)", phase);
 						} catch (NumberFormatException e) {
 							if (output == MiniMessageTagOutput.SINK && !args.hasNext()) return false;
-							else throw invalid("%s is not a valid color", arg);
+							else throw error("%s is not a valid color", arg);
 						}
 					}
-					return false;
 				}
 			}
 			if (colors.size() == 1) {
 				if (output == MiniMessageTagOutput.SINK) return false;
-				else throw invalid("Transition must have more than 1 color, but only has %s", colors.get(0));
+				else throw error("Transition must have more than 1 color, but only has %s", colors.get(0));
 			}
 			output.push(new TransitionFormat(argString, name, colors, phase));
 			return true;
@@ -537,10 +536,10 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 				else if (!arg.isEmpty()) {
 					try {
 						phase = Double.parseDouble(arg);
-						if (phase < -1.0 || phase > 1.0) throw invalid("Phase %s must be between -1 and 1 (including those numbers)", phase);
+						if (phase < -1.0 || phase > 1.0) throw error("Phase %s must be between -1 and 1 (including those numbers)", phase);
 					} catch (NumberFormatException e) {
 						if (output == MiniMessageTagOutput.SINK) return false;
-						else throw invalid("%s is not an available pride flag gradient"); // "_ is not a valid pride flag" probably wouldn't be the best way to word it
+						else throw error("%s is not an available pride flag gradient"); // "_ is not a valid pride flag" probably wouldn't be the best way to word it
 					}
 				}
 			}
@@ -550,7 +549,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 		case "font":
 		{
 			try {
-				String arg1 = MiniMessageParser.quoteArg(args.requireQuiet());
+				String arg1 = MiniMessageParser.quoteArg(args.requireWarn("Font tag requires a font"));
 				if (args.hasNext()) {
 					String arg2 = args.next();
 					ResourceLocation font = ResourceLocation.fromNamespaceAndPath(arg1, arg2);
@@ -563,7 +562,7 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 				}
 			} catch (ResourceLocationException e) {
 				if (output == MiniMessageTagOutput.SINK) return false;
-				else throw invalid(e.getMessage());
+				else throw error(e.getMessage());
 			}
 		}
 		case "newline":
@@ -571,33 +570,45 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 			output.append(new TaggedLiteral(argString, "\n"));
 			return true;
 		default:
-			return false;
+			return false; // the only return false permitted outside of sunk tags
 		}
 	}
 	
-//	private static InvalidMiniMessage invalid() {
-//		return new InvalidMiniMessage();
+	private static InvalidMiniMessage warningOrError(boolean isError, String message) {
+		return isError ? InvalidMiniMessage.error(message) : InvalidMiniMessage.warning(message);
+	}
+	
+	private static InvalidMiniMessage warningOrError(boolean isError, String message, Object... formatArgs) {
+		return warningOrError(isError, String.format(message, formatArgs));
+	}
+	
+	private static InvalidMiniMessage warning(String message) {
+		return InvalidMiniMessage.warning(message);
+	}
+	
+//	private static InvalidMiniMessage warning(String message, Object... formatArgs) {
+//		return InvalidMiniMessage.warning(String.format(message, formatArgs));
 //	}
 	
-	private static InvalidMiniMessage invalid(String error) {
-		return new InvalidMiniMessage(error);
+	private static InvalidMiniMessage error(String message) {
+		return InvalidMiniMessage.error(message);
 	}
 	
-	private static InvalidMiniMessage invalid(String error, Object... formatArgs) {
-		return new InvalidMiniMessage(String.format(error, formatArgs));
+	private static InvalidMiniMessage error(String message, Object... formatArgs) {
+		return InvalidMiniMessage.error(String.format(message, formatArgs));
 	}
 	
-	private static Supplier<InvalidMiniMessage> invalidSup() {
-		return () -> new InvalidMiniMessage();
+	private static Supplier<InvalidMiniMessage> warningSupplier(String message) {
+		return () -> InvalidMiniMessage.warning(message);
 	}
 	
-//	private static Supplier<InvalidMiniMessage> invalidSup(String error) {
-//		return () -> new InvalidMiniMessage(error);
-//	}
+	private static Supplier<InvalidMiniMessage> errorSupplier(String message) {
+		return () -> InvalidMiniMessage.error(message);
+	}
 	
-	private static Supplier<InvalidMiniMessage> invalidSup(MiniMessageTagOutput output, ArgData args, String error, Object... formatArgs) {
-		final String format = String.format(error, formatArgs);
-		return output == MiniMessageTagOutput.SINK && !args.hasNext() ? invalidSup() : () -> new InvalidMiniMessage(format);
+	private static Supplier<InvalidMiniMessage> invalidSup(MiniMessageTagOutput output, ArgData args, String message, Object... formatArgs) {
+		final String formattedMessage = String.format(message, formatArgs);
+		return output == MiniMessageTagOutput.SINK && !args.hasNext() ? warningSupplier(formattedMessage) : errorSupplier(formattedMessage);
 	}
 	
 }
