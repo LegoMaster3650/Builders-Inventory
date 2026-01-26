@@ -13,6 +13,7 @@ public abstract class ReloadableResourceArg implements AutocompleteArg {
 	public static final ReloadableResourceArg FONTS = loc();
 	public static final ReloadableResourceArg ITEMS = plain();
 	public static final ReloadableResourceArg ENTITIES = plain();
+	public static final ReloadableResourceArg ATLASES = str();
 	
 	private ReloadableResourceArg() {}
 	

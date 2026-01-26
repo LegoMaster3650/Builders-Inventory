@@ -11,7 +11,9 @@ import java.util.function.Supplier;
 
 import org.jetbrains.annotations.Nullable;
 
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.serialization.JsonOps;
 
 import _3650.builders_inventory.api.minimessage.MiniMessageParser;
 import _3650.builders_inventory.api.minimessage.color.PrideFlagGradients;
@@ -27,13 +29,14 @@ import _3650.builders_inventory.api.minimessage.format.ShadowColorFormat;
 import _3650.builders_inventory.api.minimessage.format.StyleFormat;
 import _3650.builders_inventory.api.minimessage.format.TransitionFormat;
 import _3650.builders_inventory.api.minimessage.parser.ArgData;
-import _3650.builders_inventory.api.minimessage.parser.MiniMessageTagParser;
 import _3650.builders_inventory.api.minimessage.parser.InvalidMiniMessage;
 import _3650.builders_inventory.api.minimessage.parser.MiniMessageTagOutput;
+import _3650.builders_inventory.api.minimessage.parser.MiniMessageTagParser;
 import _3650.builders_inventory.api.minimessage.tags.Branch;
 import _3650.builders_inventory.api.minimessage.tags.HiddenLiteral;
 import _3650.builders_inventory.api.minimessage.tags.Keybind;
 import _3650.builders_inventory.api.minimessage.tags.Node;
+import _3650.builders_inventory.api.minimessage.tags.ObjectTag;
 import _3650.builders_inventory.api.minimessage.tags.TaggedLiteral;
 import _3650.builders_inventory.api.minimessage.tags.Translatable;
 import _3650.builders_inventory.api.minimessage.tags.TranslatableFallback;
@@ -46,11 +49,14 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.chat.contents.objects.AtlasSprite;
+import net.minecraft.network.chat.contents.objects.PlayerSprite;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringUtil;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.component.ResolvableProfile;
 
 public class StandardMiniMessageParser implements MiniMessageTagParser {
 	
@@ -631,6 +637,64 @@ public class StandardMiniMessageParser implements MiniMessageTagParser {
 				if (output == MiniMessageTagOutput.SINK) return false;
 				else throw invalid(e.getMessage());
 			}
+		}
+		case "sprite":
+		{
+			try {
+				String arg1 = MiniMessageParser.quoteArg(args.requireQuiet());
+				if (args.hasNext()) {
+					String arg2 = args.next();
+					Identifier atlas = Identifier.parse(arg1);
+					Identifier sprite = Identifier.parse(arg2);
+					AtlasSprite contents = new AtlasSprite(atlas, sprite);
+					output.append(new ObjectTag(argString, contents));
+					return true;
+				} else {
+					Identifier sprite = Identifier.parse(arg1);
+					AtlasSprite contents = new AtlasSprite(AtlasSprite.DEFAULT_ATLAS, sprite);
+					output.append(new ObjectTag(argString, contents));
+					return true;
+				}
+			} catch (IdentifierException e) {
+				if (output == MiniMessageTagOutput.SINK) return false;
+				else throw invalid(e.getMessage());
+			}
+		}
+		case "head":
+		{
+			String arg = args.requireQuiet();
+			ResolvableProfile profile = null;
+			try {
+				UUID uuid = UUID.fromString(arg);
+				profile = ResolvableProfile.createUnresolved(uuid);
+			} catch (IllegalArgumentException e) {}
+			if (profile == null && arg.contains("/")) try {
+				Identifier texture = Identifier.parse(arg);
+				JsonObject hackyEvilJson = new JsonObject();
+				hackyEvilJson.addProperty("texture", texture.toString());
+				profile = ResolvableProfile.CODEC.parse(JsonOps.INSTANCE, hackyEvilJson)
+						.resultOrPartial()
+						.orElseThrow(invalidSup());
+			} catch (IdentifierException e) {}
+			if (profile == null) profile = ResolvableProfile.createUnresolved(arg);
+			
+			boolean outer_layer = true;
+			if (args.hasNext()) {
+				String hat = args.next();
+				switch (hat.toLowerCase(Locale.ROOT)) {
+				case "true":
+				case "on":
+					outer_layer = true;
+					break;
+				case "false":
+				case "off":
+					outer_layer = false;
+					break;
+				}
+			}
+			PlayerSprite contents = new PlayerSprite(profile, outer_layer);
+			output.append(new ObjectTag(argString, contents));
+			return true;
 		}
 		case "newline":
 		case "br":

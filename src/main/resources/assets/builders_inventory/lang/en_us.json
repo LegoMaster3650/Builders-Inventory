@@ -139,6 +139,8 @@
 	"yacl3.config.builders_inventory:config.minimessage_messagePreview.desc": "Whether the formatted minimessage preview displays\nThis only affects valid previews, errors will always display",
 	"yacl3.config.builders_inventory:config.minimessage_suggestions": "Suggestions",
 	"yacl3.config.builders_inventory:config.minimessage_suggestions.desc": "Whether suggestions for tags will be shown when typing in a minimessage input",
+	"yacl3.config.builders_inventory:config.minimessage_preloadAtlasData": "Preload Atlas Data",
+	"yacl3.config.builders_inventory:config.minimessage_preloadAtlasData.desc": "Whether to preload atlas texture information for suggestions on resource reload\nThis may increase game loading and resource reloading times but may also prevent lag spikes when loading atlases for the <sprite:> tag\nNot recommended to turn off unless you have a very slow computer and need to reload the game/resource packs a LOT",
 	"yacl3.config.builders_inventory:config.minimessage_updateDelay": "Update Delay",
 	"yacl3.config.builders_inventory:config.minimessage_updateDelay.desc": "Number of ticks you must go without typing to update the minimessage formatter\nNot recommended unless typing in a minimessage input slows your game",
 	"yacl3.config.builders_inventory:config.minimessage_enabledChat": "Enabled in Chat",

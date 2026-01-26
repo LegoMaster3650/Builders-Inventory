@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.client.Minecraft;
 
 public class AutocompleteTagLookup {
 	
@@ -179,6 +180,25 @@ public class AutocompleteTagLookup {
 			return (prev, input) ->
 			prev == null ? arg.findNonMatch(input) : arg.findNonMatch(prev + ':' + input).stream().map(s -> s.substring(prev.length() + 1)).toList();
 		}
+		
+		public static Suggestor playerList() {
+			return new OnlinePlayerSuggestor();
+		}
+	}
+	
+	private static class OnlinePlayerSuggestor implements Suggestor {
+		
+		@Override
+		public List<String> suggest(@Nullable String prev, @NotNull String input) {
+			Minecraft mc = Minecraft.getInstance();
+			if (mc.player == null || mc.player.connection == null) return List.of();
+			ArrayList<String> playerNames = new ArrayList<>();
+			for (var playerInfo : mc.player.connection.getOnlinePlayers()) {
+				playerNames.add(playerInfo.getProfile().name());
+			}
+			return playerNames;
+		}
+		
 	}
 	
 }
