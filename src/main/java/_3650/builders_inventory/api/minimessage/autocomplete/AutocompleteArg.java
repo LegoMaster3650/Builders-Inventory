@@ -34,4 +34,62 @@ public interface AutocompleteArg {
 	
 	public List<String> findNonMatch(String start);
 	
+	@FunctionalInterface
+	public static interface Filter {
+		
+		public boolean hasMatch(String key, String start);
+		
+		public static Filter id() {
+			return new IDMatcher();
+		}
+		
+		public static Filter key() {
+			return new KeyMatcher();
+		}
+		
+		public static Filter resource() {
+			return new ResourceMatcher();
+		}
+		
+	}
+	
+	static class IDMatcher implements Filter {
+		@Override
+		public boolean hasMatch(String key, String start) {
+			for (int i = 0; !key.startsWith(start, i); ++i) {
+				i = key.indexOf('_', i);
+				if (i < 0) return false;
+			}
+			return true;
+		}
+	}
+	
+	static class KeyMatcher implements Filter {
+		@Override
+		public boolean hasMatch(String key, String start) {
+			for (int i = 0; !key.startsWith(start, i); ++i) {
+				int a = key.indexOf('.', i);
+				int b = key.indexOf('_', i);
+				i = Math.min(a, b);
+				if (i < 0) i = Math.max(a, b);
+				if (i < 0) return false;
+			}
+			return true;
+		}
+	}
+	
+	static class ResourceMatcher implements Filter {
+		@Override
+		public boolean hasMatch(String key, String start) {
+			for (int i = 0; !key.startsWith(start, i); ++i) {
+				int a = key.indexOf('/', i);
+				int b = key.indexOf('_', i);
+				i = Math.min(a, b);
+				if (i < 0) i = Math.max(a, b);
+				if (i < 0) return false;
+			}
+			return true;
+		}
+	}
+	
 }
