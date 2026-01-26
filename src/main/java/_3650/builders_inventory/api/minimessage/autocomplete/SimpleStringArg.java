@@ -7,16 +7,22 @@ import java.util.Locale;
 
 public class SimpleStringArg implements AutocompleteArg {
 	
+	private final AutocompleteArg.Filter filter;
 	private final ArrayList<String> vals;
 	
-	private SimpleStringArg(ArrayList<String> vals) {
+	private SimpleStringArg(AutocompleteArg.Filter filter, ArrayList<String> vals) {
+		this.filter = filter;
 		this.vals = vals;
 	}
 	
 	public static SimpleStringArg of(List<String> vals) {
+		return SimpleStringArg.withFilter(vals, AutocompleteArg.Filter.id());
+	}
+	
+	public static SimpleStringArg withFilter(List<String> vals, AutocompleteArg.Filter filter) {
 		ArrayList<String> sorted = new ArrayList<>(vals);
 		Collections.sort(sorted);
-		return new SimpleStringArg(sorted);
+		return new SimpleStringArg(filter, sorted);
 	}
 	
 	@Override
@@ -25,7 +31,7 @@ public class SimpleStringArg implements AutocompleteArg {
 		final String startLow = start.toLowerCase(Locale.ROOT);
 		final ArrayList<String> result = new ArrayList<>();
 		for (String val : vals) {
-			if (segmentMatches(val, startLow)) result.add(val);
+			if (filter.hasMatch(val, startLow)) result.add(val);
 		}
 		return result;
 	}
@@ -36,17 +42,9 @@ public class SimpleStringArg implements AutocompleteArg {
 		final String startLow = start.toLowerCase(Locale.ROOT);
 		final List<String> result = new ArrayList<>();
 		for (String val : vals) {
-			if (segmentMatches(val, startLow) && !(val.length() == start.length() && val.equals(start))) result.add(val);
+			if (filter.hasMatch(val, startLow) && !(val.length() == start.length() && val.equals(start))) result.add(val);
 		}
 		return result;
-	}
-	
-	private static boolean segmentMatches(String key, String start) {
-		for (int i = 0; !key.startsWith(start, i); ++i) {
-			i = key.indexOf('_', i);
-			if (i < 0) return false;
-		}
-		return true;
 	}
 	
 }
