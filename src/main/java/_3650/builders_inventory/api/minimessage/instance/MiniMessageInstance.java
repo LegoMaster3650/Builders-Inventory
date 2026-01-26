@@ -255,14 +255,33 @@ public class MiniMessageInstance {
 			this.inputOverride = null;
 		} else {
 			if (!parseResult.errors.isEmpty()) {
-				previewComponent = Component.empty().withStyle(ChatFormatting.RED);
+				previewComponent = Component.empty();
+				if (Config.instance().minimessage_errorWarnings) {
+					final var warnings = parseResult.warnings;
+					for (int i = 0; i < warnings.size(); i++) {
+						String message = warnings.get(i) + '\n';
+						previewComponent.append(Component.literal(message).withStyle(ChatFormatting.YELLOW));
+					}
+				}
 				final var errors = parseResult.errors;
 				for (int i = 0; i < errors.size(); i++) {
-					String error = errors.get(i);
-					if (i < errors.size() - 1) error = error + '\n';
-					previewComponent.append(Component.literal(error));
+					String message = errors.get(i);
+					if (i < errors.size() - 1) message = message + '\n';
+					previewComponent.append(Component.literal(message).withStyle(ChatFormatting.RED));
 				}
-			} else if (this.previewOptions.doStandardPreview(this.minecraft, this.screen, this)) previewComponent = parseResult.getFormatted();
+			} else if (this.previewOptions.doStandardPreview(this.minecraft, this.screen, this)) {
+				if (!parseResult.warnings.isEmpty() && this.previewOptions.doPreviewWarnings(minecraft, screen, this)) {
+					previewComponent = Component.empty();
+					final var warnings = parseResult.warnings;
+					for (int i = 0; i < warnings.size(); i++) {
+						String message = ' ' + warnings.get(i) + '\n';
+						previewComponent.append(Component.literal(message).withStyle(ChatFormatting.YELLOW));
+					}
+					previewComponent.append(parseResult.getFormatted());
+				} else {
+					previewComponent = parseResult.getFormatted();
+				}
+			}
 			if (Config.instance().minimessage_syntaxHighlighting) this.inputOverride = formattedInput;
 			else this.inputOverride = null;
 			this.update(parseResult);
@@ -317,21 +336,28 @@ public class MiniMessageInstance {
 	
 	public static interface PreviewOptions {
 		
-		public static StandardPreviewOptions standard(boolean doStandardPreview) {
-			return new StandardPreviewOptions(doStandardPreview);
+		public static StandardPreviewOptions standard(boolean doStandardPreview, boolean doPreviewWarnings) {
+			return new StandardPreviewOptions(doStandardPreview, doPreviewWarnings);
 		}
 		
 		static class StandardPreviewOptions implements PreviewOptions {
 			
 			private final boolean doStandardPreview;
+			private final boolean doPreviewWarnings;
 			
-			private StandardPreviewOptions(boolean doStandardPreview) {
+			private StandardPreviewOptions(boolean doStandardPreview, boolean doPreviewWarnings) {
 				this.doStandardPreview = doStandardPreview;
+				this.doPreviewWarnings = doPreviewWarnings;
 			}
 			
 			@Override
 			public boolean doStandardPreview(Minecraft mc, Screen screen, MiniMessageInstance minimessage) {
 				return this.doStandardPreview && Config.instance().minimessage_messagePreview;
+			}
+			
+			@Override
+			public boolean doPreviewWarnings(Minecraft mc, Screen screen, MiniMessageInstance minimessage) {
+				return this.doPreviewWarnings && Config.instance().minimessage_previewWarnings;
 			}
 			
 			@Override
@@ -387,6 +413,11 @@ public class MiniMessageInstance {
 			}
 			
 			@Override
+			public boolean doPreviewWarnings(Minecraft mc, Screen screen, MiniMessageInstance minimessage) {
+				return Config.instance().minimessage_previewWarnings;
+			}
+			
+			@Override
 			public int getBGColor(Minecraft mc, Screen screen) {
 				return ((int)(255.0 * mc.options.textBackgroundOpacity().get())) << 24;
 			}
@@ -424,6 +455,8 @@ public class MiniMessageInstance {
 		}
 		
 		public boolean doStandardPreview(Minecraft mc, Screen screen, MiniMessageInstance minimessage);
+		
+		public boolean doPreviewWarnings(Minecraft mc, Screen screen, MiniMessageInstance minimessage);
 		
 		public int getBGColor(Minecraft mc, Screen screen);
 		

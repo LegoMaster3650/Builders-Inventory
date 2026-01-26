@@ -155,6 +155,24 @@ public class Config {
 	public boolean minimessage_messagePreview = true;
 	
 	@SerialEntry(
+			value = "minimessage.previewWarnings",
+			comment = "Whether warnings show in the minimessage preview above valid text\n"
+					+ "This only affects valid previews, warnings will still display alongside errors\n"
+					+ "Warning: this can be fairly annoying when enabled.\n"
+					+ "I only recommend it if you want to be told about every possible minor mistake at all times")
+	@AutoGen(category = "minimessage")
+	@Boolean(colored = true, formatter = Formatter.ON_OFF)
+	public boolean minimessage_previewWarnings = false;
+	
+	@SerialEntry(
+			value = "minimessage.errorWarnings",
+			comment = "Whether warnings show alongside errors.\n"
+					+ "This is seperate from the previewWarnings setting, and only affects errors")
+	@AutoGen(category = "minimessage")
+	@Boolean(colored = true, formatter = Formatter.ON_OFF)
+	public boolean minimessage_errorWarnings = true;
+	
+	@SerialEntry(
 			value = "minimessage.suggestions",
 			comment = "Whether suggestions for tags will be shown when typing in a minimessage input")
 	@AutoGen(category = "minimessage")
