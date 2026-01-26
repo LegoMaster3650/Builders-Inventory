@@ -13,7 +13,7 @@ public abstract class ReloadableResourceArg implements AutocompleteArg {
 	public static final ReloadableResourceArg FONTS = resource();
 	public static final ReloadableResourceArg ITEMS = plain();
 	public static final ReloadableResourceArg ENTITIES = plain();
-	public static final ReloadableResourceArg ATLASES = str();
+	public static final ReloadableResourceArg ATLASES = key();
 	
 	protected final AutocompleteArg.Filter filter;
 	
