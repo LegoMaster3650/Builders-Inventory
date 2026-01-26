@@ -59,7 +59,7 @@ public class AtlasSpriteSuggestor implements Suggestor {
 				.map(Identifier::getPath)
 				.sorted()
 				.collect(Collectors.toCollection(() -> new ArrayList<>()));
-		SimpleStringArg arg = SimpleStringArg.of(spriteIds);
+		SimpleStringArg arg = SimpleStringArg.withFilter(spriteIds, AutocompleteArg.Filter.resource());
 		cache.put(atlasId, arg);
 		return Optional.of(arg);
 	}
