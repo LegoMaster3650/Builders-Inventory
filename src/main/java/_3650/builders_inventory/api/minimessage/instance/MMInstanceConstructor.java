@@ -18,7 +18,7 @@ public interface MMInstanceConstructor {
 				input,
 				MiniMessageValidator.PASSTHROUGH,
 				listener,
-				PreviewOptions.standard(false),
+				PreviewOptions.standard(false, false),
 				SuggestionOptions.standard(7));
 	}
 	
