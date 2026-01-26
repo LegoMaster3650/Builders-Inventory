@@ -6,15 +6,25 @@ import org.jetbrains.annotations.Nullable;
 public class InvalidMiniMessage extends Throwable {
 	
 	@Nullable
-	public final String error;
+	public final String message;
+	public final Type type;
 	
-	public InvalidMiniMessage() {
-		this.error = null;
+	public static InvalidMiniMessage warning(String message) {
+		return new InvalidMiniMessage(Type.WARNING, message);
 	}
 	
-	public InvalidMiniMessage(String error) {
-		super(error);
-		this.error = error;
+	public static InvalidMiniMessage error(String message) {
+		return new InvalidMiniMessage(Type.ERROR, message);
+	}
+	
+	private InvalidMiniMessage(Type type, String message) {
+		this.type = type;
+		this.message = message;
+	}
+	
+	public static enum Type {
+		WARNING,
+		ERROR
 	}
 	
 }
