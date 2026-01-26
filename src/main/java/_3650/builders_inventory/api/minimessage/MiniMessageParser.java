@@ -46,7 +46,7 @@ public class MiniMessageParser {
 	private ArrayList<String> args;
 	private Object2IntOpenHashMap<String> nameCounter;
 	
-	@Nullable
+	private final ArrayList<String> warnings = new ArrayList<>();
 	private final ArrayList<String> errors = new ArrayList<>();
 	
 	private int head = 0;
@@ -257,7 +257,7 @@ public class MiniMessageParser {
 			this.parseTag(argString, name, argsData);
 		}
 		
-		return new MiniMessageResult(root, trailingText, trailingArgs, unclosedTags, errors);
+		return new MiniMessageResult(root, trailingText, trailingArgs, unclosedTags, warnings, errors);
 	}
 	
 	private boolean parseTag(String argString, String name, ArgData args) {
@@ -265,7 +265,16 @@ public class MiniMessageParser {
 		try {
 			return name.charAt(0) == '/' ? parseCloseTag(argString, name, args) : parseTagUnsafe(argString, name, args);
 		} catch (InvalidMiniMessage e) {
-			if (e.error != null) errors.add(e.error);
+			if (e.message != null) {
+				switch (e.type) {
+				case WARNING:
+					warnings.add(e.message);
+					break;
+				case ERROR:
+					errors.add(e.message);
+					break;
+				}
+			}
 			return false;
 		}
 	}
