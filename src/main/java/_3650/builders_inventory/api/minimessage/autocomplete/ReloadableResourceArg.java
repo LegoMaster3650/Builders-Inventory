@@ -15,21 +15,41 @@ public abstract class ReloadableResourceArg implements AutocompleteArg {
 	public static final ReloadableResourceArg ENTITIES = plain();
 	public static final ReloadableResourceArg ATLASES = str();
 	
-	private ReloadableResourceArg() {}
+	protected final AutocompleteArg.Filter filter;
+	
+	protected boolean loaded = false;
+	
+	private ReloadableResourceArg(AutocompleteArg.Filter filter) {
+		this.filter = filter;
+	}
 	
 	public static ReloadableResourceArg plain() {
-		return new PlainArg();
+		return new PlainArg(AutocompleteArg.Filter.id());
+	}
+	
+	public static ReloadableResourceArg plain(AutocompleteArg.Filter filter) {
+		return new PlainArg(filter);
 	}
 	
 	public static ReloadableResourceArg str() {
-		return new StringArg();
+		return new StringArg(AutocompleteArg.Filter.key());
+	}
+	
+	public static ReloadableResourceArg str(AutocompleteArg.Filter filter) {
+		return new StringArg(filter);
 	}
 	
 	public static ReloadableResourceArg loc() {
-		return new ResourceArg();
+		return new ResourceArg(AutocompleteArg.Filter.resource());
 	}
 	
-	public abstract boolean isLoaded();
+	public static ReloadableResourceArg loc(AutocompleteArg.Filter filter) {
+		return new ResourceArg(filter);
+	}
+	
+	public boolean isLoaded() {
+		return this.loaded;
+	}
 	
 	public abstract void loadStr(ArrayList<String> strs);
 	
@@ -37,14 +57,11 @@ public abstract class ReloadableResourceArg implements AutocompleteArg {
 	
 	private static class PlainArg extends ReloadableResourceArg {
 		
-		private ArrayList<String> vals;
-		
-		private boolean loaded = false;
-		
-		@Override
-		public boolean isLoaded() {
-			return loaded;
+		private PlainArg(AutocompleteArg.Filter filter) {
+			super(filter);
 		}
+		
+		private ArrayList<String> vals;
 		
 		@Override
 		public List<String> find(String start) {
@@ -53,7 +70,7 @@ public abstract class ReloadableResourceArg implements AutocompleteArg {
 			final String startLow = start.toLowerCase(Locale.ROOT);
 			final ArrayList<String> result = new ArrayList<>();
 			for (int i = 0; i < vals.size(); i++) {
-				if (segmentMatches(vals.get(i), startLow)) result.add(vals.get(i));
+				if (filter.hasMatch(vals.get(i), startLow)) result.add(vals.get(i));
 			}
 			return result;
 		}
@@ -66,17 +83,9 @@ public abstract class ReloadableResourceArg implements AutocompleteArg {
 			final List<String> result = new ArrayList<>();
 			for (int i = 0; i < vals.size(); i++) {
 				final String key = vals.get(i);
-				if (segmentMatches(key, startLow) && !(key.length() == start.length() && key.equals(start))) result.add(vals.get(i));
+				if (filter.hasMatch(key, startLow) && !(key.length() == start.length() && key.equals(start))) result.add(vals.get(i));
 			}
 			return result;
-		}
-		
-		private static boolean segmentMatches(String key, String start) {
-			for (int i = 0; !key.startsWith(start, i); ++i) {
-				i = key.indexOf('_', i);
-				if (i < 0) return false;
-			}
-			return true;
 		}
 		
 		@Override
@@ -94,15 +103,12 @@ public abstract class ReloadableResourceArg implements AutocompleteArg {
 	
 	private static class StringArg extends ReloadableResourceArg {
 		
+		private StringArg(AutocompleteArg.Filter filter) {
+			super(filter);
+		}
+		
 		private ArrayList<String> keys;
 		private ArrayList<String> vals;
-		
-		private boolean loaded = false;
-		
-		@Override
-		public boolean isLoaded() {
-			return loaded;
-		}
 		
 		@Override
 		public List<String> find(String start) {
@@ -111,7 +117,7 @@ public abstract class ReloadableResourceArg implements AutocompleteArg {
 			final String startLow = start.toLowerCase(Locale.ROOT);
 			final ArrayList<String> result = new ArrayList<>();
 			for (int i = 0; i < keys.size(); i++) {
-				if (segmentMatches(keys.get(i), startLow)) result.add(vals.get(i));
+				if (filter.hasMatch(keys.get(i), startLow)) result.add(vals.get(i));
 			}
 			return result;
 		}
@@ -124,20 +130,9 @@ public abstract class ReloadableResourceArg implements AutocompleteArg {
 			final List<String> result = new ArrayList<>();
 			for (int i = 0; i < keys.size(); i++) {
 				final String key = keys.get(i);
-				if (segmentMatches(key, startLow) && !(key.length() == start.length() && key.equals(start))) result.add(vals.get(i));
+				if (filter.hasMatch(key, startLow) && !(key.length() == start.length() && key.equals(start))) result.add(vals.get(i));
 			}
 			return result;
-		}
-		
-		private static boolean segmentMatches(String key, String start) {
-			for (int i = 0; !key.startsWith(start, i); ++i) {
-				int a = key.indexOf('.', i);
-				int b = key.indexOf('_', i);
-				i = Math.min(a, b);
-				if (i < 0) i = Math.max(a, b);
-				if (i < 0) return false;
-			}
-			return true;
 		}
 		
 		@Override
@@ -160,15 +155,12 @@ public abstract class ReloadableResourceArg implements AutocompleteArg {
 	
 	private static class ResourceArg extends ReloadableResourceArg {
 		
+		private ResourceArg(AutocompleteArg.Filter filter) {
+			super(filter);
+		}
+		
 		private ArrayList<Identifier> keys;
 		private ArrayList<String> vals;
-		
-		private boolean loaded = false;
-		
-		@Override
-		public boolean isLoaded() {
-			return loaded;
-		}
 		
 		@Override
 		public List<String> find(String start) {
@@ -180,9 +172,9 @@ public abstract class ReloadableResourceArg implements AutocompleteArg {
 			for (int i = 0; i < keys.size(); i++) {
 				final Identifier id = keys.get(i);
 				if (namespaced) {
-					if (segmentMatches(id.toString(), startLow)) result.add(vals.get(i));
-				} else if (segmentMatches(id.getNamespace(), startLow)
-						|| id.getNamespace().equals(Identifier.DEFAULT_NAMESPACE) && segmentMatches(id.getPath(), startLow)) {
+					if (filter.hasMatch(id.toString(), startLow)) result.add(vals.get(i));
+				} else if (filter.hasMatch(id.getNamespace(), startLow)
+						|| id.getNamespace().equals(Identifier.DEFAULT_NAMESPACE) && filter.hasMatch(id.getPath(), startLow)) {
 					result.add(vals.get(i));
 				}
 			}
@@ -200,25 +192,14 @@ public abstract class ReloadableResourceArg implements AutocompleteArg {
 				final Identifier id = keys.get(i);
 				if (namespaced) {
 					final String key = id.toString();
-					if (segmentMatches(key, startLow) && !(key.length() == start.length() && key.equals(start))) result.add(vals.get(i));
-				} else if (segmentMatches(id.getNamespace(), startLow)) {
+					if (filter.hasMatch(key, startLow) && !(key.length() == start.length() && key.equals(start))) result.add(vals.get(i));
+				} else if (filter.hasMatch(id.getNamespace(), startLow)) {
 					result.add(vals.get(i));
-				} else if (id.getNamespace().equals(Identifier.DEFAULT_NAMESPACE) && segmentMatches(id.getPath(), startLow)) {
+				} else if (id.getNamespace().equals(Identifier.DEFAULT_NAMESPACE) && filter.hasMatch(id.getPath(), startLow)) {
 					if (!(id.getPath().length() == start.length() && id.getPath().equals(start))) result.add(vals.get(i));
 				}
 			}
 			return result;
-		}
-		
-		private static boolean segmentMatches(String key, String start) {
-			for (int i = 0; !key.startsWith(start, i); ++i) {
-				int a = key.indexOf('/', i);
-				int b = key.indexOf('_', i);
-				i = Math.min(a, b);
-				if (i < 0) i = Math.max(a, b);
-				if (i < 0) return false;
-			}
-			return true;
 		}
 		
 		@Override
