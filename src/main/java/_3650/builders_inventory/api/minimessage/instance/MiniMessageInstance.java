@@ -67,7 +67,7 @@ public class MiniMessageInstance {
 	private final Screen screen;
 	private final Font font;
 	public final WrappedTextField input;
-	private final MiniMessageValidator context;
+	private final MiniMessageValidator validator;
 	private final MiniMessageParseListener listener;
 	private final PreviewOptions previewOptions;
 	private final SuggestionsDisplay display;
@@ -78,7 +78,7 @@ public class MiniMessageInstance {
 			Screen screen,
 			Font font,
 			WrappedTextField input,
-			MiniMessageValidator context,
+			MiniMessageValidator validator,
 			MiniMessageParseListener listener,
 			PreviewOptions previewOptions,
 			SuggestionOptions suggestionOptions) {
@@ -86,7 +86,7 @@ public class MiniMessageInstance {
 		this.screen = screen;
 		this.font = font;
 		this.input = input;
-		this.context = context;
+		this.validator = validator;
 		this.listener = listener;
 		this.previewOptions = previewOptions;
 		this.display = new SuggestionsDisplay(suggestionOptions);
@@ -211,10 +211,10 @@ public class MiniMessageInstance {
 	private boolean updateMiniMessage(@NotNull String value) {
 		final String originalValue = value;
 		
-		var validatorUsed = new ValidatorHolder(this.context);
+		var validatorUsed = new ValidatorHolder(this.validator);
 		{
 			// only work in certain contexts
-			final var newVal = this.context.isValid(this.minecraft, value, validatorUsed);
+			final var newVal = this.validator.isValid(this.minecraft, value, validatorUsed);
 //			BuildersInventory.LOGGER.warn(newVal.toString());
 			
 			// validate value
