@@ -175,7 +175,7 @@ public class ExtendedInventory {
 		
 		ExtendedInventoryPages.tick(mc);
 		
-		if (mc.screen == null && ModKeybinds.OPEN_EXTENDED_INVENTORY.consumeClick() && mc.player != null && mc.player.isCreative()) {
+		if (mc.screen == null && ModKeybinds.OPEN_EXTENDED_INVENTORY.consumeClick() && mc.player != null && mc.player.hasInfiniteMaterials()) {
 			open(mc);
 		}
 	}
