@@ -102,7 +102,7 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 	
 	@Override
 	protected void init() {
-		if (this.minecraft.player != null && this.minecraft.player.isCreative()) {
+		if (this.minecraft.player != null && this.minecraft.player.hasInfiniteMaterials()) {
 			super.init();
 			
 			//ExGUI
@@ -440,7 +440,7 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 	@Override
 	protected void containerTick() {
 		super.containerTick();
-		if (this.minecraft.player != null && !this.minecraft.player.isCreative()) {
+		if (this.minecraft.player != null && !this.minecraft.player.hasInfiniteMaterials()) {
 			ExtendedInventory.close(this.minecraft);
 		}
 	}
