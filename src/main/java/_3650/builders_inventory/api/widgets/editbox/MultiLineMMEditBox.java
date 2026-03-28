@@ -1,10 +1,15 @@
 package _3650.builders_inventory.api.widgets.editbox;
 
 import java.util.ArrayList;
+import java.util.ListIterator;
+import java.util.NoSuchElementException;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.IntConsumer;
 
 import org.jetbrains.annotations.Nullable;
 
+import com.google.common.collect.UnmodifiableListIterator;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 
@@ -46,7 +51,7 @@ import net.minecraft.util.StringUtil;
  * {@link #miniMessageMouseClicked(double, double, int)}<br>
  * These are either not possible in a widget or occur outside the widget's area and need full-screen coverage
  */
-public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEventListener {
+public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEventListener, Iterable<MiniMessageResult> {
 	
 	private static final int CURSOR_COLOR = 0xFFD0D0D0;
 	
@@ -567,7 +572,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 				
 				// line contents
 				if (lineVisible) {
-					if (blink && cursor >= line.beginIndex && cursor <= line.endIndex) {
+					if (blink && cursor >= line.beginIndex && cursor < line.endIndex) {
 						final var formatStr1 = this.format(formatLine, str, line.beginIndex, cursor);
 						final var formatStr2 = this.format(formatLine, str, cursor, line.endIndex);
 						gui.drawString(this.font, formatStr1, x, y, textColor);
@@ -1176,6 +1181,55 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 		@Override
 		public int getLineHeight() {
 			return 9;
+		}
+		
+	}
+	
+	@Override
+	public ListIterator<MiniMessageResult> iterator() {
+		return new Itr();
+	}
+	
+	@Override
+	public Spliterator<MiniMessageResult> spliterator() {
+		return Spliterators.spliterator(this.iterator(), this.formatLines.size(),
+				Spliterator.IMMUTABLE | Spliterator.ORDERED | Spliterator.SIZED);
+	}
+	
+	private class Itr extends UnmodifiableListIterator<MiniMessageResult> {
+		
+		private int iterPos = 0;
+		
+		@Override
+		public boolean hasNext() {
+			return iterPos < MultiLineMMEditBox.this.formatLines.size();
+		}
+		
+		@Override
+		public int nextIndex() {
+			return iterPos;
+		}
+		
+		@Override
+		public MiniMessageResult next() {
+			if (!hasNext()) throw new NoSuchElementException();
+			return MultiLineMMEditBox.this.formatLines.get(iterPos++).minimessage.lastParse;
+		}
+		
+		@Override
+		public boolean hasPrevious() {
+			return iterPos > 0;
+		}
+		
+		@Override
+		public MiniMessageResult previous() {
+			if (!hasPrevious()) throw new NoSuchElementException();
+			return MultiLineMMEditBox.this.formatLines.get(--iterPos).minimessage.lastParse;
+		}
+		
+		@Override
+		public int previousIndex() {
+			return iterPos - 1;
 		}
 		
 	}
