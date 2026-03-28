@@ -22,5 +22,17 @@ public interface MMInstanceConstructor {
 				SuggestionOptions.standard(7));
 	}
 	
+	public static MMInstanceConstructor custom(Minecraft minecraft, Screen screen, Font font, MiniMessageValidator validator, PreviewOptions previewOptions, SuggestionOptions suggestionOptions) {
+		return (input, listener) -> new MiniMessageInstance(
+				minecraft,
+				screen,
+				font,
+				input,
+				validator,
+				listener,
+				previewOptions,
+				suggestionOptions);
+	}
+	
 	public MiniMessageInstance construct(WrappedTextField input, MiniMessageParseListener listener);
 }
