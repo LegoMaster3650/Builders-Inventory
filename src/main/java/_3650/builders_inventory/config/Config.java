@@ -253,7 +253,7 @@ public class Config {
 	@SerialEntry(
 			value = "force_operator_items",
 			comment = "Force the creative mode operator items tab to appear, even if you don't have OP\n"
-					+ "(Useful for most players on diamondfire who lack operator permissions)")
+					+ "(Useful for most players on creative servers who lack operator permissions)")
 	@AutoGen(category = "operator_items")
 	@Boolean(colored = true, formatter = Formatter.ON_OFF)
 	public boolean operator_items_force = true;
