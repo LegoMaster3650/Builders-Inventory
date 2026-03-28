@@ -500,7 +500,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 				
 				// line contents
 				if (lineVisible) {
-					if (blink && cursor >= line.beginIndex && cursor <= line.endIndex) {
+					if (blink && cursor >= line.beginIndex && cursor < line.endIndex) {
 						x = gui.drawString(this.font, this.format(str, line.beginIndex, cursor), x, y, textColor) - 1;
 						
 						gui.drawString(this.font, this.format(str, cursor, line.endIndex), x, y, textColor);
