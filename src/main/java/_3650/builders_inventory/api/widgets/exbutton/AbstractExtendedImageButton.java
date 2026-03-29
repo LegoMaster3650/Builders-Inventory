@@ -3,6 +3,7 @@ package _3650.builders_inventory.api.widgets.exbutton;
 import java.util.List;
 import java.util.function.Supplier;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -34,19 +35,22 @@ public abstract class AbstractExtendedImageButton extends AbstractButton {
 	
 	public boolean renderTooltip(Font font, GuiGraphicsExtractor gui, int mouseX, int mouseY) {
 		final var tooltip = this.tooltip();
-		if (this.isActive() && this.isHoveredOrFocused() && !tooltip.isEmpty()) {
+		Minecraft mc = Minecraft.getInstance();
+		if (!this.isHovered && !(this.isFocused() && mc.getLastInputType().isKeyboard())) return false;
+		
+		if (this.isActive() && !tooltip.isEmpty()) {
 			gui.setComponentTooltipForNextFrame(font,
 					tooltip,
-					this.isHovered() ? mouseX : this.getCenterX(),
-					this.isHovered() ? mouseY : this.getCenterY());
+					this.isHovered ? mouseX : this.getCenterX(),
+					this.isHovered ? mouseY : this.getCenterY());
 			return true;
-		} else {
+		} else if (!this.active) {
 			final var disabledTooltip = this.disabledTooltip.get();
-			if (this.visible && !this.active && this.isHoveredOrFocused() && !disabledTooltip.isEmpty()) {
+			if (this.visible && !disabledTooltip.isEmpty()) {
 				gui.setComponentTooltipForNextFrame(font,
 						disabledTooltip,
-						this.isHovered() ? mouseX : this.getCenterX(),
-						this.isHovered() ? mouseY : this.getCenterY());
+						this.isHovered ? mouseX : this.getCenterX(),
+						this.isHovered ? mouseY : this.getCenterY());
 				return true;
 			}
 		}
