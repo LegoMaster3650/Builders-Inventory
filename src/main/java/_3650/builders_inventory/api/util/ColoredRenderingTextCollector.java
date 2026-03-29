@@ -2,12 +2,12 @@ package _3650.builders_inventory.api.util;
 
 import java.util.function.Consumer;
 
-import _3650.builders_inventory.mixin.feature.minimessage.GuiGraphicsInvoker;
+import _3650.builders_inventory.mixin.feature.minimessage.GuiGraphicsExtractorInvoker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ActiveTextCollector;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.TextAlignment;
-import net.minecraft.client.gui.render.state.GuiTextRenderState;
+import net.minecraft.client.renderer.state.gui.GuiTextRenderState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.ARGB;
@@ -15,29 +15,29 @@ import net.minecraft.util.FormattedCharSequence;
 
 public class ColoredRenderingTextCollector implements ActiveTextCollector, Consumer<Style> {
 	
-	public static ColoredRenderingTextCollector create(GuiGraphics gui) {
+	public static ColoredRenderingTextCollector create(GuiGraphicsExtractor gui) {
 		return create(gui, 0xFFFFFFFF);
 	}
 	
-	public static ColoredRenderingTextCollector create(GuiGraphics gui, int color) {
-		return create(gui, GuiGraphics.HoveredTextEffects.TOOLTIP_ONLY, color);
+	public static ColoredRenderingTextCollector create(GuiGraphicsExtractor gui, int color) {
+		return create(gui, GuiGraphicsExtractor.HoveredTextEffects.TOOLTIP_ONLY, color);
 	}
 	
-	public static ColoredRenderingTextCollector create(GuiGraphics gui, GuiGraphics.HoveredTextEffects hoveredTextEffects, int color) {
+	public static ColoredRenderingTextCollector create(GuiGraphicsExtractor gui, GuiGraphicsExtractor.HoveredTextEffects hoveredTextEffects, int color) {
 		return new ColoredRenderingTextCollector(gui, defaultParameters(gui), hoveredTextEffects, color);
 	}
 	
-	private static Parameters defaultParameters(GuiGraphics gui) {
-		return ((GuiGraphicsInvoker)gui).callCreateDefaultTextParameters(1f);
+	private static Parameters defaultParameters(GuiGraphicsExtractor gui) {
+		return ((GuiGraphicsExtractorInvoker)gui).callCreateDefaultTextParameters(1f);
 	}
 	
 	private final Minecraft minecraft;
-	private final GuiGraphics gui;
-	private final GuiGraphics.HoveredTextEffects hoveredTextEffects;
+	private final GuiGraphicsExtractor gui;
+	private final GuiGraphicsExtractor.HoveredTextEffects hoveredTextEffects;
 	private Parameters defaultParameters;
 	private int color;
 	
-	private ColoredRenderingTextCollector(GuiGraphics gui, Parameters defaultParameters, GuiGraphics.HoveredTextEffects hoveredTextEffects, int color) {
+	private ColoredRenderingTextCollector(GuiGraphicsExtractor gui, Parameters defaultParameters, GuiGraphicsExtractor.HoveredTextEffects hoveredTextEffects, int color) {
 		this.minecraft = Minecraft.getInstance();
 		this.gui = gui;
 		this.hoveredTextEffects = hoveredTextEffects;
@@ -62,11 +62,11 @@ public class ColoredRenderingTextCollector implements ActiveTextCollector, Consu
 	@Override
 	public void accept(Style style) {
 		if (this.hoveredTextEffects.allowTooltip && style.getHoverEvent() != null) {
-			((GuiGraphicsInvoker)gui).setHoveredTextStyle(style);
+			((GuiGraphicsExtractorInvoker)gui).setHoveredTextStyle(style);
 		}
 		
 		if (this.hoveredTextEffects.allowCursorChanges && style.getClickEvent() != null) {
-			((GuiGraphicsInvoker)gui).setClickableTextStyle(style);
+			((GuiGraphicsExtractorInvoker)gui).setClickableTextStyle(style);
 		}
 	}
 	
@@ -101,11 +101,11 @@ public class ColoredRenderingTextCollector implements ActiveTextCollector, Consu
 				styleHoverCheck,
 				parameters.scissor());
 		if (textColor > 0xFFFFFF) {
-			this.gui.guiRenderState.submitText(renderState);
+			this.gui.guiRenderState.addText(renderState);
 		}
 		
 		if (styleHoverCheck) {
-			var guiMouse = ((GuiGraphicsInvoker)gui);
+			var guiMouse = ((GuiGraphicsExtractorInvoker)gui);
 			ActiveTextCollector.findElementUnderCursor(renderState, guiMouse.getMouseX(), guiMouse.getMouseY(), this);
 		}
 	}

@@ -18,7 +18,7 @@ import _3650.builders_inventory.api.util.StringPos;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Whence;
 import net.minecraft.client.gui.narration.NarratedElementType;
@@ -394,9 +394,9 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 	}
 	
 	@Override
-	public void miniMessageRender(GuiGraphics gui, int mouseX, int mouseY) {
+	public void miniMessageRender(GuiGraphicsExtractor gui, int mouseX, int mouseY) {
 		if (this.isActive() && this.isFocused()) {
-			ActiveTextCollector text = gui.textRenderer(GuiGraphics.HoveredTextEffects.TOOLTIP_AND_CURSOR);
+			ActiveTextCollector text = gui.textRenderer(GuiGraphicsExtractor.HoveredTextEffects.TOOLTIP_AND_CURSOR);
 			ActiveTextCollector.Parameters parameters = text.defaultParameters();
 			
 			this.minimessage.renderPreviewOrError(gui, text, parameters);
@@ -443,7 +443,7 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 	}
 	
 	@Override
-	public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
+	public void extractWidgetRenderState(GuiGraphicsExtractor gui, int mouseX, int mouseY, float partialTick) {
 		if (this.visible) {
 			this.renderBackground(gui);
 			final int borderThickness = this.theme.borderThickness;
@@ -478,24 +478,24 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 			if (this.hasMaxLength()) {
 				int charLimit = this.maxLength;
 				Component error = Component.translatable("gui.multiLineEditBox.character_limit", this.value.length(), charLimit);
-				gui.drawString(this.font, error, this.getX() + this.width - this.font.width(error), this.getY() + this.height + 4, 0xFFA0A0A0);
+				gui.text(this.font, error, this.getX() + this.width - this.font.width(error), this.getY() + this.height + 4, 0xFFA0A0A0);
 			}
 		}
 	}
 	
-	private void renderBackground(GuiGraphics gui) {
+	private void renderBackground(GuiGraphicsExtractor gui) {
 		Identifier background = this.theme.spritesBackground.get(this.isActive(), this.isFocused());
 		gui.blitSprite(RenderPipelines.GUI_TEXTURED, background, this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 	
-	private void renderContents(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
+	private void renderContents(GuiGraphicsExtractor gui, int mouseX, int mouseY, float partialTick) {
 		String str = this.value;
 		if (!str.isEmpty() || this.isFocused()) {
 			
 			final int textColor = this.isActive() ? this.theme.textColor : this.theme.disabledTextColor;
 			ColoredRenderingTextCollector text = ColoredRenderingTextCollector.create(
 					gui,
-					this.isActive() ? GuiGraphics.HoveredTextEffects.TOOLTIP_AND_CURSOR : GuiGraphics.HoveredTextEffects.TOOLTIP_ONLY,
+					this.isActive() ? GuiGraphicsExtractor.HoveredTextEffects.TOOLTIP_AND_CURSOR : GuiGraphicsExtractor.HoveredTextEffects.TOOLTIP_ONLY,
 					textColor);
 			
 			final int cursor = this.cursor;
@@ -525,12 +525,12 @@ public class SingleLineMMEditBox extends AbstractWidget implements MiniMessageEv
 						
 						if (!this.hasSelection() && cursor >= line.beginIndex && cursor == line.endIndex && line.endIndex == this.value.length()) {
 							if (this.suggestion != null) {
-								gui.drawString(this.font, this.suggestion, x - 1, y, this.theme.suggestionColor);
+								gui.text(this.font, this.suggestion, x - 1, y, this.theme.suggestionColor);
 							}
 							
 							if (blink) {
 								if (this.cursor == line.beginIndex) x -= 1;
-								gui.drawString(this.font, "_", x, y, textColor);
+								gui.text(this.font, "_", x, y, textColor);
 							}
 						}
 					}

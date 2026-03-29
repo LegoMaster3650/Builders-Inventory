@@ -15,7 +15,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
@@ -223,7 +223,7 @@ public class ExtendedInventory {
 	}
 	
 	public static void swap(Minecraft mc, int slot, int hotbar) {
-		if (slot < 36) mc.gameMode.handleInventoryMouseClick(mc.player.inventoryMenu.containerId, slot, hotbar, ClickType.SWAP, mc.player);
+		if (slot < 36) mc.gameMode.handleContainerInput(mc.player.inventoryMenu.containerId, slot, hotbar, ContainerInput.SWAP, mc.player);
 		else {
 			// bad code do not use it (depends on creative inventory listener and technically less efficient)
 //			mc.player.getInventory().setItem(

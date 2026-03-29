@@ -3,7 +3,7 @@ package _3650.builders_inventory.api.widgets.exbutton;
 import java.util.ArrayList;
 
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
@@ -24,7 +24,7 @@ public class ExtendedImageButtonGui {
 		this.exButtons.clear();
 	}
 	
-	public boolean renderTooltip(Font font, GuiGraphics gui, int mouseX, int mouseY) {
+	public boolean renderTooltip(Font font, GuiGraphicsExtractor gui, int mouseX, int mouseY) {
 		for (var button : this.exButtons) {
 			if (button.renderTooltip(font, gui, mouseX, mouseY)) return true;
 		}

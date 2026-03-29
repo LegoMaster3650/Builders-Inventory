@@ -4,11 +4,11 @@ import _3650.builders_inventory.BuildersInventory;
 import _3650.builders_inventory.ModKeybinds;
 import _3650.builders_inventory.config.Config;
 import _3650.builders_inventory.feature.extended_inventory.ExtendedInventory;
-import _3650.builders_inventory.mixin.feature.hotbar_swapper.GuiGraphicsAccessor;
+import _3650.builders_inventory.mixin.feature.hotbar_swapper.GuiGraphicsExtractorAccessor;
 import _3650.builders_inventory.mixin.feature.hotbar_swapper.GuiInvoker;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
@@ -53,7 +53,7 @@ public class HotbarSwapper {
 	 * RENDERING
 	 */
 	
-	public static void renderHotbars(GuiGraphics gui, Minecraft mc) {
+	public static void renderHotbars(GuiGraphicsExtractor gui, Minecraft mc) {
 		if (selecting) {
 			int width = gui.guiWidth() / 2;
 			
@@ -76,11 +76,11 @@ public class HotbarSwapper {
 		}
 	}
 	
-	public static boolean renderHotbarSelector(GuiGraphics gui, Minecraft mc, Identifier selectorSprite) {
+	public static boolean renderHotbarSelector(GuiGraphicsExtractor gui, Minecraft mc, Identifier selectorSprite) {
 		if (selecting) {
 			int width = gui.guiWidth() / 2;
 			if (singleColumn) {
-				var sprite = ((GuiGraphicsAccessor) gui).getGuiSprites().getSprite(selectorSprite).contents();
+				var sprite = ((GuiGraphicsExtractorAccessor) gui).getGuiSprites().getSprite(selectorSprite).contents();
 				var spriteWidth = sprite.width();
 				var spriteHeight = sprite.height();
 				
@@ -99,7 +99,7 @@ public class HotbarSwapper {
 		return false;
 	}
 	
-	public static void renderItems(GuiGraphics gui, DeltaTracker deltaTick, Minecraft mc, GuiInvoker hud) {
+	public static void renderItems(GuiGraphicsExtractor gui, DeltaTracker deltaTick, Minecraft mc, GuiInvoker hud) {
 		if (selecting) {
 			int width =  gui.guiWidth() / 2;
 			LocalPlayer player = mc.player;
@@ -109,7 +109,7 @@ public class HotbarSwapper {
 				for (int i = 1; i < max; i++) {
 					int y = gui.guiHeight() - 22 + 3 - (i * 22);
 					if (i > 3) y -= extendedOffset;
-					hud.callRenderSlot(gui, x, y, deltaTick, player, ExtendedInventory.getItem(mc, getSlot(i, player.getInventory().getSelectedSlot())), x + (y * 22));
+					hud.callExtractSlot(gui, x, y, deltaTick, player, ExtendedInventory.getItem(mc, getSlot(i, player.getInventory().getSelectedSlot())), x + (y * 22));
 				}
 			} else {
 				for (int i = 1; i < max; i++) {
@@ -117,14 +117,14 @@ public class HotbarSwapper {
 					if (i > 3) y -= extendedOffset;
 					for (int j = 0; j < 9; j++) {
 						int x = width - 91 + 3 + (j * 20);
-						hud.callRenderSlot(gui, x, y, deltaTick, player, ExtendedInventory.getItem(mc, getSlot(i, j)), x * y);
+						hud.callExtractSlot(gui, x, y, deltaTick, player, ExtendedInventory.getItem(mc, getSlot(i, j)), x * y);
 					}
 				}
 			}
 		}
 	}
 	
-	public static void renderLabels(GuiGraphics gui, Minecraft mc) {
+	public static void renderLabels(GuiGraphicsExtractor gui, Minecraft mc) {
 		if (selecting) {
 			int width = gui.guiWidth() / 2;
 			
@@ -132,7 +132,7 @@ public class HotbarSwapper {
 			for (int i = 1; i < max; i++) {
 				int y = gui.guiHeight() - 22 + 7 - (i * 22);
 				if (i > 3) y -= extendedOffset;
-				gui.drawString(mc.font, String.valueOf(i), x, y, 0xFFFFFFFF, true);
+				gui.text(mc.font, String.valueOf(i), x, y, 0xFFFFFFFF, true);
 			}
 		}
 	}
@@ -146,14 +146,14 @@ public class HotbarSwapper {
 		return stack;
 	}
 	
-	public static void shiftHud(GuiGraphics gui) {
+	public static void shiftHud(GuiGraphicsExtractor gui) {
 		if (selecting) {
 			gui.pose().pushMatrix();
 			gui.pose().translate(0, hudShift);
 		}
 	}
 	
-	public static void shiftHudReset(GuiGraphics gui) {
+	public static void shiftHudReset(GuiGraphicsExtractor gui) {
 		if (selecting) {
 			gui.pose().popMatrix();
 		}

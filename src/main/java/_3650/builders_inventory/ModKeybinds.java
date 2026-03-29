@@ -6,7 +6,7 @@ import org.lwjgl.glfw.GLFW;
 
 import com.mojang.blaze3d.platform.InputConstants;
 
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.Identifier;
 
@@ -36,7 +36,7 @@ public class ModKeybinds {
 	}
 	
 	static void register() {
-		KEYS.forEach(KeyBindingHelper::registerKeyBinding);
+		KEYS.forEach(KeyMappingHelper::registerKeyMapping);
 	}
 	
 }

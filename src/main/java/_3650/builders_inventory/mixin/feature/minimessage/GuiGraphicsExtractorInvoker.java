@@ -5,11 +5,11 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 import net.minecraft.client.gui.ActiveTextCollector;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Style;
 
-@Mixin(GuiGraphics.class)
-public interface GuiGraphicsInvoker {
+@Mixin(GuiGraphicsExtractor.class)
+public interface GuiGraphicsExtractorInvoker {
 	
 	@Accessor("mouseX")
 	public int getMouseX();

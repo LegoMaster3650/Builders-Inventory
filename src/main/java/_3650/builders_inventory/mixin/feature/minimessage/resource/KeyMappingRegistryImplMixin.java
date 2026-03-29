@@ -10,11 +10,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import _3650.builders_inventory.api.minimessage.autocomplete.ReloadableResourceArg;
-import net.fabricmc.fabric.impl.client.keybinding.KeyBindingRegistryImpl;
+import net.fabricmc.fabric.impl.client.keymapping.KeyMappingRegistryImpl;
 import net.minecraft.client.KeyMapping;
 
-@Mixin(KeyBindingRegistryImpl.class)
-public abstract class KeyBindingRegistryImplMixin {
+@Mixin(KeyMappingRegistryImpl.class)
+public abstract class KeyMappingRegistryImplMixin {
 	
 	@Inject(method = "process", at = @At("HEAD"))
 	private static void builders_inventory_captureVanillaKeybinds(KeyMapping[] keyMappings, CallbackInfoReturnable<KeyMapping[]> cir) {

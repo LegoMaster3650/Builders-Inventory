@@ -15,7 +15,7 @@ import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButtonGui;
 import _3650.builders_inventory.config.Config;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.ComponentPath;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -124,9 +124,9 @@ public class ExtendedInventoryDeleteScreen extends Screen {
 	}
 	
 	@Override
-	public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
-		super.render(gui, mouseX, mouseY, partialTick);
-		gui.drawString(this.font, this.title, this.leftPos + 8, this.topPos + 6, 0xFF404040, false);
+	public void extractRenderState(GuiGraphicsExtractor gui, int mouseX, int mouseY, float partialTick) {
+		super.extractRenderState(gui, mouseX, mouseY, partialTick);
+		gui.text(this.font, this.title, this.leftPos + 8, this.topPos + 6, 0xFF404040, false);
 		
 		int x = this.leftPos + 10;
 		int y = this.topPos + 18;
@@ -136,8 +136,8 @@ public class ExtendedInventoryDeleteScreen extends Screen {
 			for (int col = 0; col < 9; col++) {
 				int slotX = x + (col * 18);
 				ItemStack stack = this.page.get(slot++);
-				gui.renderItem(stack, slotX, slotY);
-				gui.renderItemDecorations(this.font, stack, slotX, slotY);
+				gui.item(stack, slotX, slotY);
+				gui.itemDecorations(this.font, stack, slotX, slotY);
 			}
 		}
 		
@@ -147,8 +147,8 @@ public class ExtendedInventoryDeleteScreen extends Screen {
 	}
 	
 	@Override
-	public void renderBackground(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
-		this.renderTransparentBackground(gui);
+	public void extractBackground(GuiGraphicsExtractor gui, int mouseX, int mouseY, float partialTick) {
+		this.extractTransparentBackground(gui);
 		GuiUtil.blitScreenBackground(gui, BACKGROUND, this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
 	}
 	

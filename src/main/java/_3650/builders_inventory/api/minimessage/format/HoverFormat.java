@@ -9,7 +9,7 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 
 public class HoverFormat extends Format {
 	
@@ -32,7 +32,7 @@ public class HoverFormat extends Format {
 	public static ItemContents item(Item item, int count, DataComponentPatch components) {
 		@SuppressWarnings("deprecation")
 		var itemHolder = item.builtInRegistryHolder();
-		return new ItemContents(new ItemStack(itemHolder, count, components));
+		return new ItemContents(new ItemStackTemplate(itemHolder, count, components));
 	}
 	
 	public static EntityContents entity(EntityType<?> type, UUID id) {
@@ -66,7 +66,7 @@ public class HoverFormat extends Format {
 	
 	private static class ItemContents extends HoverContents<HoverEvent.ShowItem> {
 		public final HoverEvent.ShowItem contents;
-		private ItemContents(ItemStack contents) {
+		private ItemContents(ItemStackTemplate contents) {
 			super(HoverEvent.Action.SHOW_ITEM);
 			this.contents = new HoverEvent.ShowItem(contents);
 		}

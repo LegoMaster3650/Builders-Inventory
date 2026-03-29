@@ -13,7 +13,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.InputType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.KeyEvent;
@@ -252,7 +252,7 @@ public class StepSliderWidget extends AbstractWidget {
 	}
 	
 	@Override
-	protected void renderWidget(GuiGraphics gui, int mouseXi, int mouseYi, float partialTick) {
+	protected void extractWidgetRenderState(GuiGraphicsExtractor gui, int mouseXi, int mouseYi, float partialTick) {
 		final var theme = this.theme;
 		gui.pose().pushMatrix();
 		
@@ -293,7 +293,7 @@ public class StepSliderWidget extends AbstractWidget {
 		
 		if (this.cancelButton != null) {
 			this.cancelButton.active = this.active;
-			this.cancelButton.render(gui, mouseXi, mouseYi, partialTick);
+			this.cancelButton.extractRenderState(gui, mouseXi, mouseYi, partialTick);
 			this.cancelButton.renderTooltip(this.font, gui, mouseXi, mouseYi);
 		}
 		
@@ -304,7 +304,7 @@ public class StepSliderWidget extends AbstractWidget {
 		}
 	}
 	
-	private void drawGuides(GuiGraphics gui) {
+	private void drawGuides(GuiGraphicsExtractor gui) {
 		final int minX = this.getX() + this.minX;
 		final int maxX = this.getX() + this.maxX;
 		final int centerY = this.getY() + this.centerY;

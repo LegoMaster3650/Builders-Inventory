@@ -1,5 +1,6 @@
 package _3650.builders_inventory.mixin.feature.extended_inventory.creative_screen;
 
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,12 +18,14 @@ import net.minecraft.client.gui.screens.Screen;
 abstract class ScreenMixinOverrides {
 	
 	@Shadow
+	@Final
 	protected Minecraft minecraft;
 	@Shadow
 	public int width;
 	@Shadow
 	public int height;
 	@Shadow
+	@Final
 	protected Font font;
 	
 	@Shadow

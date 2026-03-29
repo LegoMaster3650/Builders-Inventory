@@ -5,14 +5,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
 @Mixin(AbstractContainerScreen.class)
 abstract class AbstractContainerScreenMixinOverrides extends ScreenMixinOverrides {
 	
-	@Inject(method = "renderTooltip", at = @At("HEAD"), cancellable = true)
-	protected void renderTooltipInjectHead(GuiGraphics guiGraphics, int x, int y, CallbackInfo ci) {
+	@Inject(method = "extractTooltip", at = @At("HEAD"), cancellable = true)
+	protected void extractTooltipInjectHead(GuiGraphicsExtractor guiGraphics, int x, int y, CallbackInfo ci) {
 		
 	}
 	

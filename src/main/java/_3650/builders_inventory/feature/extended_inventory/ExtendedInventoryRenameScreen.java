@@ -8,7 +8,7 @@ import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButton;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButtonGui;
 import _3650.builders_inventory.config.Config;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.WidgetSprites;
@@ -132,17 +132,17 @@ public class ExtendedInventoryRenameScreen extends Screen {
 	}
 	
 	@Override
-	public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
-		super.render(gui, mouseX, mouseY, partialTick);
+	public void extractRenderState(GuiGraphicsExtractor gui, int mouseX, int mouseY, float partialTick) {
+		super.extractRenderState(gui, mouseX, mouseY, partialTick);
 		
-		gui.drawString(this.font, this.title, this.leftPos + 8, this.topPos + 6, 0xFF404040, false);
+		gui.text(this.font, this.title, this.leftPos + 8, this.topPos + 6, 0xFF404040, false);
 		
 		this.exGui.renderTooltip(this.font, gui, mouseX, mouseY);
 	}
 	
 	@Override
-	public void renderBackground(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
-		this.renderTransparentBackground(gui);
+	public void extractBackground(GuiGraphicsExtractor gui, int mouseX, int mouseY, float partialTick) {
+		this.extractTransparentBackground(gui);
 		GuiUtil.blitScreenBackground(gui, BACKGROUND, this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
 	}
 	

@@ -29,7 +29,7 @@ import _3650.builders_inventory.feature.minimessage.chat.ChatMiniMessageButtonDi
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.TextAlignment;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.components.CommandSuggestions;
@@ -151,11 +151,11 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 		}
 	}
 	
-	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"))
-	private void builders_inventory_renderMinimessage(GuiGraphics gui, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
+	@Inject(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIF)V"))
+	private void builders_inventory_renderMinimessage(GuiGraphicsExtractor gui, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
 		if (!Config.instance().minimessage_enabledChat) return;
 		
-		ActiveTextCollector text = gui.textRenderer(GuiGraphics.HoveredTextEffects.TOOLTIP_AND_CURSOR);
+		ActiveTextCollector text = gui.textRenderer(GuiGraphicsExtractor.HoveredTextEffects.TOOLTIP_AND_CURSOR);
 		ActiveTextCollector.Parameters parameters = text.defaultParameters();
 		
 		this.minimessage.renderPreviewOrError(gui, text, parameters);
@@ -171,8 +171,8 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 		this.exGui.renderTooltip(font, gui, mouseX, mouseY);
 	}
 	
-	@WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/CommandSuggestions;render(Lnet/minecraft/client/gui/GuiGraphics;II)V"))
-	private void builders_inventory_renderSuggestions(CommandSuggestions commandSuggestions, GuiGraphics gui, int mouseX, int mouseY, Operation<Void> operation) {
+	@WrapOperation(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/CommandSuggestions;extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;II)V"))
+	private void builders_inventory_renderSuggestions(CommandSuggestions commandSuggestions, GuiGraphicsExtractor gui, int mouseX, int mouseY, Operation<Void> operation) {
 		if (!Config.instance().minimessage_enabledChat || this.minimessage.previewLines.isEmpty()) {
 			operation.call(commandSuggestions, gui, mouseX, mouseY);
 		} else {
@@ -238,8 +238,8 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 		}
 	}
 	
-	@Inject(method = "render", at = @At("HEAD"))
-	private void builders_inventory_resetFocus(GuiGraphics gui, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
+	@Inject(method = "extractRenderState", at = @At("HEAD"))
+	private void builders_inventory_resetFocus(GuiGraphicsExtractor gui, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
 		if (this.resetFocus) {
 			this.resetFocus = false;
 			this.setFocused(this.input);
@@ -250,17 +250,17 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 	 * Moving chat if preview is too tall
 	 */
 	
-	@WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;render(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Font;IIIZZ)V"))
-	private void builders_inventory_moveChatComponent(ChatComponent chat, GuiGraphics gui, Font font, int ticks, int mouseX, int mouseY, boolean focused, boolean holdingShift, Operation<Void> operation) {
+	@WrapOperation(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/gui/Font;IIILnet/minecraft/client/gui/components/ChatComponent$DisplayMode;Z)V"))
+	private void builders_inventory_moveChatComponent(ChatComponent chat, GuiGraphicsExtractor gui, Font font, int ticks, int mouseX, int mouseY, ChatComponent.DisplayMode displayMode, boolean holdingShift, Operation<Void> operation) {
 		final Config config = Config.instance();
 		final int offsetThreshold = config.minimessage_previewOffsetIgnored;
 		if (config.minimessage_enabledChat && config.minimessage_previewOffsetsChat && this.minimessage.previewLines.size() > offsetThreshold) {
 			gui.pose().pushMatrix();
 			gui.pose().translate(0, -Mth.ceil(this.minimessage.getScaledLineHeight(offsetThreshold)));
-			operation.call(chat, gui, font, ticks, mouseX, mouseY, focused, holdingShift);
+			operation.call(chat, gui, font, ticks, mouseX, mouseY, displayMode, holdingShift);
 			gui.pose().popMatrix();
 		} else {
-			operation.call(chat, gui, font, ticks, mouseX, mouseY, focused, holdingShift);
+			operation.call(chat, gui, font, ticks, mouseX, mouseY, displayMode, holdingShift);
 		}
 	}
 	

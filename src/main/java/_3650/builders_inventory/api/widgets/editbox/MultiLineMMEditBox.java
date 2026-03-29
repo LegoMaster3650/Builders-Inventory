@@ -25,7 +25,7 @@ import _3650.builders_inventory.api.util.StringPos;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Whence;
 import net.minecraft.client.gui.narration.NarratedElementType;
@@ -433,9 +433,9 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	}
 	
 	@Override
-	public void miniMessageRender(GuiGraphics gui, int mouseX, int mouseY) {
+	public void miniMessageRender(GuiGraphicsExtractor gui, int mouseX, int mouseY) {
 		if (this.isActive() && this.isFocused() && this.activeMiniMessage != null) {
-			ActiveTextCollector text = gui.textRenderer(GuiGraphics.HoveredTextEffects.TOOLTIP_AND_CURSOR);
+			ActiveTextCollector text = gui.textRenderer(GuiGraphicsExtractor.HoveredTextEffects.TOOLTIP_AND_CURSOR);
 			ActiveTextCollector.Parameters parameters = text.defaultParameters();
 			
 			this.activeMiniMessage.renderPreviewOrError(gui, text, parameters);
@@ -487,7 +487,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 	}
 	
 	@Override
-	public void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
+	public void extractWidgetRenderState(GuiGraphicsExtractor gui, int mouseX, int mouseY, float partialTick) {
 		if (this.visible) {
 			this.renderBackground(gui);
 			final int borderThickness = this.theme.borderThickness;
@@ -522,26 +522,26 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 			if (this.hasMaxLength()) {
 				int charLimit = this.maxLength;
 				Component error = Component.translatable("gui.multiLineEditBox.character_limit", this.value.length(), charLimit);
-				gui.drawString(this.font, error, this.getX() + this.width - this.font.width(error), this.getY() + this.height + 4, 0xFFA0A0A0);
+				gui.text(this.font, error, this.getX() + this.width - this.font.width(error), this.getY() + this.height + 4, 0xFFA0A0A0);
 			}
 		}
 	}
 	
-	private void renderBackground(GuiGraphics gui) {
+	private void renderBackground(GuiGraphicsExtractor gui) {
 		Identifier background = this.theme.spritesBackground.get(this.isActive(), this.isFocused());
 		gui.blitSprite(RenderPipelines.GUI_TEXTURED, background, this.getX(), this.getY(), this.getWidth(), this.getHeight());
 		final int borderThickness = this.theme.borderThickness;
 		if (this.showLineNumbers) gui.fill(this.getX() + borderThickness, this.getY() + borderThickness, this.getX() + this.lineNumWidth + borderThickness, this.getY() + this.getHeight() - borderThickness, this.theme.lineNumBackgroundColor);
 	}
 	
-	private void renderContents(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
+	private void renderContents(GuiGraphicsExtractor gui, int mouseX, int mouseY, float partialTick) {
 		String str = this.value;
 		if (!str.isEmpty() || this.isFocused()) {
 			
 			final int textColor = this.isActive() ? this.theme.textColor : this.theme.disabledTextColor;
 			ColoredRenderingTextCollector text = ColoredRenderingTextCollector.create(
 					gui,
-					this.isActive() ? GuiGraphics.HoveredTextEffects.TOOLTIP_AND_CURSOR : GuiGraphics.HoveredTextEffects.TOOLTIP_ONLY,
+					this.isActive() ? GuiGraphicsExtractor.HoveredTextEffects.TOOLTIP_AND_CURSOR : GuiGraphicsExtractor.HoveredTextEffects.TOOLTIP_ONLY,
 					textColor);
 			
 			final int cursor = this.cursor;
@@ -564,7 +564,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 					if (lineVisible && this.showLineNumbers) {
 						final String lineNumStr = new StringBuilder().append(lineCounter).append("").toString();
 						final int strWidth = this.font.width(lineNumStr);
-						gui.drawString(this.font, lineNumStr, x - strWidth - 4, y, this.theme.lineNumColor, true);
+						gui.text(this.font, lineNumStr, x - strWidth - 4, y, this.theme.lineNumColor, true);
 					}
 				}
 				
@@ -586,12 +586,12 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 						
 						if (!this.hasSelection() && cursor >= line.beginIndex && cursor == line.endIndex && line.endIndex == formatPos.endIndex) {
 							if (this.suggestion != null) {
-								gui.drawString(this.font, this.suggestion, x - 1, y, this.theme.suggestionColor);
+								gui.text(this.font, this.suggestion, x - 1, y, this.theme.suggestionColor);
 							}
 							
 							if (blink) {
 								if (this.cursor == line.beginIndex) x -= 1;
-								gui.drawString(this.font, "_", x, y, textColor);
+								gui.text(this.font, "_", x, y, textColor);
 							}
 						}
 					}
@@ -629,7 +629,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 			int y = this.getY() + this.innerPadding();
 			final String lineNumStr = "1";
 			final int strWidth = this.font.width(lineNumStr);
-			gui.drawString(this.font, lineNumStr, x - strWidth - 4, y, this.theme.lineNumColor);
+			gui.text(this.font, lineNumStr, x - strWidth - 4, y, this.theme.lineNumColor);
 		}
 	}
 	

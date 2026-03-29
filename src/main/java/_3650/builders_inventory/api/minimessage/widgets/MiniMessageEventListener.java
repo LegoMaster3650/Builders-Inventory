@@ -1,6 +1,6 @@
 package _3650.builders_inventory.api.minimessage.widgets;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
 
 public interface MiniMessageEventListener {
@@ -11,6 +11,6 @@ public interface MiniMessageEventListener {
 	
 	public boolean miniMessageMouseClicked(MouseButtonEvent event);
 	
-	public void miniMessageRender(GuiGraphics gui, int mouseX, int mouseY);
+	public void miniMessageRender(GuiGraphicsExtractor gui, int mouseX, int mouseY);
 	
 }

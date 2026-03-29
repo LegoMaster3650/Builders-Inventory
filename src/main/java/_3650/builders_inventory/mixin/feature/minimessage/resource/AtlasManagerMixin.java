@@ -12,7 +12,7 @@ import _3650.builders_inventory.api.minimessage.autocomplete.AtlasSpriteSuggesto
 import _3650.builders_inventory.api.minimessage.autocomplete.ReloadableResourceArg;
 import _3650.builders_inventory.config.Config;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.resources.model.AtlasManager;
+import net.minecraft.client.resources.model.sprite.AtlasManager;
 import net.minecraft.resources.Identifier;
 
 @Mixin(AtlasManager.class)

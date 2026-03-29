@@ -16,7 +16,7 @@ import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButton;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButtonGui;
 import _3650.builders_inventory.config.Config;
 import _3650.builders_inventory.feature.extended_inventory.ExtendedInventory;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.world.item.CreativeModeTab;
@@ -65,7 +65,7 @@ public abstract class CreativeModeInventoryScreenMixin extends AbstractContainer
 	}
 	
 	@Override
-	protected void renderTooltipInjectHead(GuiGraphics guiGraphics, int x, int y, CallbackInfo ci) {
+	protected void extractTooltipInjectHead(GuiGraphicsExtractor guiGraphics, int x, int y, CallbackInfo ci) {
 		if (!Config.instance().extended_inventory_open_button_enabled) return;
 		if (this.exGui.renderTooltip(this.font, guiGraphics, x, y)) ci.cancel();
 	}

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -32,7 +32,7 @@ public abstract class AbstractExtendedImageButton extends AbstractButton {
 		this.centerY = y + (height / 2);
 	}
 	
-	public boolean renderTooltip(Font font, GuiGraphics gui, int mouseX, int mouseY) {
+	public boolean renderTooltip(Font font, GuiGraphicsExtractor gui, int mouseX, int mouseY) {
 		final var tooltip = this.tooltip();
 		if (this.isActive() && this.isHoveredOrFocused() && !tooltip.isEmpty()) {
 			gui.setComponentTooltipForNextFrame(font,
@@ -59,7 +59,7 @@ public abstract class AbstractExtendedImageButton extends AbstractButton {
 	}
 	
 	@Override
-	protected void renderContents(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
+	protected void extractContents(GuiGraphicsExtractor gui, int mouseX, int mouseY, float partialTick) {
 		var sprite = this.sprites().get(this.isActive(), this.isHoveredOrFocused());
 		gui.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, this.getX(), this.getY(), this.width, this.height);
 	}

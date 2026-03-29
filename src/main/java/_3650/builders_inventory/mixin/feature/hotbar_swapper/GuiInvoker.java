@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -16,7 +16,7 @@ public interface GuiInvoker {
 	@Accessor("toolHighlightTimer")
 	public void setToolHighlightTimer(int toolHighlightTimer);
 	
-	@Invoker("renderSlot")
-	public void callRenderSlot(GuiGraphics guiGraphics, int x, int y, DeltaTracker deltaTick, Player player, ItemStack stack, int seed);
+	@Invoker("extractSlot")
+	public void callExtractSlot(GuiGraphicsExtractor guiGraphics, int x, int y, DeltaTracker deltaTick, Player player, ItemStack stack, int seed);
 	
 }

@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version "${loom_version}"
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
 }
 
@@ -35,22 +35,19 @@ repositories {
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings loom.layered {
-		officialMojangMappings()
-		parchment("org.parchmentmc.data:parchment-${project.parchment_version}@zip")
-	}
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	
-	modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 	
-	modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
+	implementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
+	
+	implementation "com.terraformersmc:modmenu:${project.modmenu_version}"
 	
 	// Testing Mods
-	modLocalRuntime "maven.modrinth:raised:Fabric-1.21.11-5.1.2"
-	modLocalRuntime "maven.modrinth:spark:1.10.156-fabric"
-	modLocalRuntime "maven.modrinth:fabric-permissions-api:0.6.1"
+//	modLocalRuntime "maven.modrinth:raised:Fabric-1.21.11-5.1.2"
+//	modLocalRuntime "maven.modrinth:spark:1.10.172-fabric"
+//	modLocalRuntime "maven.modrinth:fabric-permissions-api:0.7.0"
 }
 
 loom {
@@ -73,7 +70,7 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.encoding = "UTF-8"
-	it.options.release = 21
+	it.options.release = 25
 }
 
 java {
@@ -82,8 +79,8 @@ java {
 	// If you remove this line, sources will not be generated.
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
 }
 
 jar {

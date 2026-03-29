@@ -5,15 +5,15 @@ import java.util.function.Consumer;
 import org.jetbrains.annotations.Nullable;
 
 import _3650.builders_inventory.api.minimessage.MiniMessageUtil;
-import _3650.builders_inventory.api.minimessage.instance.MiniMessageParseListener;
 import _3650.builders_inventory.api.minimessage.instance.MMInstanceConstructor;
 import _3650.builders_inventory.api.minimessage.instance.MiniMessageInstance;
+import _3650.builders_inventory.api.minimessage.instance.MiniMessageParseListener;
 import _3650.builders_inventory.api.minimessage.widgets.MiniMessageEventListener;
 import _3650.builders_inventory.api.minimessage.widgets.wrapper.WrappedTextField;
 import _3650.builders_inventory.mixin.feature.minimessage.EditBoxAccessor;
 import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.TextAlignment;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.input.KeyEvent;
@@ -97,9 +97,9 @@ public class MiniMessageEditBox extends EditBox implements MiniMessageEventListe
 	}
 	
 	@Override
-	public void miniMessageRender(GuiGraphics gui, int mouseX, int mouseY) {
+	public void miniMessageRender(GuiGraphicsExtractor gui, int mouseX, int mouseY) {
 		if (this.isActive() && this.isFocused()) {
-			ActiveTextCollector text = gui.textRenderer(GuiGraphics.HoveredTextEffects.TOOLTIP_AND_CURSOR);
+			ActiveTextCollector text = gui.textRenderer(GuiGraphicsExtractor.HoveredTextEffects.TOOLTIP_AND_CURSOR);
 			ActiveTextCollector.Parameters parameters = text.defaultParameters();
 			
 			this.minimessage.renderPreviewOrError(gui, text, parameters);

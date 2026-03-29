@@ -17,7 +17,7 @@ import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButtonGui;
 import _3650.builders_inventory.config.Config;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -274,9 +274,9 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 	}
 	
 	@Override
-	public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
-		super.render(gui, mouseX, mouseY, partialTick);
-		gui.drawString(this.font, this.title, this.leftPos + 8, this.topPos + 6, 0xFF404040, false);
+	public void extractRenderState(GuiGraphicsExtractor gui, int mouseX, int mouseY, float partialTick) {
+		super.extractRenderState(gui, mouseX, mouseY, partialTick);
+		gui.text(this.font, this.title, this.leftPos + 8, this.topPos + 6, 0xFF404040, false);
 		
 		if (this.dragTile != null) {
 			int col = this.dragHoveredIndex % 10;
@@ -299,13 +299,13 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 		}
 	}
 	
-	private void renderTiles(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
+	private void renderTiles(GuiGraphicsExtractor gui, int mouseX, int mouseY, float partialTick) {
 		for (var tile : this.tiles) {
 			tile.render(gui, mouseX, mouseY, partialTick);
 		}
 	}
 	
-	protected void renderTooltip(GuiGraphics gui, TileFindResult hover, int mouseX, int mouseY) {
+	protected void renderTooltip(GuiGraphicsExtractor gui, TileFindResult hover, int mouseX, int mouseY) {
 		if (hover != null && hover.tile.isActive()) {
 			renderTileTooltip(hover.tile, hover.index, gui, mouseX, mouseY);
 			return;
@@ -313,7 +313,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 		this.exGui.renderTooltip(this.font, gui, mouseX, mouseY);
 	}
 	
-	void renderTileText(GuiGraphics gui, int number, int x, int y) {
+	void renderTileText(GuiGraphicsExtractor gui, int number, int x, int y) {
 		String text = String.valueOf(number);
 		gui.pose().pushMatrix();
 		gui.pose().translate(x, y);
@@ -322,11 +322,11 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 			gui.pose().translate(0, 4 * (1f - scale)); // (8*scale - 8) / 2
 			gui.pose().scale(scale, scale);
 		}
-		gui.drawCenteredString(this.font, text, 0, 0, 0xFFFFFFFF);
+		gui.centeredText(this.font, text, 0, 0, 0xFFFFFFFF);
 		gui.pose().popMatrix();
 	}
 	
-	void renderTileIcon(GuiGraphics gui, ItemStack icon, int iconScaleDown, int x, int y) {
+	void renderTileIcon(GuiGraphicsExtractor gui, ItemStack icon, int iconScaleDown, int x, int y) {
 		gui.pose().pushMatrix();
 		gui.pose().translate(x, y);
 		if (iconScaleDown > 0) {
@@ -335,12 +335,12 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 			gui.pose().translate((8 * (1f - iconScale)), (8 * (1f - iconScale)));
 			gui.pose().scale(iconScale, iconScale);
 		}
-		gui.renderItem(icon, 0, 0);
-		gui.renderItemDecorations(this.font, icon, 0, 0);
+		gui.item(icon, 0, 0);
+		gui.itemDecorations(this.font, icon, 0, 0);
 		gui.pose().popMatrix();
 	}
 	
-	private void renderTileTooltip(PageTile tile, int index, GuiGraphics gui, int mouseX, int mouseY) {
+	private void renderTileTooltip(PageTile tile, int index, GuiGraphicsExtractor gui, int mouseX, int mouseY) {
 		gui.setTooltipForNextFrame(this.font,
 				List.of(ExtendedInventory.pageTitle(index)),
 				Optional.of(new PageTooltipImage(tile.page)),
@@ -461,8 +461,8 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 	}
 	
 	@Override
-	public void renderBackground(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
-		this.renderTransparentBackground(gui);
+	public void extractBackground(GuiGraphicsExtractor gui, int mouseX, int mouseY, float partialTick) {
+		this.extractTransparentBackground(gui);
 		GuiUtil.blitScreenBackground(gui, BACKGROUND, this.leftPos, this.topPos, this.imageWidth, this.imageHeight);
 		
 		Identifier scrollSprite = this.canScroll() ? SPRITE_CREATIVE_SCROLLER : SPRITE_CREATIVE_SCROLLER_DISABLED;
@@ -556,7 +556,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 			}
 		}
 		
-		protected void render(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
+		protected void render(GuiGraphicsExtractor gui, int mouseX, int mouseY, float partialTick) {
 			if (!this.visible) return;
 			int x = this.x + 1;
 			int y = this.y + 1;
@@ -578,7 +578,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 			}
 		}
 		
-		private void renderTile(GuiGraphics gui, int x, int y, Identifier sprite) {
+		private void renderTile(GuiGraphicsExtractor gui, int x, int y, Identifier sprite) {
 			gui.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x, y, 16, 16);
 			if (this.page.icon.isEmpty()) {
 				this.screen.renderTileText(gui, this.index + 1, x + 8, y + 4);
@@ -617,7 +617,7 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 		}
 		
 		@Override
-		public void renderImage(Font font, int x, int y, int width, int height, GuiGraphics gui) {
+		public void extractImage(Font font, int x, int y, int width, int height, GuiGraphicsExtractor gui) {
 			Identifier background = this.page.valid ? this.page.isLocked() ? SPRITE_BACKGROUND_LOCKED : SPRITE_BACKGROUND : SPRITE_BACKGROUND_INVALID;
 			gui.blitSprite(RenderPipelines.GUI_TEXTURED, background, x, y, this.getWidth(font), this.getHeight(font));
 			if (!this.page.valid) return;
@@ -627,8 +627,8 @@ public class ExtendedInventoryOrganizeScreen extends Screen {
 				for (int col = 0; col < 9; col++) {
 					int slotX = x + (col * 18) + 6 + 1;
 					ItemStack stack = this.page.get(slot++);
-					gui.renderItem(stack, slotX, slotY);
-					gui.renderItemDecorations(font, stack, slotX, slotY);
+					gui.item(stack, slotX, slotY);
+					gui.itemDecorations(font, stack, slotX, slotY);
 				}
 			}
 		}

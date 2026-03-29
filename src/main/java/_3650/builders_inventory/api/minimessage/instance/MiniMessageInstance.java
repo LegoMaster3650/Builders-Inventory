@@ -29,7 +29,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.TextAlignment;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.ComponentRenderUtils;
@@ -496,7 +496,7 @@ public class MiniMessageInstance {
 		}
 	}
 	
-	public void renderPreviewOrError(GuiGraphics gui, ActiveTextCollector text, ActiveTextCollector.Parameters parameters) {
+	public void renderPreviewOrError(GuiGraphicsExtractor gui, ActiveTextCollector text, ActiveTextCollector.Parameters parameters) {
 		if (!active) return;
 		if (!previewLines.isEmpty()) {
 			gui.pose().pushMatrix();
@@ -748,7 +748,7 @@ public class MiniMessageInstance {
 		if (this.display.visible) this.display.reposition();
 	}
 	
-	public boolean renderSuggestions(GuiGraphics gui, int mouseX, int mouseY) {
+	public boolean renderSuggestions(GuiGraphicsExtractor gui, int mouseX, int mouseY) {
 		if (!active) return false;
 		final boolean result = this.display.render(gui, mouseX, mouseY);
 		return result;
@@ -845,7 +845,7 @@ public class MiniMessageInstance {
 					height);
 		}
 		
-		public boolean render(GuiGraphics gui, int mouseX, int mouseY) {
+		public boolean render(GuiGraphicsExtractor gui, int mouseX, int mouseY) {
 			if (!this.visible) return false;
 			final int size = Math.min(this.suggestions.size(), this.suggestionOptions.getLimit());
 			final boolean topCut = this.offset > 0;
@@ -885,7 +885,7 @@ public class MiniMessageInstance {
 				}
 				
 				String s = this.suggestions.get(index);
-				gui.drawString(MiniMessageInstance.this.font, s, x + 1, y + 2 + (12 * i), (index == this.selected) ? 0xFFFFFF00 : 0xFFAAAAAA);
+				gui.text(MiniMessageInstance.this.font, s, x + 1, y + 2 + (12 * i), (index == this.selected) ? 0xFFFFFF00 : 0xFFAAAAAA);
 			}
 			
 			return true;

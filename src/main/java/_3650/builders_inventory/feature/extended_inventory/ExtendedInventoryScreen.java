@@ -10,7 +10,7 @@ import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageButtonGui;
 import _3650.builders_inventory.api.widgets.exbutton.ExtendedImageDualButton;
 import _3650.builders_inventory.config.Config;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -22,7 +22,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
@@ -90,10 +90,8 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 	private Component pageTitle;
 	
 	public ExtendedInventoryScreen(Player player) {
-		super(new ExtendedInventoryMenu(0, player.inventoryMenu), player.getInventory(), Component.translatable("container.builders_inventory.extended_inventory"));
+		super(new ExtendedInventoryMenu(0, player.inventoryMenu), player.getInventory(), Component.translatable("container.builders_inventory.extended_inventory"), 212, 222);
 		player.containerMenu = this.menu;
-		this.imageWidth = 212;
-		this.imageHeight = 222;
 		this.titleLabelX += 18;
 		this.inventoryLabelX += 18;
 		this.inventoryLabelY = this.imageHeight - 94;
@@ -272,13 +270,7 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 	}
 	
 	@Override
-	public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTick) {
-		super.render(gui, mouseX, mouseY, partialTick);
-		this.renderTooltip(gui, mouseX, mouseY);
-	}
-	
-	@Override
-	protected void renderTooltip(GuiGraphics gui, int mouseX, int mouseY) {
+	protected void extractTooltip(GuiGraphicsExtractor gui, int mouseX, int mouseY) {
 		if (this.hoveredSlot instanceof ExtendedInventoryMenu.ExtendedInventorySlot slot) {
 			if (!ExtendedInventoryPages.isValid()) {
 				gui.setComponentTooltipForNextFrame(this.font, List.of(
@@ -303,17 +295,18 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 		
 		if (this.exGui.renderTooltip(this.font, gui, mouseX, mouseY)) return;
 		
-		super.renderTooltip(gui, mouseX, mouseY);
+		super.extractTooltip(gui, mouseX, mouseY);
 	}
 	
 	@Override
-	protected void renderLabels(GuiGraphics gui, int mouseX, int mouseY) {
-		gui.drawString(this.font, this.pageTitle, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
-		gui.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 0xFF404040, false);
+	protected void extractLabels(GuiGraphicsExtractor gui, int mouseX, int mouseY) {
+		gui.text(this.font, this.pageTitle, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
+		gui.text(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 0xFF404040, false);
 	}
 	
 	@Override
-	protected void renderBg(GuiGraphics gui, float partialTick, int mouseX, int mouseY) {
+	public void extractBackground(GuiGraphicsExtractor gui, int mouseX, int mouseY, float partialTick) {
+		super.extractBackground(gui, mouseX, mouseY, partialTick);
 		int relX = (this.width - this.imageWidth) / 2;
 		int relY = (this.height - this.imageHeight) / 2;
 		Identifier bg = ExtendedInventory.PAGE_CONTAINER.isValid() ? ExtendedInventory.PAGE_CONTAINER.isLocked() ? BACKGROUND_LOCKED : BACKGROUND : BACKGROUND_INVALID;
@@ -321,11 +314,11 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 	}
 	
 	@Override
-	protected void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type) {
-		type = slotId == -999 && type == ClickType.PICKUP ? ClickType.THROW : type;
+	protected void slotClicked(Slot slot, int slotId, int mouseButton, ContainerInput type) {
+		type = slotId == -999 && type == ContainerInput.PICKUP ? ContainerInput.THROW : type;
 		if (slot == this.menu.destroyItemSlot) {
 			var clear = Config.instance().extended_inventory_clear_behavior;
-			if (type == ClickType.QUICK_MOVE && clear != ExtendedInventoryClearBehavior.NONE) {
+			if (type == ContainerInput.QUICK_MOVE && clear != ExtendedInventoryClearBehavior.NONE) {
 				if (clear.player) {
 					for (int i = 0; i < this.minecraft.player.inventoryMenu.getItems().size(); i++) {
 						this.minecraft.player.inventoryMenu.getSlot(i).set(ItemStack.EMPTY);
@@ -341,14 +334,14 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 			}
 		} else if (slot != null && !slot.mayPickup(this.minecraft.player)) {
 			return;
-		} else if (ExtendedInventory.PAGE_CONTAINER.isLocked() && slot instanceof ExtendedInventoryMenu.ExtendedInventorySlot && type != ClickType.SWAP) {
+		} else if (ExtendedInventory.PAGE_CONTAINER.isLocked() && slot instanceof ExtendedInventoryMenu.ExtendedInventorySlot && type != ContainerInput.SWAP) {
 			// Slot is guaranteed not null by the instanceof i think
 			ItemStack carried = this.menu.getCarried();
 			ItemStack stack = slot.getItem();
 			
-			if (type == ClickType.QUICK_CRAFT) return; // not my problem
+			if (type == ContainerInput.QUICK_CRAFT) return; // not my problem
 			
-			if (type == ClickType.SWAP) {
+			if (type == ContainerInput.SWAP) {
 				if (!stack.isEmpty()) {
 					this.minecraft.player.getInventory().setItem(mouseButton, stack.copyWithCount(stack.getMaxStackSize()));
 					this.minecraft.player.inventoryMenu.broadcastChanges();
@@ -356,14 +349,14 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 				return;
 			}
 			
-			if (type == ClickType.CLONE) {
+			if (type == ContainerInput.CLONE) {
 				if (carried.isEmpty() && !stack.isEmpty()) {
 					this.menu.setCarried(stack.copyWithCount(stack.getMaxStackSize()));
 				}
 				return;
 			}
 			
-			if (type == ClickType.THROW) {
+			if (type == ContainerInput.THROW) {
 				if (!stack.isEmpty()) {
 					ItemStack drop = stack.copyWithCount(mouseButton == 0 ? 1 : stack.getMaxStackSize());
 					this.minecraft.player.drop(drop, true);
@@ -374,54 +367,54 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 			
 			if (!carried.isEmpty() && !stack.isEmpty() && ItemStack.isSameItemSameComponents(carried, stack)) {
 				if (mouseButton == 0) {
-					if (type == ClickType.QUICK_MOVE) {
+					if (type == ContainerInput.QUICK_MOVE) {
 						carried.setCount(carried.getMaxStackSize());
 					} else if (carried.getCount() < carried.getMaxStackSize()) {
 						carried.grow(1);
 					}
 				} else {
-					if (type == ClickType.QUICK_MOVE) {
+					if (type == ContainerInput.QUICK_MOVE) {
 						this.menu.setCarried(ItemStack.EMPTY);
 					} else {
 						carried.shrink(1);
 					}
 				}
 			} else if (carried.isEmpty() && !stack.isEmpty()) {
-				this.menu.setCarried(stack.copyWithCount(type == ClickType.QUICK_MOVE ? stack.getMaxStackSize() : stack.getCount()));
+				this.menu.setCarried(stack.copyWithCount(type == ContainerInput.QUICK_MOVE ? stack.getMaxStackSize() : stack.getCount()));
 			} else if (mouseButton == 0) {
 				this.menu.setCarried(ItemStack.EMPTY);
 			} else if (!carried.isEmpty()) {
 				carried.shrink(1);
 			}
-		} else if (type == ClickType.QUICK_CRAFT && slot == null) {
+		} else if (type == ContainerInput.QUICK_CRAFT && slot == null) {
 			this.minecraft.player.inventoryMenu.clicked(slotId, mouseButton, type, this.minecraft.player);
 			this.menu.clicked(slotId, mouseButton, type, this.minecraft.player);
 			this.minecraft.player.inventoryMenu.broadcastChanges();
 		} else if (slot instanceof ExtendedInventoryMenu.WrappedSlot wrappedSlot) {
 			this.wrappedSlotClicked(wrappedSlot.target, slotId, mouseButton, type);
-		} else if (type == ClickType.THROW && slot != null && slot.hasItem()) {
+		} else if (type == ContainerInput.THROW && slot != null && slot.hasItem()) {
 			ItemStack stack = slot.remove(mouseButton == 0 ? 1 : slot.getItem().getMaxStackSize());
 			this.minecraft.player.drop(stack, true);
 			this.minecraft.gameMode.handleCreativeModeItemDrop(stack);
-		} else if (type == ClickType.THROW && !this.menu.getCarried().isEmpty()) {
+		} else if (type == ContainerInput.THROW && !this.menu.getCarried().isEmpty()) {
 			this.minecraft.player.drop(this.menu.getCarried(), true);
 			this.minecraft.gameMode.handleCreativeModeItemDrop(this.menu.getCarried());
 			this.menu.setCarried(ItemStack.EMPTY);
-		} else if (type == ClickType.SWAP) {
+		} else if (type == ContainerInput.SWAP) {
 			ExtendedInventory.swap(this.minecraft, slotId + 36, mouseButton);
 		} else {
 			this.menu.clicked(slotId, mouseButton, type, this.minecraft.player);
 		}
 	}
 	
-	private void wrappedSlotClicked(Slot target, int slotId, int mouseButton, ClickType type) {
-		if (type == ClickType.THROW && target != null && target.hasItem()) {
+	private void wrappedSlotClicked(Slot target, int slotId, int mouseButton, ContainerInput type) {
+		if (type == ContainerInput.THROW && target != null && target.hasItem()) {
 			ItemStack stack = target.remove(mouseButton == 0 ? 1 : target.getItem().getMaxStackSize());
 			ItemStack remaining = target.getItem();
 			this.minecraft.player.drop(stack, true);
 			this.minecraft.gameMode.handleCreativeModeItemDrop(stack);
 			this.minecraft.gameMode.handleCreativeModeItemAdd(remaining, target.index);
-		} else if (type == ClickType.PICKUP_ALL || type == ClickType.QUICK_MOVE) {
+		} else if (type == ContainerInput.PICKUP_ALL || type == ContainerInput.QUICK_MOVE) {
 			this.menu.clicked(slotId, mouseButton, type, this.minecraft.player);
 			this.minecraft.player.inventoryMenu.broadcastChanges();
 		} else {
