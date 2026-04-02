@@ -145,6 +145,7 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 	
 	@Inject(method = "formatChat", at = @At("HEAD"), cancellable = true)
 	private void builders_inventory_formatChat(String text, int displayPos, CallbackInfoReturnable<FormattedCharSequence> cir) {
+		if (!Config.instance().minimessage_enabledChat) return;
 		if (this.minimessage.canFormat()) {
 			var formatted = this.minimessage.format(displayPos, displayPos + text.length());
 			if (formatted != null) cir.setReturnValue(formatted);
