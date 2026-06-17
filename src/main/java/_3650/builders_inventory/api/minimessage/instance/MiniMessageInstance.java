@@ -424,12 +424,12 @@ public class MiniMessageInstance {
 			
 			@Override
 			public float getScale(Minecraft mc, Screen screen) {
-				return (float) ((ChatComponentInvoker)mc.gui.getChat()).callGetScale();
+				return (float) ((ChatComponentInvoker)mc.gui.hud.getChat()).callGetScale();
 			}
 			
 			@Override
 			public float getScaledWidth(Minecraft mc, Screen screen, MiniMessageInstance minimessage) {
-				return ((ChatComponentInvoker)mc.gui.getChat()).callGetWidth() / this.getScale(mc, screen);
+				return ((ChatComponentInvoker)mc.gui.hud.getChat()).callGetWidth() / this.getScale(mc, screen);
 			}
 			
 			@Override
@@ -444,7 +444,7 @@ public class MiniMessageInstance {
 			
 			@Override
 			public int getLineHeight(Minecraft mc, Screen screen) {
-				return MiniMessageUtil.getLineHeight(mc.gui.getChat());
+				return MiniMessageUtil.getLineHeight(mc.gui.hud.getChat());
 			}
 			
 			@Override
@@ -711,7 +711,7 @@ public class MiniMessageInstance {
 			
 			@Override
 			public int getY(Minecraft mc, Screen screen, MiniMessageInstance minimessage, int x, int suggestionHeight) {
-				final int chatWidth = ((ChatComponentInvoker)mc.gui.getChat()).callGetWidth();
+				final int chatWidth = ((ChatComponentInvoker)mc.gui.hud.getChat()).callGetWidth();
 				return screen.height - 12 - 3 - suggestionHeight - ((x >= chatWidth + 12) ? 0 :
 					minimessage.previewLines.isEmpty() ? 0 : (Mth.ceil(minimessage.getScaledLineHeight()) + Config.instance().minimessage_chatPreviewHeight));
 			}

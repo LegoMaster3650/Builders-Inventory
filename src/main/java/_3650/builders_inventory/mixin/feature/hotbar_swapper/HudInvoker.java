@@ -5,13 +5,13 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.Hud;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-@Mixin(Gui.class)
-public interface GuiInvoker {
+@Mixin(Hud.class)
+public interface HudInvoker {
 	
 	@Accessor("toolHighlightTimer")
 	public void setToolHighlightTimer(int toolHighlightTimer);

@@ -176,7 +176,7 @@ public class ExtendedInventory {
 		
 		ExtendedInventoryPages.tick(mc);
 		
-		if (mc.screen == null && ModKeybinds.OPEN_EXTENDED_INVENTORY.consumeClick() && mc.player != null && mc.player.hasInfiniteMaterials()) {
+		if (mc.gui.screen() == null && ModKeybinds.OPEN_EXTENDED_INVENTORY.consumeClick() && mc.player != null && mc.player.hasInfiniteMaterials()) {
 			open(mc);
 		}
 	}
@@ -199,27 +199,27 @@ public class ExtendedInventory {
 	
 	public static void open(Minecraft mc) {
 		refresh();
-		mc.setScreen(new ExtendedInventoryScreen(mc.player));
+		mc.gui.setScreen(new ExtendedInventoryScreen(mc.player));
 	}
 	
 	public static void close(Minecraft mc) {
-		mc.setScreen(new InventoryScreen(mc.player));
+		mc.gui.setScreen(new InventoryScreen(mc.player));
 	}
 	
 	public static void openDeleteScreen(Minecraft mc) {
-		mc.setScreen(new ExtendedInventoryDeleteScreen(getPage()));
+		mc.gui.setScreen(new ExtendedInventoryDeleteScreen(getPage()));
 	}
 	
 	public static void openRenameScreen(Minecraft mc) {
-		if (PAGE_CONTAINER.isValid()) mc.setScreen(new ExtendedInventoryRenameScreen(getPage()));
+		if (PAGE_CONTAINER.isValid()) mc.gui.setScreen(new ExtendedInventoryRenameScreen(getPage()));
 	}
 	
 	public static void openIconSelectScreen(Minecraft mc) {
-		if (PAGE_CONTAINER.isValid()) mc.setScreen(new ExtendedInventoryIconScreen(getPage()));
+		if (PAGE_CONTAINER.isValid()) mc.gui.setScreen(new ExtendedInventoryIconScreen(getPage()));
 	}
 	
 	public static void openOrganizeScreen(Minecraft mc) {
-		mc.setScreen(new ExtendedInventoryOrganizeScreen());
+		mc.gui.setScreen(new ExtendedInventoryOrganizeScreen());
 	}
 	
 	public static void swap(Minecraft mc, int slot, int hotbar) {

@@ -5,7 +5,7 @@ import _3650.builders_inventory.ModKeybinds;
 import _3650.builders_inventory.config.Config;
 import _3650.builders_inventory.feature.extended_inventory.ExtendedInventory;
 import _3650.builders_inventory.mixin.feature.hotbar_swapper.GuiGraphicsExtractorAccessor;
-import _3650.builders_inventory.mixin.feature.hotbar_swapper.GuiInvoker;
+import _3650.builders_inventory.mixin.feature.hotbar_swapper.HudInvoker;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -99,7 +99,7 @@ public class HotbarSwapper {
 		return false;
 	}
 	
-	public static void renderItems(GuiGraphicsExtractor gui, DeltaTracker deltaTick, Minecraft mc, GuiInvoker hud) {
+	public static void renderItems(GuiGraphicsExtractor gui, DeltaTracker deltaTick, Minecraft mc, HudInvoker hud) {
 		if (selecting) {
 			int width =  gui.guiWidth() / 2;
 			LocalPlayer player = mc.player;
@@ -137,7 +137,7 @@ public class HotbarSwapper {
 		}
 	}
 	
-	public static ItemStack toolHighlightOverride(ItemStack stack, Minecraft mc, GuiInvoker hud) {
+	public static ItemStack toolHighlightOverride(ItemStack stack, Minecraft mc, HudInvoker hud) {
 		if (selecting) {
 			ItemStack main = getMainItem(mc);
 			if (!main.isEmpty()) hud.setToolHighlightTimer((int)(40.0 * mc.options.notificationDisplayTime().get()));
