@@ -7,12 +7,12 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3x2f;
-import org.lwjgl.glfw.GLFW;
 
 import _3650.builders_inventory.BuildersInventory;
 import _3650.builders_inventory.api.minimessage.MiniMessageParser;
@@ -54,11 +54,11 @@ import net.minecraft.util.profiling.ProfilerFiller;
  * {@link #cursorMoved()}<br>
  * {@link #inputEdited()}<br>
  * {@link #quietUpdate()}<br>
- * {@link #renderPreviewOrError(GuiGraphics, ActiveTextCollector, net.minecraft.client.gui.ActiveTextCollector.Parameters)}
- * {@link #renderSuggestions(Minecraft, GuiGraphics, Font, int, int)}<br>
- * {@link #keyPressed(int, int, int)}<br>
+ * {@link #renderPreviewOrError(GuiGraphicsExtractor, ActiveTextCollector, net.minecraft.client.gui.ActiveTextCollector.Parameters)}
+ * {@link #renderSuggestions(GuiGraphicsExtractor, int, int)}<br>
+ * {@link #keyPressed(KeyEvent)}<br>
  * {@link #mouseScrolled(double, double, double, double)}<br>
- * {@link #mouseClicked(double, double, int)}<br>
+ * {@link #mouseClicked(MouseButtonEvent)}<br>
  * 
  */
 public class MiniMessageInstance {
@@ -757,7 +757,7 @@ public class MiniMessageInstance {
 	public boolean keyPressed(KeyEvent event) {
 		if (!active) return false;
 		if (this.display.visible) return this.display.keyPressed(event);
-		else if (event.key() == GLFW.GLFW_KEY_TAB && this.unclosedTags != null) {
+		else if (event.key() == InputConstants.KEY_TAB && this.unclosedTags != null) {
 			this.cursorMoved(this.input.getValue(), this.input.getCursorPosition());
 			return true;
 		} else return false;
@@ -893,21 +893,21 @@ public class MiniMessageInstance {
 		
 		public boolean keyPressed(KeyEvent event) {
 			switch (event.key()) {
-			case GLFW.GLFW_KEY_UP:
+			case InputConstants.KEY_UP:
 				cycle(-1);
 				tabCycles = false;
 				return true;
-			case GLFW.GLFW_KEY_DOWN:
+			case InputConstants.KEY_DOWN:
 				cycle(1);
 				tabCycles = false;
 				return true;
-			case GLFW.GLFW_KEY_TAB:
+			case InputConstants.KEY_TAB:
 				if (tabCycles) {
 					cycle(event.hasShiftDown() ? -1 : 1);
 				}
 				useSuggestion();
 				return true;
-			case GLFW.GLFW_KEY_ESCAPE:
+			case InputConstants.KEY_ESCAPE:
 				hide();
 				return true;
 			default:

@@ -25,7 +25,7 @@ public abstract class LanguageManagerMixin {
 	@Shadow
 	private String currentCode;
 	
-	@Inject(method = "onResourceManagerReload", at = @At("TAIL"))
+	@Inject(method = "onResourceManagerReload", at = @At(value = "INVOKE", target = "Lnet/minecraft/locale/Language;inject(Lnet/minecraft/locale/Language;)V"))
 	private void builders_inventory_captureLanguages(ResourceManager resourceManager, CallbackInfo ci, @Local(ordinal = 0) ClientLanguage lang) {
 		ArrayList<String> langKeys = ((ClientLanguageAccessor)lang).getStorage().keySet().stream()
 				.sorted()

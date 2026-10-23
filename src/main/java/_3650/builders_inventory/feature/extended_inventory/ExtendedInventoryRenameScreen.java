@@ -1,6 +1,6 @@
 package _3650.builders_inventory.feature.extended_inventory;
 
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 
 import _3650.builders_inventory.BuildersInventory;
 import _3650.builders_inventory.api.util.GuiUtil;
@@ -105,7 +105,7 @@ public class ExtendedInventoryRenameScreen extends Screen {
 	
 	@Override
 	public boolean keyPressed(KeyEvent event) {
-		if (event.key() == GLFW.GLFW_KEY_ENTER || event.key() == GLFW.GLFW_KEY_KP_ENTER) {
+		if (event.key() == InputConstants.KEY_RETURN || event.key() == InputConstants.KEY_NUMPADENTER) {
 			confirmPageName();
 			ExtendedInventory.open(this.minecraft);
 			return true;

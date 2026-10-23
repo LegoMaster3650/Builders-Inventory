@@ -50,7 +50,7 @@ import net.minecraft.util.Util;
  * You still need to handle calling the following:<br>
  * {@link #miniMessageTick()}<br>
  * {@link #miniMessageMouseScrolled(double, double, double, double)}<br>
- * {@link #miniMessageMouseClicked(double, double, int)}<br>
+ * {@link #miniMessageMouseClicked(MouseButtonEvent)}<br>
  * These are either not possible in a widget or occur outside the widget's area and need full-screen coverage
  */
 public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEventListener, Iterable<MiniMessageResult> {
@@ -931,6 +931,7 @@ public class MultiLineMMEditBox extends AbstractWidget implements MiniMessageEve
 			for (var line : this.formatLines) line.setActive(false);
 		}
 		super.setFocused(focused);
+		Minecraft.getInstance().onTextInputFocusChange(this, focused);
 		if (focused) this.focusedTime = Util.getMillis();
 	}
 	

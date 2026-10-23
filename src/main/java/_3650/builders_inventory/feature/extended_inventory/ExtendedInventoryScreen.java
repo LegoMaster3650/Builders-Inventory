@@ -21,6 +21,7 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
@@ -359,7 +360,7 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 			if (type == ContainerInput.THROW) {
 				if (!stack.isEmpty()) {
 					ItemStack drop = stack.copyWithCount(mouseButton == 0 ? 1 : stack.getMaxStackSize());
-					this.minecraft.player.drop(drop, true);
+					this.minecraft.player.drop(drop, true, Prediction.PREDICTED);
 					this.minecraft.gameMode.handleCreativeModeItemDrop(drop);
 				}
 				return;
@@ -394,10 +395,10 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 			this.wrappedSlotClicked(wrappedSlot.target, slotId, mouseButton, type);
 		} else if (type == ContainerInput.THROW && slot != null && slot.hasItem()) {
 			ItemStack stack = slot.remove(mouseButton == 0 ? 1 : slot.getItem().getMaxStackSize());
-			this.minecraft.player.drop(stack, true);
+			this.minecraft.player.drop(stack, true, Prediction.PREDICTED);
 			this.minecraft.gameMode.handleCreativeModeItemDrop(stack);
 		} else if (type == ContainerInput.THROW && !this.menu.getCarried().isEmpty()) {
-			this.minecraft.player.drop(this.menu.getCarried(), true);
+			this.minecraft.player.drop(this.menu.getCarried(), true, Prediction.PREDICTED);
 			this.minecraft.gameMode.handleCreativeModeItemDrop(this.menu.getCarried());
 			this.menu.setCarried(ItemStack.EMPTY);
 		} else if (type == ContainerInput.SWAP) {
@@ -411,7 +412,7 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 		if (type == ContainerInput.THROW && target != null && target.hasItem()) {
 			ItemStack stack = target.remove(mouseButton == 0 ? 1 : target.getItem().getMaxStackSize());
 			ItemStack remaining = target.getItem();
-			this.minecraft.player.drop(stack, true);
+			this.minecraft.player.drop(stack, true, Prediction.PREDICTED);
 			this.minecraft.gameMode.handleCreativeModeItemDrop(stack);
 			this.minecraft.gameMode.handleCreativeModeItemAdd(remaining, target.index);
 		} else if (type == ContainerInput.PICKUP_ALL || type == ContainerInput.QUICK_MOVE) {

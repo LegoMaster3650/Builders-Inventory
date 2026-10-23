@@ -2,7 +2,7 @@ package _3650.builders_inventory.mixin.feature.minimessage.screens.chat;
 
 import java.util.List;
 
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -185,7 +185,7 @@ public abstract class ChatScreenMixin extends ScreenMixinOverrides {
 	private void builders_inventory_keyPressed(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
 		if (!Config.instance().minimessage_enabledChat) return;
 		if (this.minimessage.keyPressed(event)) cir.setReturnValue(true);
-		else if (event.key() == GLFW.GLFW_KEY_TAB && !this.minimessage.previewLines.isEmpty()) cir.setReturnValue(true);
+		else if (event.key() == InputConstants.KEY_TAB && !this.minimessage.previewLines.isEmpty()) cir.setReturnValue(true);
 	}
 	
 	@Inject(method = "mouseScrolled", at = @At("HEAD"), cancellable = true)
