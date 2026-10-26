@@ -221,25 +221,35 @@ public class ExtendedInventory {
 		mc.setScreen(new ExtendedInventoryOrganizeScreen());
 	}
 	
-	public static void swap(Minecraft mc, int slot, int hotbar) {
+	public static ItemStack getItem(Minecraft mc, int slot) {
+		return slot < 36 ? mc.player.getInventory().getItem(slot) : PAGE_CONTAINER.getItem(slot - 36);
+	}
+	
+	/**
+	 * Only for use with hotbar slots 1-9
+	 */
+	public static void swapHotbar(Minecraft mc, int slot, int hotbar) {
 		if (slot < 36) mc.gameMode.handleInventoryMouseClick(mc.player.inventoryMenu.containerId, slot, hotbar, ClickType.SWAP, mc.player);
 		else {
-			// bad code do not use it (depends on creative inventory listener and technically less efficient)
-//			mc.player.getInventory().setItem(
-//					hotbar,
-//					PAGE_CONTAINER.swapItem(
-//							slot - 36,
-//							mc.player.getInventory().removeItemNoUpdate(hotbar)));
-//			mc.player.inventoryMenu.broadcastChanges();
-			
 			mc.gameMode.handleCreativeModeItemAdd(
-					PAGE_CONTAINER.swapItem(slot - 36, mc.player.getInventory().items.get(hotbar)),
-					hotbar == InventoryMenu.SHIELD_SLOT ? InventoryMenu.SHIELD_SLOT : hotbar + InventoryMenu.USE_ROW_SLOT_START);
+					PAGE_CONTAINER.swapItem(slot - 36, mc.player.getInventory().getItem(hotbar)),
+					hotbar + InventoryMenu.USE_ROW_SLOT_START
+			);
 		}
 	}
 	
-	public static ItemStack getItem(Minecraft mc, int slot) {
-		return slot < 36 ? mc.player.getInventory().getItem(slot) : PAGE_CONTAINER.getItem(slot - 36);
+	/**
+	 * For use with actual inventory slots in a swap click event
+	 */
+	public static void swapItem(Minecraft mc, int slot, int target) {
+		if (slot < 36) mc.gameMode.handleInventoryMouseClick(mc.player.inventoryMenu.containerId, slot, target, ClickType.SWAP, mc.player);
+		else {
+			mc.player.getInventory().setItem(
+					target,
+					PAGE_CONTAINER.swapItem(slot - 36, mc.player.getInventory().removeItemNoUpdate(target))
+			);
+			mc.player.inventoryMenu.broadcastChanges();
+		}
 	}
 	
 }

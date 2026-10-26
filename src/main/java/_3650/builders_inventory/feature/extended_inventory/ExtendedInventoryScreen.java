@@ -405,7 +405,7 @@ public class ExtendedInventoryScreen extends AbstractContainerScreen<ExtendedInv
 			this.minecraft.gameMode.handleCreativeModeItemDrop(this.menu.getCarried());
 			this.menu.setCarried(ItemStack.EMPTY);
 		} else if (type == ClickType.SWAP) {
-			ExtendedInventory.swap(this.minecraft, slotId + 36, mouseButton);
+			ExtendedInventory.swapItem(this.minecraft, slotId + 36, mouseButton);
 		} else {
 			this.menu.clicked(slotId, mouseButton, type, this.minecraft.player);
 		}
