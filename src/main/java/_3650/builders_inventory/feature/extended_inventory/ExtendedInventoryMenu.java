@@ -33,12 +33,12 @@ public class ExtendedInventoryMenu extends AbstractContainerMenu {
 		
 		// Creative Slots
 		for (int i = 0; i < playerInv.slots.size(); i++) {
-			if (i < 9 || i >= 45) continue;
+			if (i < InventoryMenu.INV_SLOT_START || i >= InventoryMenu.USE_ROW_SLOT_END) continue;
 			
-			int j = i - 9;
+			int j = i - InventoryMenu.INV_SLOT_START;
 			
 			int x = 26 + (j % 9) * 18;
-			int y = i < 36 ? (140 + (j / 9) * 18) : 198;
+			int y = i < InventoryMenu.USE_ROW_SLOT_START ? (140 + (j / 9) * 18) : 198;
 			
 			this.addSlot(new WrappedSlot(playerInv.slots.get(i), i, x, y));
 		}
@@ -98,7 +98,7 @@ public class ExtendedInventoryMenu extends AbstractContainerMenu {
 		}
 	}
 	
-	/** Basically just {@linkplain net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen.SlotWrapper CreativeModeInventoryScreen$SlotWrapper} */
+	/** Basically just {@code CreativeModeInventoryScreen.SlotWrapper} */
 	protected static class WrappedSlot extends Slot {
 		
 		public final Slot target;
@@ -141,6 +141,11 @@ public class ExtendedInventoryMenu extends AbstractContainerMenu {
 		@Override
 		public void setChanged() {
 			this.target.setChanged();
+		}
+		
+		@Override
+		public int getMaxStackSize() {
+			return this.target.getMaxStackSize();
 		}
 		
 		@Override
