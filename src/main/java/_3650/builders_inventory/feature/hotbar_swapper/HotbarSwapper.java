@@ -274,7 +274,7 @@ public class HotbarSwapper {
 	}
 	
 	private static void swap(Minecraft mc, int slot) {
-		ExtendedInventory.swap(mc, getSlot(row, slot), slot);
+		ExtendedInventory.swapHotbar(mc, getSlot(row, slot), slot);
 	}
 	
 	/*
